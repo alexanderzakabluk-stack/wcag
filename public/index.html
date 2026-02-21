@@ -33,7 +33,7 @@
       font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
       text-transform: uppercase; display: block; margin-bottom: 14px;
     }
-    .ew { color: rgba(255,255,255,.45); }
+    .ew { color: rgba(0,0,0,.42); }
     .eb { color: var(--black); }
 
     /* ── BUTTONS ──────────────────────────────── */
@@ -74,7 +74,6 @@
       flex-direction: column;
     }
 
-    /* Left column states */
     .lstate { display: none; }
     .lstate.active {
       display: flex;
@@ -82,35 +81,36 @@
       flex: 1;
     }
 
-    /* ── STATE 1 · INPUT ── */
+    /* ── STATE 1 · INPUT — white background ── */
     #s-input {
-      background: var(--dark);
+      background: var(--white);
       padding: 64px 56px;
       justify-content: center;
     }
     .hero-title {
-      font-size: 38px; font-weight: 700; color: var(--white);
+      font-size: 38px; font-weight: 700; color: var(--black);
       line-height: 1.07; margin-bottom: 18px; letter-spacing: -0.01em;
     }
     .hero-sub {
-      font-size: 16px; color: rgba(255,255,255,.72);
+      font-size: 16px; color: var(--mid);
       line-height: 1.65; max-width: 480px; margin-bottom: 40px;
     }
     .input-group { max-width: 480px; width: 100%; }
     .url-field {
       display: block; width: 100%; background: var(--white);
-      border: 2px solid var(--white); padding: 16px 20px;
+      border: 1px solid var(--black);
+      padding: 15px 20px;
       font-size: 17px; font-family: var(--font); color: var(--black);
       outline: none; border-radius: 0; margin-bottom: 4px;
       transition: border-color .15s;
     }
-    .url-field::placeholder { color: #9a9a9a; }
+    .url-field::placeholder { color: #aaa; }
     .url-field:focus { border-color: var(--accent); }
-    .url-field.err { border-color: #ff4444; }
-    .url-err { font-size: 12px; color: #ff5c5c; display: none; padding: 5px 0 10px; }
+    .url-field.err { border-color: #e53935; }
+    .url-err { font-size: 12px; color: #e53935; display: none; padding: 5px 0 10px; }
     .url-err.show { display: block; }
     .scan-note {
-      font-size: 11px; color: rgba(255,255,255,.35);
+      font-size: 11px; color: rgba(0,0,0,.35);
       text-align: center; margin-top: 12px; letter-spacing: 0.05em;
     }
 
@@ -165,7 +165,7 @@
     .f-err.show { display: block; }
     .gate-note { font-size: 12px; color: #999; text-align: center; margin-top: 12px; }
 
-    /* ── SUCCESS (inside gate) ── */
+    /* ── SUCCESS ── */
     .success-check {
       width: 56px; height: 56px; background: var(--black); color: var(--white);
       font-size: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -203,13 +203,13 @@
       min-height: 100vh;
     }
 
-    /* ── TERMINAL ANIMATION ── */
+    /* ── TERMINAL ANIMATION — white bg, muted report text ── */
     #r-terminal {
       flex: 1;
-      background: var(--dark);
+      background: var(--white);
       font-family: 'Courier New', Courier, monospace;
-      font-size: 12px;
-      line-height: 1.85;
+      font-size: 11.5px;
+      line-height: 1.9;
       padding: 64px 56px;
       display: flex;
       flex-direction: column;
@@ -217,14 +217,25 @@
       overflow: hidden;
       min-height: 100vh;
     }
-    #term-lines { display: flex; flex-direction: column; gap: 1px; }
-    .tl { white-space: pre; opacity: 0; transition: opacity 0.12s ease; }
+    #term-lines { display: flex; flex-direction: column; }
+    .tl { white-space: pre; opacity: 0; transition: opacity 0.10s ease; }
     .tl.show { opacity: 1; }
-    .tl-w { color: rgba(255,255,255,.82); }
-    .tl-d { color: rgba(255,255,255,.36); }
-    .tl-g { color: #4af068; }
-    .tl-r { color: #ff4444; }
-    .tl-o { color: #f5a623; }
+
+    /* All muted colors on white background */
+    .tl-head    { color: rgba(0,0,0,.50); }
+    .tl-meta    { color: rgba(0,0,0,.26); }
+    .tl-fail    { color: rgba(155,20,20,.52); }
+    .tl-rule    { color: rgba(0,0,0,.10); }
+    .tl-section { color: rgba(0,0,0,.44); letter-spacing: 0.04em; }
+    .tl-viol    { color: rgba(155,20,20,.46); }
+    .tl-body    { color: rgba(0,0,0,.24); }
+    .tl-fix     { color: rgba(0,95,45,.36); }
+    .tl-mod     { color: rgba(145,75,0,.44); }
+    .tl-p1      { color: rgba(155,20,20,.38); }
+    .tl-p2      { color: rgba(145,75,0,.34); }
+    .tl-p3      { color: rgba(0,95,45,.30); }
+    .tl-done    { color: rgba(0,0,0,.42); }
+    .tl-gap     { color: transparent; }
 
     /* ── RESULTS ── */
     #r-results {
@@ -234,7 +245,7 @@
       flex-direction: column;
     }
 
-    /* Score hub — horizontal (circle left, meta right) */
+    /* Score hub — horizontal */
     .score-hub {
       display: flex;
       align-items: center;
@@ -250,7 +261,6 @@
     }
     .circ-num   { font-size: 52px; font-weight: 700; line-height: 1; color: var(--black); }
     .circ-denom { font-size: 15px; color: var(--mid); margin-top: 2px; }
-
     .score-meta { display: flex; flex-direction: column; gap: 14px; }
     .score-eyebrow {
       font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
@@ -261,12 +271,9 @@
       font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
       text-transform: uppercase; padding: 7px 16px; border-radius: 2px;
     }
-    /* Prominent scanned URL */
-    .scanned-lbl {
-      font-size: 18px; font-weight: 700; color: var(--black);
-    }
+    .scanned-lbl { font-size: 18px; font-weight: 700; color: var(--black); }
 
-    /* ── ISSUES SECTION ── */
+    /* Issues section */
     .issues-section { padding: 40px 56px; flex: 1; }
     .section-head {
       font-size: 10px; font-weight: 700; letter-spacing: 0.24em;
@@ -293,12 +300,10 @@
       flex-shrink: 0; padding-top: 3px; letter-spacing: 0.04em;
     }
 
-    /* Locked rows */
     .locked-wrap { position: relative; }
     .locked-blur { filter: blur(4px); pointer-events: none; user-select: none; }
     .locked-overlay {
-      position: absolute; inset: 0;
-      background: rgba(255,255,255,.76);
+      position: absolute; inset: 0; background: rgba(255,255,255,.76);
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; text-align: center; gap: 6px;
     }
@@ -323,13 +328,13 @@
       .hero-title { font-size: 46px; }
     }
     @media (min-width: 901px) {
-      .form-rows  { grid-template-columns: 1fr 1fr; }
+      .form-rows   { grid-template-columns: 1fr 1fr; }
       .field-phone { grid-column: 1 / -1; }
     }
     @media (max-width: 900px) {
-      #layout { grid-template-columns: 1fr; }
+      #layout    { grid-template-columns: 1fr; }
       #col-left  { border-right: none; border-bottom: 1px solid var(--black); }
-      #r-terminal { min-height: 60vh; padding: 48px 32px; }
+      #r-terminal { min-height: 60vh; padding: 40px 28px; font-size: 10.5px; }
       .score-hub { padding: 40px 32px 32px; gap: 24px; }
       .issues-section { padding: 32px; }
       #s-input, #s-gate, #s-error { padding: 48px 32px; }
@@ -357,7 +362,7 @@
         <input type="url" id="url-input" class="url-field"
           placeholder="https://dinwebbplats.se" autocomplete="url" spellcheck="false">
         <div class="url-err" id="url-err">Ange din webbplatsadress</div>
-        <button class="btn" id="scan-btn" onclick="handleScan()" style="width:100%;">
+        <button class="btn" id="scan-btn" onclick="handleScan()" style="width:100%;margin-top:4px;">
           SKANNA MIN WEBBPLATS &rarr;
         </button>
         <p class="scan-note">Tar ~30 sekunder. Din data lagras aldrig.</p>
@@ -433,12 +438,12 @@
   <!-- ══════════════ RIGHT COLUMN ══════════════ -->
   <div id="col-right">
 
-    <!-- INITIAL: Terminal animation (shown until first scan completes) -->
+    <!-- INITIAL: WCAG report animation, loops continuously -->
     <div id="r-terminal">
       <div id="term-lines"></div>
     </div>
 
-    <!-- RESULTS: Score + violations (shown after scan) -->
+    <!-- RESULTS: Shown after scan completes -->
     <div id="r-results" class="hidden">
 
       <div class="score-hub">
@@ -522,7 +527,7 @@
   ═══════════════════════════════════════════════════════ */
   const API_SCAN   = 'https://wcag-production.up.railway.app/api/scan';
   const API_REPORT = 'https://wcag-production.up.railway.app/api/send-report';
-  const CIRC       = 427.26; // 2π × r(68)
+  const CIRC       = 427.26;
 
   const LOAD_MSGS = [
     'Ansluter till din webbplats...',
@@ -533,22 +538,93 @@
     'Beräknar ditt betyg...'
   ];
 
-  /* Terminal lines: { t: text, c: color class (w/d/g/r/o) } */
+  /* ── WCAG report animation lines ── */
+  /* c = color class suffix: head/meta/fail/rule/section/viol/body/fix/mod/p1/p2/p3/done/gap */
   const TERM_LINES = [
-    { t: 'Initializing WCAG 2.2 audit engine...', c: 'w' },
-    { t: 'Loading ruleset: wcag2a, wcag2aa, wcag2aaa', c: 'd' },
-    { t: 'Connecting to target URL...', c: 'w' },
-    { t: '[■■■□□□□□□□] 30% \u2014 Checking 1.1.1 Non-text Content', c: 'w' },
-    { t: '[■■■■■□□□□□] 50% \u2014 Checking 1.4.3 Contrast (Minimum)', c: 'w' },
-    { t: '[■■■■■■■□□□] 70% \u2014 Checking 2.1.1 Keyboard Access', c: 'g' },
-    { t: '[■■■■■■■■□□] 80% \u2014 Checking 4.1.2 Name, Role, Value', c: 'g' },
-    { t: '[■■■■■■■■■□] 90% \u2014 Checking 2.4.7 Focus Visible', c: 'g' },
-    { t: 'CRITICAL: img[alt] missing \u2014 3 elements', c: 'r' },
-    { t: 'SERIOUS: contrast ratio 2.8:1 \u2014 expected 4.5:1', c: 'r' },
-    { t: 'MODERATE: label missing on input#email', c: 'o' },
-    { t: 'Calculating conformance level...', c: 'w' },
-    { t: 'Running final checks...', c: 'd' },
-    { t: '[■■■■■■■■■■] 100% \u2014 Audit complete', c: 'g' },
+    { t: '# WCAG 2.2 Audit Report \u2014 example.se',         c: 'head' },
+    { t: '',                                                    c: 'gap'  },
+    { t: 'Audit Date:    2026-01-15',                          c: 'meta' },
+    { t: 'Auditor:       WCAG 2.2 audit engine v2.2',          c: 'meta' },
+    { t: 'Target:        WCAG 2.2 Level AA',                   c: 'meta' },
+    { t: 'Result:        \u2717 Does not conform',             c: 'fail' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                  c: 'rule' },
+    { t: '',                                                    c: 'gap'  },
+    { t: 'VIOLATIONS \u2014 LEVEL A',                          c: 'section' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[1] Missing lang attribute \u2014 WCAG 3.1.1',       c: 'viol' },
+    { t: '    Screen readers cannot determine page language.',  c: 'body' },
+    { t: '    Fix: <html lang="sv">',                          c: 'fix'  },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[2] 6 images missing alt text \u2014 1.1.1',         c: 'viol' },
+    { t: '    Screen reader users receive no image info.',      c: 'body' },
+    { t: '    Fix: Add descriptive alt to all images.',         c: 'fix'  },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[3] No skip navigation link \u2014 2.4.1',           c: 'viol' },
+    { t: '    Keyboard users tab through full nav every load.', c: 'body' },
+    { t: '    Fix: <a href="#main" class="skip-link">...</a>',  c: 'fix'  },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[4] Broken heading hierarchy \u2014 1.3.1',          c: 'viol' },
+    { t: '    H1 \u2192 H3 \u2192 H5  (levels skipped)',       c: 'body' },
+    { t: '    Fix: Sequential H1 \u2192 H2 \u2192 H3',         c: 'fix'  },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[5] Links without accessible names \u2014 2.4.4',    c: 'viol' },
+    { t: '    Screen readers announce "link" with no context.', c: 'body' },
+    { t: '    Fix: aria-label on all icon and image links.',    c: 'fix'  },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[6] ARIA widget pattern missing \u2014 4.1.2',       c: 'viol' },
+    { t: '    Tab component behaves as unlabeled buttons.',     c: 'body' },
+    { t: '    Fix: role="tablist", aria-selected, tabindex',    c: 'fix'  },
+    { t: '',                                                    c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                  c: 'rule' },
+    { t: '',                                                    c: 'gap'  },
+    { t: 'VIOLATIONS \u2014 LEVEL AA',                         c: 'section' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[7] Focus indicators removed sitewide \u2014 2.4.7', c: 'viol' },
+    { t: '    Zero keyboard focus visibility on any element.',  c: 'body' },
+    { t: '    Fix: :focus-visible { outline: 3px solid #005fcc; }', c: 'fix' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[8] Color contrast failures \u2014 1.4.3',           c: 'viol' },
+    { t: '    Panel A (teal):    2.26:1  required 4.5:1  \u2717', c: 'body' },
+    { t: '    Panel B (orange):  2.94:1  required 4.5:1  \u2717', c: 'body' },
+    { t: '    Fix: Darken backgrounds or use dark text.',       c: 'fix'  },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[9] Form inputs missing labels \u2014 1.3.1',        c: 'viol' },
+    { t: '    Input purpose not programmatically determined.',  c: 'body' },
+    { t: '    Fix: <label for="id"> associated with each input.', c: 'fix' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                  c: 'rule' },
+    { t: '',                                                    c: 'gap'  },
+    { t: 'MODERATE ISSUES',                                    c: 'section' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[10] Duplicate link text \u2014 2.4.4',              c: 'mod'  },
+    { t: '     Multiple "L\u00e4s mer" links to different pages.', c: 'body' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[11] Alt text language mismatch \u2014 3.1.2',       c: 'mod'  },
+    { t: '     Image description in wrong language detected.',  c: 'body' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '[12] Redundant markup inside headings',              c: 'mod'  },
+    { t: '     <strong> wrapping full heading element text.',   c: 'body' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                  c: 'rule' },
+    { t: '',                                                    c: 'gap'  },
+    { t: 'REMEDIATION PRIORITY',                               c: 'section' },
+    { t: '',                                                    c: 'gap'  },
+    { t: 'P1  Fix lang attribute           5 min',             c: 'p1'   },
+    { t: 'P1  Restore focus outlines       30 min CSS',        c: 'p1'   },
+    { t: 'P1  Fix contrast on panels       1 hr',              c: 'p1'   },
+    { t: 'P2  Fix alt text on 6 images     1 hr',              c: 'p2'   },
+    { t: 'P2  Add skip navigation link     30 min',            c: 'p2'   },
+    { t: 'P2  Fix heading hierarchy        2 hr',              c: 'p2'   },
+    { t: 'P2  Fix empty link names         1 hr',              c: 'p2'   },
+    { t: 'P3  Implement ARIA tabs pattern  4 hr',              c: 'p3'   },
+    { t: '',                                                    c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                  c: 'rule' },
+    { t: '',                                                    c: 'gap'  },
+    { t: 'Report complete. 9 violations found.',               c: 'done' },
+    { t: '',                                                    c: 'gap'  },
+    { t: '',                                                    c: 'gap'  },
+    { t: '',                                                    c: 'gap'  },
   ];
 
   /* ═══════════════════════════════════════════════════════
@@ -584,7 +660,7 @@
   }
 
   /* ═══════════════════════════════════════════════════════
-     STATE 1 — URL INPUT
+     URL INPUT
   ═══════════════════════════════════════════════════════ */
   function isValidUrl(str) {
     const w = /^https?:\/\//i.test(str) ? str : 'https://' + str;
@@ -635,7 +711,7 @@
   });
 
   /* ═══════════════════════════════════════════════════════
-     STATE 2 — LOADING + API CALL
+     LOADING + API CALL
   ═══════════════════════════════════════════════════════ */
   function startLoading() {
     loadTimers.forEach(clearTimeout);
@@ -708,7 +784,7 @@
   }
 
   /* ═══════════════════════════════════════════════════════
-     CONFORMANCE LOGIC (computed from issues, not from API)
+     CONFORMANCE (computed from issues array)
   ═══════════════════════════════════════════════════════ */
   function computeConformance(issues) {
     if (!issues || issues.length === 0) return 'level-aaa';
@@ -764,19 +840,17 @@
   }
 
   /* ═══════════════════════════════════════════════════════
-     SCORE ANIMATION — uses computed conformance
+     SCORE ANIMATION
   ═══════════════════════════════════════════════════════ */
   function animateScore() {
     const data   = apiResult || { score: 0, issues: [] };
     const score  = data.score || 0;
-    const issues = data.issues || [];
-    const conf   = computeConformance(issues);
+    const conf   = computeConformance(data.issues || []);
 
     const arc   = document.getElementById('score-arc');
     const num   = document.getElementById('score-num');
     const badge = document.getElementById('conf-badge');
 
-    /* Badge colors per spec */
     let colour, label;
     if      (conf === 'level-aaa') { colour = '#388e3c'; label = 'NIVÅ AAA'; }
     else if (conf === 'level-aa')  { colour = '#1976d2'; label = 'NIVÅ AA';  }
@@ -800,7 +874,7 @@
   }
 
   /* ═══════════════════════════════════════════════════════
-     STATE 3 — GATE FORM
+     GATE FORM
   ═══════════════════════════════════════════════════════ */
   function handleGate() {
     const nameEl  = document.getElementById('f-name');
@@ -867,7 +941,7 @@
   }
 
   /* ═══════════════════════════════════════════════════════
-     TERMINAL ANIMATION
+     TERMINAL / REPORT ANIMATION
   ═══════════════════════════════════════════════════════ */
   let termActive  = true;
   let termTimeout = null;
@@ -879,52 +953,54 @@
 
     function next() {
       if (!termActive) return;
+
+      /* End of cycle: fade all, clear, restart */
       if (li === TERM_LINES.length) {
-        /* End of cycle: fade out all, clear, restart */
         li = 0;
         [...out.children].forEach(el => el.classList.remove('show'));
         termTimeout = setTimeout(() => {
           if (!termActive) return;
           out.innerHTML = '';
-          termTimeout = setTimeout(next, 300);
-        }, 700);
+          termTimeout = setTimeout(next, 400);
+        }, 1000);
         return;
       }
 
       const { t, c } = TERM_LINES[li++];
       const el = document.createElement('div');
       el.className = 'tl tl-' + c;
-      el.textContent = t;
+      el.textContent = t || '\u00a0'; /* non-breaking space for empty gap lines */
       out.appendChild(el);
-      /* Keep DOM lean — max 18 visible lines */
-      if (out.children.length > 18) out.removeChild(out.firstChild);
+
+      /* Keep DOM at max 42 lines (rolling window) */
+      if (out.children.length > 42) out.removeChild(out.firstChild);
+
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
-      termTimeout = setTimeout(next, 75 + Math.random() * 85);
+
+      /* Gap lines appear instantly; other lines stream with delay */
+      const delay = (c === 'gap') ? 0 : 65 + Math.random() * 75;
+      termTimeout = setTimeout(next, delay);
     }
 
     next();
 
-    /* Flicker: randomly tweak digits to simulate live scanning */
+    /* Subtle flicker on contrast ratio values to suggest live measurement */
     termFlicker = setInterval(() => {
       if (!termActive) return;
-      [...out.querySelectorAll('.tl')].forEach(el => {
-        if (Math.random() > 0.87) {
+      [...out.querySelectorAll('.tl-body')].forEach(el => {
+        if (Math.random() > 0.90 && el.textContent.match(/\d\.\d+:\d/)) {
           const orig = el.textContent;
-          /* Flicker % values */
-          let s = orig.replace(/(\d+)%/g, (_, n) => {
-            return Math.max(1, Math.min(99, +n + (Math.random() > .5 ? 1 : -1))) + '%';
+          const s = orig.replace(/(\d+)\.(\d+):1/, (_, a, b) => {
+            const d = Math.random() > .5 ? 1 : -1;
+            return a + '.' + Math.max(10, Math.min(99, +b + d)) + ':1';
           });
-          /* Flicker element counts on red/orange lines */
-          if (el.classList.contains('tl-r') || el.classList.contains('tl-o')) {
-            s = s.replace(/\u2014 (\d+)/, (_, n) => '\u2014 ' + Math.max(1, +n + (Math.random() > .6 ? 1 : 0)));
-          }
           if (s !== orig) {
             el.textContent = s;
-            setTimeout(() => { if (el.parentNode) el.textContent = orig; }, 90);
+            setTimeout(() => { if (el.parentNode) el.textContent = orig; }, 120);
           }
         }
       });
-    }, 380);
+    }, 700);
   }
 
   function stopTerminal() {
