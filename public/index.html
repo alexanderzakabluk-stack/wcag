@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gratis WCAG 2.2 Tillgänglighetspoäng — Devies</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --dark:    #0d0c11;
+      --white:   #ffffff;
+      --grey-bg: #f1f2f2;
+      --black:   #000000;
+      --accent:  #007396;
+      --mid:     #4d4d4d;
+      --border:  #e0e0e0;
+      --red:     #d32f2f;
+      --orange:  #f57c00;
+      --green:   #388e3c;
+      --font:    'Clofie', Helvetica, Arial, sans-serif;
+      --circ:    427.26;
+    }
+
+    html  { font-family: var(--font); line-height: 1.5; color: var(--black); }
+    body  { background: var(--dark); }
+    img   { display: block; }
+
+    /* ── STATES ─────────────────────────────────── */
+    .state { display: none; }
+    .state.active { display: block; }
+    #s-input.active,
+    #s-loading.active,
+    #s-error.active { display: flex; }
+
+    /* ── UTILITIES ──────────────────────────────── */
+    .hidden { display: none !important; }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 14px;
+    }
+    .ew { color: rgba(255,255,255,.52); }
+    .eb { color: var(--black); }
+
+    /* ── BUTTONS ────────────────────────────────── */
+    .btn {
+      display: inline-block;
+      background: var(--black);
+      color: var(--white);
+      border: 2px solid var(--black);
+      padding: 15px 32px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      border-radius: 0;
+      transition: background .18s, border-color .18s, color .18s;
+      text-align: center;
+      width: 100%;
+    }
+    .btn:hover { background: var(--accent); border-color: var(--accent); }
+
+    .btn-inv {
+      background: var(--white);
+      color: var(--black);
+      border-color: var(--white);
+    }
+    .btn-inv:hover { background: #e6e6e6; border-color: #e6e6e6; color: var(--black); }
+
+    /* ── SPINNER ────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,.28);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── SHARED PHOTO BACKGROUND ─────────────── */
+    .photo-bg {
+      background:
+        linear-gradient(135deg, rgba(13,12,17,0.90) 0%, rgba(0,55,72,0.84) 60%, rgba(13,12,17,0.92) 100%),
+        url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80') center / cover fixed no-repeat;
+    }
+
+    /* ════════════════════════════════════════════
+       STATE 1 — INPUT
+    ════════════════════════════════════════════ */
+    #s-input {
+      min-height: 100vh;
+      flex-direction: column;
+      padding: 32px 24px 60px;
+    }
+
+    .hero-logo { height: 30px; margin-bottom: 60px; align-self: flex-end; }
+
+    .hero-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 640px;
+    }
+
+    .hero-title {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.07;
+      margin-bottom: 18px;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: rgba(255,255,255,.72);
+      line-height: 1.65;
+      max-width: 520px;
+      margin-bottom: 44px;
+    }
+
+    .input-group { max-width: 600px; width: 100%; }
+
+    .url-field {
+      display: block;
+      width: 100%;
+      background: var(--white);
+      border: 2px solid var(--white);
+      padding: 16px 20px;
+      font-size: 17px;
+      font-family: var(--font);
+      color: var(--black);
+      outline: none;
+      border-radius: 0;
+      margin-bottom: 4px;
+      transition: border-color .15s;
+    }
+    .url-field::placeholder { color: #9a9a9a; }
+    .url-field:focus { border-color: var(--accent); }
+    .url-field.err { border-color: #ff4444; }
+
+    .url-err {
+      font-size: 12px;
+      color: #ff5c5c;
+      display: none;
+      padding: 5px 0 10px;
+    }
+    .url-err.show { display: block; }
+
+    .scan-note {
+      font-size: 11px;
+      color: rgba(255,255,255,.38);
+      text-align: center;
+      margin-top: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ════════════════════════════════════════════
+       STATE 2 — LOADING
+    ════════════════════════════════════════════ */
+    #s-loading {
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+      position: relative;
+      text-align: center;
+    }
+
+    .load-logo {
+      position: absolute;
+      top: 32px; left: 24px;
+      height: 28px;
+    }
+
+    .load-pct {
+      font-size: 108px;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 22px;
+    }
+
+    .load-msg {
+      font-size: 15px;
+      color: rgba(255,255,255,.6);
+      letter-spacing: 0.03em;
+      margin-bottom: 38px;
+      min-height: 22px;
+      transition: opacity .5s;
+    }
+    .load-msg.fade { opacity: 0; }
+
+    .prog-track {
+      width: min(400px, 100%);
+      height: 3px;
+      background: rgba(255,255,255,.1);
+    }
+    .prog-fill {
+      height: 100%;
+      background: var(--white);
+      width: 0%;
+      transition: width 20s linear;
+    }
+
+    /* ════════════════════════════════════════════
+       STATE 3 — RESULTS
+    ════════════════════════════════════════════ */
+    #s-results { background: var(--white); }
+
+    .results-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 72px 24px 0;
+    }
+
+    /* Score hub */
+    .score-hub {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .circ-wrap {
+      position: relative;
+      display: inline-block;
+      margin: 24px 0 18px;
+    }
+
+    .circ-svg {
+      transform: rotate(-90deg);
+      display: block;
+    }
+
+    .circ-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .circ-num {
+      font-size: 52px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--black);
+    }
+
+    .circ-denom {
+      font-size: 15px;
+      color: var(--mid);
+      margin-top: 2px;
+    }
+
+    .conf-badge {
+      display: inline-block;
+      background: var(--black);
+      color: var(--white);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 2px;
+      margin-top: 16px;
+    }
+
+    .scanned-lbl {
+      font-size: 12px;
+      color: var(--mid);
+      margin-top: 10px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Issues */
+    .section-head {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--black);
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .issue-row {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chip {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--white);
+      padding: 4px 8px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+    .chip-c { background: var(--red); }
+    .chip-s { background: var(--orange); }
+    .chip-m { background: #757575; }
+
+    .issue-body { flex: 1; min-width: 0; }
+
+    .issue-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .issue-desc {
+      font-size: 13px;
+      color: var(--mid);
+      line-height: 1.55;
+    }
+
+    .wcag-ref {
+      font-size: 11px;
+      color: #aaa;
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding-top: 3px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Locked rows */
+    .locked-wrap { position: relative; }
+
+    .locked-blur {
+      filter: blur(4px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .locked-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,.76);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 6px;
+    }
+
+    .locked-icon  { font-size: 26px; line-height: 1; }
+    .locked-count { font-size: 20px; font-weight: 700; }
+    .locked-hint  { font-size: 13px; color: var(--mid); }
+
+    /* Powered by */
+    .powered-row {
+      text-align: center;
+      font-size: 10px;
+      color: #d0d0d0;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 24px 0 0;
+    }
+
+    /* ════════════════════════════════════════════
+       STATE 4 — GATE
+    ════════════════════════════════════════════ */
+    #gate {
+      background: var(--grey-bg);
+      padding: 64px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .gate-inner { max-width: 600px; margin: 0 auto; }
+
+    .gate-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .gate-sub {
+      font-size: 15px;
+      color: var(--mid);
+      line-height: 1.65;
+      margin-bottom: 36px;
+    }
+
+    .form-rows {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .f-group { display: flex; flex-direction: column; }
+
+    .f-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 7px;
+    }
+
+    .f-ctrl {
+      background: var(--white);
+      border: 1px solid var(--black);
+      padding: 13px 16px;
+      font-size: 15px;
+      font-family: var(--font);
+      color: var(--black);
+      outline: none;
+      border-radius: 0;
+      width: 100%;
+      transition: border-color .15s;
+    }
+    .f-ctrl:focus { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: -1px; }
+    .f-ctrl.err { border-color: var(--red); }
+
+    .f-err {
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 5px;
+      display: none;
+    }
+    .f-err.show { display: block; }
+
+    .gate-note {
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* ════════════════════════════════════════════
+       STATE 5 — SUCCESS
+    ════════════════════════════════════════════ */
+    .success-check {
+      width: 60px; height: 60px;
+      background: var(--black);
+      color: var(--white);
+      font-size: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+      flex-shrink: 0;
+    }
+
+    .success-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .success-title {
+      font-size: 30px;
+      font-weight: 700;
+    }
+
+    .success-body {
+      font-size: 16px;
+      color: var(--mid);
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    .cta-dark {
+      background: var(--black);
+      padding: 32px;
+    }
+
+    .cta-dark .eyebrow { color: rgba(255,255,255,.38); margin-bottom: 10px; }
+
+    .cta-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 10px;
+      line-height: 1.25;
+    }
+
+    .cta-body {
+      font-size: 14px;
+      color: rgba(255,255,255,.62);
+      line-height: 1.65;
+      margin-bottom: 22px;
+    }
+
+    /* ════════════════════════════════════════════
+       STATE 6 — ERROR
+    ════════════════════════════════════════════ */
+    #s-error {
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 24px;
+      position: relative;
+    }
+
+    .err-logo {
+      position: absolute;
+      top: 32px; left: 24px;
+      height: 28px;
+    }
+
+    .err-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 14px;
+      max-width: 440px;
+      line-height: 1.2;
+    }
+
+    .err-body {
+      font-size: 16px;
+      color: rgba(255,255,255,.58);
+      max-width: 400px;
+      margin-bottom: 36px;
+      line-height: 1.65;
+    }
+
+    /* ════════════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════════════ */
+    #site-footer {
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .ft-left  { display: flex; align-items: center; gap: 14px; }
+    .ft-logo  { height: 22px; }
+    .ft-copy  { font-size: 12px; color: var(--mid); }
+    .ft-email { font-size: 12px; color: var(--accent); text-decoration: none; }
+    .ft-email:hover { text-decoration: underline; }
+
+    /* ════════════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════════════ */
+    @media (min-width: 768px) {
+      #s-input       { padding: 48px 64px 80px; }
+      .hero-title    { font-size: 56px; }
+      .hero-sub      { font-size: 19px; }
+      .btn           { width: auto; }
+      #scan-btn,
+      #gate-btn      { width: 100%; max-width: 600px; }
+      .load-pct      { font-size: 136px; }
+      .results-inner { padding: 80px 48px 0; }
+      .form-rows     { grid-template-columns: 1fr 1fr; }
+      .field-phone   { grid-column: 1 / -1; }
+      #gate          { padding: 72px 48px; }
+      .issue-row     { padding: 20px 0; gap: 18px; }
+    }
+
+    @media (max-width: 420px) {
+      .wcag-ref { display: none; }
+    }
+  </style>
+</head>
+<body style="background:#0d0c11;">
+
+<!-- ═══════════════════════════════════
+     STATE 1 · INPUT
+════════════════════════════════════ -->
+<div id="s-input" class="state active photo-bg">
+  <img
+    src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg"
+    alt="Devies Group" class="hero-logo">
+
+  <div class="hero-inner">
+    <span class="eyebrow ew">GRATIS VERKTYG &nbsp;·&nbsp; WCAG 2.2</span>
+    <h1 class="hero-title">Klarar Din Webbplats<br>WCAG&nbsp;2.2?</h1>
+    <p class="hero-sub">Få ett omedelbart tillgänglighetsbetyg och ta reda på om din webbplats utsätter dig för juridiska risker. Gratis. Ingen inloggning.</p>
+
+    <div class="input-group">
+      <input
+        type="url"
+        id="url-input"
+        class="url-field"
+        placeholder="https://dinwebbplats.se"
+        autocomplete="url"
+        spellcheck="false">
+      <div class="url-err" id="url-err">Ange din webbplatsadress</div>
+      <button class="btn" id="scan-btn" onclick="handleScan()" style="max-width:600px;width:100%;">
+        SKANNA MIN WEBBPLATS &rarr;
+      </button>
+      <p class="scan-note">Tar ~30 sekunder. Din data lagras aldrig.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     STATE 2 · LOADING
+════════════════════════════════════ -->
+<div id="s-loading" class="state photo-bg">
+  <img
+    src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg"
+    alt="Devies Group" class="load-logo">
+  <div class="load-pct" id="load-pct">0%</div>
+  <div class="load-msg" id="load-msg">Ansluter till din webbplats...</div>
+  <div class="prog-track">
+    <div class="prog-fill" id="prog-fill"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     STATE 3 · RESULTS
+════════════════════════════════════ -->
+<div id="s-results" class="state">
+
+  <div class="results-inner">
+
+    <!-- Score circle -->
+    <div class="score-hub">
+      <span class="eyebrow eb">DITT WCAG 2.2 BETYG</span>
+
+      <div class="circ-wrap">
+        <svg class="circ-svg" width="160" height="160" viewBox="0 0 160 160" aria-hidden="true">
+          <circle cx="80" cy="80" r="68" fill="none" stroke="#ececec" stroke-width="8"/>
+          <circle
+            id="score-arc"
+            cx="80" cy="80" r="68"
+            fill="none"
+            stroke="#d32f2f"
+            stroke-width="8"
+            stroke-dasharray="427.26"
+            stroke-dashoffset="427.26"
+            stroke-linecap="butt"
+            style="transition: stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1), stroke .3s ease;"/>
+        </svg>
+        <div class="circ-text">
+          <span class="circ-num" id="score-num">0</span>
+          <span class="circ-denom">/100</span>
+        </div>
+      </div>
+
+      <div><span class="conf-badge" id="conf-badge">EJ GODKÄND</span></div>
+      <p class="scanned-lbl" id="scanned-lbl">Skannad: example.com</p>
+    </div>
+
+    <!-- Visible issues — rendered dynamically from API -->
+    <p class="section-head">HITTADE PROBLEM</p>
+    <div id="visible-issues"></div>
+
+    <!-- Locked issues -->
+    <div class="locked-wrap">
+      <div class="locked-blur">
+        <div class="issue-row">
+          <span class="chip chip-c">Kritisk</span>
+          <div class="issue-body">
+            <p class="issue-title">Ingen tangentbordsåtkomst</p>
+            <p class="issue-desc">Interaktiva element kan inte nås enbart med tangentbordet.</p>
+          </div>
+          <span class="wcag-ref">2.1.1 · Nivå A</span>
+        </div>
+        <div class="issue-row">
+          <span class="chip chip-s">Allvarlig</span>
+          <div class="issue-body">
+            <p class="issue-title">Saknar sidspråk</p>
+            <p class="issue-desc">HTML lang-attributet saknas, vilket förvirrar skärmläsare.</p>
+          </div>
+          <span class="wcag-ref">3.1.1 · Nivå A</span>
+        </div>
+        <div class="issue-row">
+          <span class="chip chip-m">Måttlig</span>
+          <div class="issue-body">
+            <p class="issue-title">Saknar hoppnavigering</p>
+            <p class="issue-desc">Tangentbordsanvändare måste tabba igenom all navigering vid varje sidinläsning.</p>
+          </div>
+          <span class="wcag-ref">2.4.1 · Nivå A</span>
+        </div>
+      </div>
+
+      <div class="locked-overlay">
+        <div class="locked-icon">🔒</div>
+        <p class="locked-count" id="locked-count">9 FLER PROBLEM HITTADE</p>
+        <p class="locked-hint">Lås upp din fullständiga rapport nedan</p>
+      </div>
+    </div>
+
+    <p class="powered-row">Drivs av Devies</p>
+
+  </div><!-- /results-inner -->
+
+
+  <!-- ═══════════════════════════════════
+       STATE 4 · GATE
+  ════════════════════════════════════ -->
+  <div id="gate">
+    <div class="gate-inner">
+
+      <span class="eyebrow eb">GRATIS FULLSTÄNDIG RAPPORT</span>
+      <h2 class="gate-title">Få Alla Problem + Hur Du Åtgärdar Dem</h2>
+      <p class="gate-sub">Vi skickar en komplett PDF till din inkorg med alla överträdelser, WCAG-referenser och steg-för-steg-åtgärder.</p>
+
+      <!-- Form -->
+      <div id="gate-form">
+        <div class="form-rows">
+          <div class="f-group">
+            <label class="f-label" for="f-name">Fullständigt namn *</label>
+            <input type="text" id="f-name" class="f-ctrl" placeholder="Anna Lindqvist" autocomplete="name">
+            <span class="f-err" id="err-name">Ange ditt namn</span>
+          </div>
+          <div class="f-group">
+            <label class="f-label" for="f-email">E-postadress *</label>
+            <input type="email" id="f-email" class="f-ctrl" placeholder="anna@foretag.se" autocomplete="email">
+            <span class="f-err" id="err-email">Ange en giltig e-postadress</span>
+          </div>
+          <div class="f-group field-phone">
+            <label class="f-label" for="f-phone">Telefon (valfritt)</label>
+            <input type="tel" id="f-phone" class="f-ctrl" placeholder="+46 70 000 00 00" autocomplete="tel">
+          </div>
+        </div>
+        <button class="btn" id="gate-btn" onclick="handleGate()" style="width:100%;">
+          SKICKA MIG HELA RAPPORTEN &rarr;
+        </button>
+        <p class="gate-note">PDF skickas inom sekunder. Aldrig spam. Du kan avregistrera dig när som helst.</p>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           STATE 5 · SUCCESS  (replaces form)
+      ════════════════════════════════════ -->
+      <div id="success-wrap" class="hidden">
+        <div class="success-row">
+          <div class="success-check">&#10003;</div>
+          <h2 class="success-title">Rapport skickad!</h2>
+        </div>
+        <p class="success-body" id="success-msg">
+          Kolla din inkorg. Din fullständiga WCAG-rapport är på väg.
+        </p>
+        <hr class="divider">
+        <div class="cta-dark">
+          <span class="eyebrow">VILL DU HA EXPERTHJÄLP?</span>
+          <h3 class="cta-title">Boka en Gratis 30-Min WCAG-konsultation</h3>
+          <p class="cta-body">Vårt team har hjälpt 50+ företag att åtgärda tillgänglighetsproblem och klara WCAG-granskningar.</p>
+          <a href="#" class="btn btn-inv">BOKA GRATIS SAMTAL &rarr;</a>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /gate -->
+
+</div><!-- /s-results -->
+
+
+<!-- ═══════════════════════════════════
+     STATE 6 · ERROR
+════════════════════════════════════ -->
+<div id="s-error" class="state photo-bg">
+  <img
+    src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg"
+    alt="Devies Group" class="err-logo">
+  <h2 class="err-title">Hmm, vi kunde inte nå den webbadressen</h2>
+  <p class="err-body">Kontrollera att webbplatsen är offentligt tillgänglig (inte bakom en inloggning) och försök igen.</p>
+  <button class="btn" onclick="resetToInput()">FÖRSÖK IGEN &rarr;</button>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     FOOTER — always at bottom
+════════════════════════════════════ -->
+<footer id="site-footer">
+  <div class="ft-left">
+    <img
+      src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg"
+      alt="Devies Group" class="ft-logo">
+    <span class="ft-copy">&copy; 2026 Devies Group</span>
+  </div>
+  <a href="mailto:hello@devies.se" class="ft-email">hello@devies.se</a>
+</footer>
+
+
+<script>
+  /* ─────────────────────────────────────────────
+     STATE MACHINE
+  ───────────────────────────────────────────── */
+  const STATES = {
+    INPUT:   'input',
+    LOADING: 'loading',
+    RESULTS: 'results',
+    SUCCESS: 'success',
+    ERROR:   'error'
+  };
+
+  const API_URL   = 'https://wcag-production.up.railway.app/api/scan';
+  const CIRC      = 427.26; // 2π × 68
+  const LOAD_MSGS = [
+    'Ansluter till din webbplats...',
+    'Kör WCAG 2.2 tillgänglighetskontroller...',
+    'Kontrollerar färgkontrastförhållanden...',
+    'Testar tangentbordsnavigering...',
+    'Analyserar ARIA-etiketter och roller...',
+    'Beräknar ditt betyg...'
+  ];
+
+  let currentState  = STATES.INPUT;
+  let enteredUrl    = '';
+  let enteredEmail  = '';
+  let loadTimers    = [];
+  let loadIntervals = [];
+  let apiResult     = null;
+
+  const elInput   = document.getElementById('s-input');
+  const elLoading = document.getElementById('s-loading');
+  const elResults = document.getElementById('s-results');
+  const elError   = document.getElementById('s-error');
+  const elFooter  = document.getElementById('site-footer');
+
+  /* ─── showState ─── */
+  function showState(s) {
+    [elInput, elLoading, elResults, elError].forEach(el => el.classList.remove('active'));
+    currentState = s;
+
+    if (s === STATES.INPUT) {
+      elInput.classList.add('active');
+      document.body.style.background = '#0d0c11';
+      elFooter.style.display = 'flex';
+
+    } else if (s === STATES.LOADING) {
+      elLoading.classList.add('active');
+      document.body.style.background = '#0d0c11';
+      elFooter.style.display = 'none';
+      startLoading();
+
+    } else if (s === STATES.RESULTS) {
+      elResults.classList.add('active');
+      document.body.style.background = '#ffffff';
+      elFooter.style.display = 'flex';
+      setTimeout(animateScore, 100);
+
+    } else if (s === STATES.ERROR) {
+      elError.classList.add('active');
+      document.body.style.background = '#0d0c11';
+      elFooter.style.display = 'none';
+    }
+  }
+
+  /* ─────────────────────────────────────────────
+     STATE 1 — INPUT HANDLER
+  ───────────────────────────────────────────── */
+  function isValidUrl(str) {
+    const withProto = /^https?:\/\//i.test(str) ? str : 'https://' + str;
+    let parsed;
+    try { parsed = new URL(withProto); } catch (_) { return false; }
+    if (!/^https?:$/.test(parsed.protocol)) return false;
+    const host = parsed.hostname;
+    if (!host.includes('.')) return false;
+    const tld = host.split('.').pop();
+    if (!/^[a-z]{2,}$/i.test(tld)) return false;
+    if (/^\d+$/.test(host.replace(/\./g, ''))) return false;
+    return true;
+  }
+
+  function showUrlError(msg) {
+    const inp   = document.getElementById('url-input');
+    const errEl = document.getElementById('url-err');
+    inp.classList.add('err');
+    errEl.textContent = msg;
+    errEl.classList.add('show');
+    inp.focus();
+  }
+
+  function handleScan() {
+    const inp   = document.getElementById('url-input');
+    const errEl = document.getElementById('url-err');
+    let url = inp.value.trim();
+
+    inp.classList.remove('err');
+    errEl.classList.remove('show');
+
+    if (!url) {
+      showUrlError('Ange din webbplatsadress');
+      return;
+    }
+    if (!isValidUrl(url)) {
+      showUrlError('Ange en giltig webbadress — t.ex. https://example.com');
+      return;
+    }
+    if (!/^https?:\/\//i.test(url)) {
+      url = 'https://' + url;
+      inp.value = url;
+    }
+
+    enteredUrl = url;
+
+    try {
+      const host = new URL(url).hostname;
+      document.getElementById('scanned-lbl').textContent = 'Skannad: ' + host;
+    } catch (_) {
+      document.getElementById('scanned-lbl').textContent = 'Skannad: ' + url;
+    }
+
+    showState(STATES.LOADING);
+  }
+
+  document.getElementById('url-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleScan();
+  });
+
+  /* ─────────────────────────────────────────────
+     STATE 2 — LOADING + REAL API CALL
+  ───────────────────────────────────────────── */
+  function startLoading() {
+    loadTimers.forEach(clearTimeout);
+    loadIntervals.forEach(clearInterval);
+    loadTimers    = [];
+    loadIntervals = [];
+
+    const fill = document.getElementById('prog-fill');
+    const pct  = document.getElementById('load-pct');
+    const msg  = document.getElementById('load-msg');
+
+    fill.style.transition = 'none';
+    fill.style.width      = '0%';
+    pct.textContent       = '0%';
+    msg.textContent       = LOAD_MSGS[0];
+    msg.classList.remove('fade');
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fill.style.transition = 'width 30s linear';
+      fill.style.width      = '95%';
+    }));
+
+    const t0 = Date.now();
+    function tickPct() {
+      if (currentState !== STATES.LOADING) return;
+      const p = Math.min((Date.now() - t0) / 30000, 1);
+      pct.textContent = Math.floor(p * 95) + '%';
+      if (p < 1) requestAnimationFrame(tickPct);
+    }
+    requestAnimationFrame(tickPct);
+
+    let mi = 0;
+    const cycleId = setInterval(() => {
+      if (currentState !== STATES.LOADING) { clearInterval(cycleId); return; }
+      msg.classList.add('fade');
+      setTimeout(() => {
+        if (currentState !== STATES.LOADING) return;
+        mi = (mi + 1) % LOAD_MSGS.length;
+        msg.textContent = LOAD_MSGS[mi];
+        msg.classList.remove('fade');
+      }, 520);
+    }, 5000);
+    loadIntervals.push(cycleId);
+
+    fetch(API_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ url: enteredUrl })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (currentState !== STATES.LOADING) return;
+      if (data.error) { showApiError(data.error); return; }
+      apiResult = data;
+      clearInterval(cycleId);
+      fill.style.transition = 'width 0.3s ease';
+      fill.style.width = '100%';
+      pct.textContent = '100%';
+      renderResults(data);
+      const advId = setTimeout(() => showState(STATES.RESULTS), 400);
+      loadTimers.push(advId);
+    })
+    .catch(() => {
+      if (currentState !== STATES.LOADING) return;
+      clearInterval(cycleId);
+      showApiError('Kunde inte ansluta till skanningstjänsten. Starta servern med: cd wcag-backend && npm start');
+    });
+  }
+
+  /* ─────────────────────────────────────────────
+     RENDER RESULTS FROM API DATA
+  ───────────────────────────────────────────── */
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function issueCardHTML(issue) {
+    const cls   = { critical: 'chip-c', serious: 'chip-s', moderate: 'chip-m' }[issue.severity] || 'chip-m';
+    const label = { critical: 'Kritisk', serious: 'Allvarlig', moderate: 'Måttlig' }[issue.severity] || 'Måttlig';
+    return `<div class="issue-row">
+      <span class="chip ${cls}">${label}</span>
+      <div class="issue-body">
+        <p class="issue-title">${escHtml(issue.title)}</p>
+        <p class="issue-desc">${escHtml(issue.description)}</p>
+      </div>
+      <span class="wcag-ref">${escHtml(issue.wcag)} · Nivå ${escHtml(issue.level)}</span>
+    </div>`;
+  }
+
+  function renderResults(data) {
+    const visibleEl = document.getElementById('visible-issues');
+    const first3    = (data.issues || []).slice(0, 3);
+    visibleEl.innerHTML = first3.length
+      ? first3.map(issueCardHTML).join('')
+      : '<p style="color:#4d4d4d;padding:16px 0">Inga problem hittades — bra jobbat!</p>';
+
+    const remaining  = Math.max(0, (data.totalIssues || 0) - 3);
+    const lockedWrap = document.querySelector('.locked-wrap');
+    if (remaining > 0) {
+      document.getElementById('locked-count').textContent = remaining + ' FLER PROBLEM HITTADE';
+      lockedWrap.style.display = '';
+    } else {
+      lockedWrap.style.display = 'none';
+    }
+  }
+
+  function showApiError(msg) {
+    document.querySelector('#s-error .err-body').textContent =
+      msg || 'Något gick fel. Försök igen om en stund.';
+    loadTimers.forEach(clearTimeout);
+    loadIntervals.forEach(clearInterval);
+    loadTimers    = [];
+    loadIntervals = [];
+    showState(STATES.ERROR);
+  }
+
+  /* ─────────────────────────────────────────────
+     STATE 3 — SCORE ANIMATION
+  ───────────────────────────────────────────── */
+  function animateScore() {
+    const data  = apiResult || { score: 0, conformance: 'non-conformant' };
+    const score = data.score || 0;
+    const arc   = document.getElementById('score-arc');
+    const num   = document.getElementById('score-num');
+    const badge = document.getElementById('conf-badge');
+
+    let colour, label;
+    const conf = data.conformance || 'non-conformant';
+    if      (conf === 'level-aaa') { colour = '#007396'; label = 'NIVÅ AAA'; }
+    else if (conf === 'level-aa')  { colour = '#388e3c'; label = 'NIVÅ AA';  }
+    else if (conf === 'level-a')   { colour = '#f57c00'; label = 'NIVÅ A';   }
+    else                            { colour = '#d32f2f'; label = 'EJ GODKÄND'; }
+
+    arc.style.stroke       = colour;
+    badge.textContent      = label;
+    badge.style.background = colour;
+
+    const targetOffset = CIRC * (1 - score / 100);
+    arc.style.strokeDashoffset = targetOffset;
+
+    const dur = 1600;
+    const t0  = Date.now();
+    function tickNum() {
+      const p    = Math.min((Date.now() - t0) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      num.textContent = Math.floor(ease * score);
+      if (p < 1) requestAnimationFrame(tickNum);
+    }
+    requestAnimationFrame(tickNum);
+  }
+
+  /* ─────────────────────────────────────────────
+     STATE 4 — GATE / LEAD FORM
+  ───────────────────────────────────────────── */
+  function handleGate() {
+    const nameEl  = document.getElementById('f-name');
+    const emailEl = document.getElementById('f-email');
+    const errN    = document.getElementById('err-name');
+    const errE    = document.getElementById('err-email');
+    const btn     = document.getElementById('gate-btn');
+
+    [nameEl, emailEl].forEach(el => el.classList.remove('err'));
+    [errN, errE].forEach(el => el.classList.remove('show'));
+
+    let ok = true;
+
+    if (!nameEl.value.trim()) {
+      nameEl.classList.add('err');
+      errN.classList.add('show');
+      ok = false;
+    }
+
+    const ev = emailEl.value.trim();
+    if (!ev || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) {
+      emailEl.classList.add('err');
+      errE.classList.add('show');
+      ok = false;
+    }
+
+    if (!ok) return;
+
+    enteredEmail = ev;
+    btn.innerHTML = '<span class="spinner"></span>SKICKAR...';
+    btn.disabled  = true;
+
+    fetch('https://wcag-production.up.railway.app/api/send-report', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        name:   nameEl.value.trim(),
+        email:  ev,
+        phone:  (document.getElementById('f-phone') || {}).value || '',
+        url:    enteredUrl,
+        report: apiResult,
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        btn.innerHTML = 'SKICKA MIG HELA RAPPORTEN &rarr;';
+        btn.disabled  = false;
+        errE.textContent = data.error;
+        errE.classList.add('show');
+      } else {
+        showSuccess();
+      }
+    })
+    .catch(() => {
+      btn.innerHTML = 'SKICKA MIG HELA RAPPORTEN &rarr;';
+      btn.disabled  = false;
+      errE.textContent = 'Kunde inte skicka. Kontrollera att servern körs.';
+      errE.classList.add('show');
+    });
+  }
+
+  /* ─────────────────────────────────────────────
+     STATE 5 — SUCCESS
+  ───────────────────────────────────────────── */
+  function showSuccess() {
+    document.getElementById('gate-form').classList.add('hidden');
+    const wrap = document.getElementById('success-wrap');
+    wrap.classList.remove('hidden');
+    document.getElementById('success-msg').textContent =
+      'Kolla din inkorg på ' + enteredEmail + '. Din fullständiga WCAG-rapport är på väg.';
+  }
+
+  /* ─────────────────────────────────────────────
+     RESET
+  ───────────────────────────────────────────── */
+  function resetToInput() {
+    document.getElementById('url-input').value = '';
+    document.getElementById('url-err').classList.remove('show');
+    document.getElementById('url-input').classList.remove('err');
+    apiResult = null;
+    showState(STATES.INPUT);
+  }
+
+  /* ─────────────────────────────────────────────
+     INIT
+  ───────────────────────────────────────────── */
+  showState(STATES.INPUT);
+</script>
+</body>
+</html>
