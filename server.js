@@ -300,7 +300,7 @@ app.post('/api/scan', async (req, res) => {
     if (err.message.includes('JSON')) {
       return res.status(500).json({ error: 'Ogiltigt svar från AI-analysen. Försök igen.' });
     }
-    res.status(500).json({ error: 'Skanningen misslyckades. Försök igen om en stund.' });
+    res.status(500).json({ error: 'Skanningen misslyckades. Försök igen om en stund.', debug: err.message });
   }
 });
 

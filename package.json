@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "postinstall": "npx playwright install --with-deps chromium"
+    "postinstall": "node -e \"process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD||require('child_process').execSync('npx playwright install --with-deps chromium',{stdio:'inherit'});\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
