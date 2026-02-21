@@ -18,555 +18,300 @@
       --red:     #d32f2f;
       --orange:  #f57c00;
       --green:   #388e3c;
+      --blue:    #1976d2;
       --font:    'Clofie', Helvetica, Arial, sans-serif;
-      --circ:    427.26;
     }
 
-    html  { font-family: var(--font); line-height: 1.5; color: var(--black); }
-    body  { background: var(--dark); }
-    img   { display: block; }
+    html { font-family: var(--font); line-height: 1.5; color: var(--black); }
+    body { background: var(--white); }
+    img  { display: block; }
 
-    /* ── STATES ─────────────────────────────────── */
-    .state { display: none; }
-    .state.active { display: block; }
-    #s-input.active,
-    #s-loading.active,
-    #s-error.active { display: flex; }
-
-    /* ── UTILITIES ──────────────────────────────── */
+    /* ── UTILITIES ────────────────────────────── */
     .hidden { display: none !important; }
 
     .eyebrow {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 14px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; display: block; margin-bottom: 14px;
     }
-    .ew { color: rgba(255,255,255,.52); }
+    .ew { color: rgba(255,255,255,.45); }
     .eb { color: var(--black); }
 
-    /* ── BUTTONS ────────────────────────────────── */
+    /* ── BUTTONS ──────────────────────────────── */
     .btn {
-      display: inline-block;
-      background: var(--black);
-      color: var(--white);
-      border: 2px solid var(--black);
-      padding: 15px 32px;
-      font-family: var(--font);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      cursor: pointer;
-      text-decoration: none;
-      border-radius: 0;
+      display: inline-block; background: var(--black); color: var(--white);
+      border: 2px solid var(--black); padding: 15px 32px;
+      font-family: var(--font); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer;
+      text-decoration: none; border-radius: 0;
       transition: background .18s, border-color .18s, color .18s;
-      text-align: center;
-      width: 100%;
+      text-align: center; width: 100%;
     }
-    .btn:hover { background: var(--accent); border-color: var(--accent); }
-
-    .btn-inv {
-      background: var(--white);
-      color: var(--black);
-      border-color: var(--white);
-    }
+    .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--white); }
+    .btn-inv { background: var(--white); color: var(--black); border-color: var(--white); }
     .btn-inv:hover { background: #e6e6e6; border-color: #e6e6e6; color: var(--black); }
 
-    /* ── SPINNER ────────────────────────────────── */
     .spinner {
-      display: inline-block;
-      width: 13px; height: 13px;
-      border: 2px solid rgba(255,255,255,.28);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .75s linear infinite;
-      vertical-align: middle;
-      margin-right: 8px;
+      display: inline-block; width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,.28); border-top-color: #fff;
+      border-radius: 50%; animation: spin .75s linear infinite;
+      vertical-align: middle; margin-right: 8px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── SHARED PHOTO BACKGROUND ─────────────── */
-    .photo-bg {
-      background:
-        linear-gradient(135deg, rgba(13,12,17,0.90) 0%, rgba(0,55,72,0.84) 60%, rgba(13,12,17,0.92) 100%),
-        url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80') center / cover fixed no-repeat;
-    }
-
     /* ════════════════════════════════════════════
-       STATE 1 — INPUT
+       SPLIT LAYOUT
     ════════════════════════════════════════════ */
-    #s-input {
+    #layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       min-height: 100vh;
-      flex-direction: column;
-      padding: 32px 24px 60px;
     }
 
-    .hero-logo { height: 30px; margin-bottom: 60px; align-self: flex-end; }
-
-    .hero-inner {
-      flex: 1;
+    /* ── LEFT COLUMN ───────────────────────────── */
+    #col-left {
+      border-right: 1px solid var(--black);
       display: flex;
       flex-direction: column;
+    }
+
+    /* Left column states */
+    .lstate { display: none; }
+    .lstate.active {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* ── STATE 1 · INPUT ── */
+    #s-input {
+      background: var(--dark);
+      padding: 64px 56px;
       justify-content: center;
-      max-width: 640px;
     }
-
     .hero-title {
-      font-size: 34px;
-      font-weight: 700;
-      color: var(--white);
-      line-height: 1.07;
-      margin-bottom: 18px;
-      letter-spacing: -0.01em;
+      font-size: 38px; font-weight: 700; color: var(--white);
+      line-height: 1.07; margin-bottom: 18px; letter-spacing: -0.01em;
     }
-
     .hero-sub {
-      font-size: 17px;
-      color: rgba(255,255,255,.72);
-      line-height: 1.65;
-      max-width: 520px;
-      margin-bottom: 44px;
+      font-size: 16px; color: rgba(255,255,255,.72);
+      line-height: 1.65; max-width: 480px; margin-bottom: 40px;
     }
-
-    .input-group { max-width: 600px; width: 100%; }
-
+    .input-group { max-width: 480px; width: 100%; }
     .url-field {
-      display: block;
-      width: 100%;
-      background: var(--white);
-      border: 2px solid var(--white);
-      padding: 16px 20px;
-      font-size: 17px;
-      font-family: var(--font);
-      color: var(--black);
-      outline: none;
-      border-radius: 0;
-      margin-bottom: 4px;
+      display: block; width: 100%; background: var(--white);
+      border: 2px solid var(--white); padding: 16px 20px;
+      font-size: 17px; font-family: var(--font); color: var(--black);
+      outline: none; border-radius: 0; margin-bottom: 4px;
       transition: border-color .15s;
     }
     .url-field::placeholder { color: #9a9a9a; }
     .url-field:focus { border-color: var(--accent); }
     .url-field.err { border-color: #ff4444; }
-
-    .url-err {
-      font-size: 12px;
-      color: #ff5c5c;
-      display: none;
-      padding: 5px 0 10px;
-    }
+    .url-err { font-size: 12px; color: #ff5c5c; display: none; padding: 5px 0 10px; }
     .url-err.show { display: block; }
-
     .scan-note {
-      font-size: 11px;
-      color: rgba(255,255,255,.38);
-      text-align: center;
-      margin-top: 12px;
-      letter-spacing: 0.05em;
+      font-size: 11px; color: rgba(255,255,255,.35);
+      text-align: center; margin-top: 12px; letter-spacing: 0.05em;
     }
 
-    /* ════════════════════════════════════════════
-       STATE 2 — LOADING
-    ════════════════════════════════════════════ */
+    /* ── STATE 2 · LOADING ── */
     #s-loading {
-      min-height: 100vh;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 24px;
-      position: relative;
-      text-align: center;
+      background: var(--dark);
+      align-items: center; justify-content: center;
+      text-align: center; padding: 64px 48px;
     }
-
-    .load-logo {
-      position: absolute;
-      top: 32px; left: 24px;
-      height: 28px;
-    }
-
     .load-pct {
-      font-size: 108px;
-      font-weight: 700;
-      color: var(--white);
-      line-height: 1;
-      letter-spacing: -0.04em;
-      margin-bottom: 22px;
+      font-size: 108px; font-weight: 700; color: var(--white);
+      line-height: 1; letter-spacing: -0.04em; margin-bottom: 22px;
     }
-
     .load-msg {
-      font-size: 15px;
-      color: rgba(255,255,255,.6);
-      letter-spacing: 0.03em;
-      margin-bottom: 38px;
-      min-height: 22px;
+      font-size: 15px; color: rgba(255,255,255,.6);
+      letter-spacing: 0.03em; margin-bottom: 38px; min-height: 22px;
       transition: opacity .5s;
     }
     .load-msg.fade { opacity: 0; }
+    .prog-track { width: min(360px, 100%); height: 3px; background: rgba(255,255,255,.1); }
+    .prog-fill  { height: 100%; background: var(--white); width: 0%; transition: width 20s linear; }
 
-    .prog-track {
-      width: min(400px, 100%);
-      height: 3px;
-      background: rgba(255,255,255,.1);
-    }
-    .prog-fill {
-      height: 100%;
-      background: var(--white);
-      width: 0%;
-      transition: width 20s linear;
-    }
-
-    /* ════════════════════════════════════════════
-       STATE 3 — RESULTS
-    ════════════════════════════════════════════ */
-    #s-results { background: var(--white); }
-
-    .results-inner {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 72px 24px 0;
-    }
-
-    /* Score hub */
-    .score-hub {
-      text-align: center;
-      margin-bottom: 56px;
-    }
-
-    .circ-wrap {
-      position: relative;
-      display: inline-block;
-      margin: 24px 0 18px;
-    }
-
-    .circ-svg {
-      transform: rotate(-90deg);
-      display: block;
-    }
-
-    .circ-text {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .circ-num {
-      font-size: 52px;
-      font-weight: 700;
-      line-height: 1;
-      color: var(--black);
-    }
-
-    .circ-denom {
-      font-size: 15px;
-      color: var(--mid);
-      margin-top: 2px;
-    }
-
-    .conf-badge {
-      display: inline-block;
-      background: var(--black);
-      color: var(--white);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      padding: 6px 14px;
-      border-radius: 2px;
-      margin-top: 16px;
-    }
-
-    .scanned-lbl {
-      font-size: 12px;
-      color: var(--mid);
-      margin-top: 10px;
-      letter-spacing: 0.02em;
-    }
-
-    /* Issues */
-    .section-head {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: var(--black);
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .issue-row {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      padding: 18px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .chip {
-      font-size: 8px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--white);
-      padding: 4px 8px;
-      flex-shrink: 0;
-      margin-top: 2px;
-      white-space: nowrap;
-    }
-    .chip-c { background: var(--red); }
-    .chip-s { background: var(--orange); }
-    .chip-m { background: #757575; }
-
-    .issue-body { flex: 1; min-width: 0; }
-
-    .issue-title {
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .issue-desc {
-      font-size: 13px;
-      color: var(--mid);
-      line-height: 1.55;
-    }
-
-    .wcag-ref {
-      font-size: 11px;
-      color: #aaa;
-      white-space: nowrap;
-      flex-shrink: 0;
-      padding-top: 3px;
-      letter-spacing: 0.04em;
-    }
-
-    /* Locked rows */
-    .locked-wrap { position: relative; }
-
-    .locked-blur {
-      filter: blur(4px);
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .locked-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,.76);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 6px;
-    }
-
-    .locked-icon  { font-size: 26px; line-height: 1; }
-    .locked-count { font-size: 20px; font-weight: 700; }
-    .locked-hint  { font-size: 13px; color: var(--mid); }
-
-    /* Powered by */
-    .powered-row {
-      text-align: center;
-      font-size: 10px;
-      color: #d0d0d0;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      padding: 24px 0 0;
-    }
-
-    /* ════════════════════════════════════════════
-       STATE 4 — GATE
-    ════════════════════════════════════════════ */
-    #gate {
+    /* ── STATE 3 · GATE ── */
+    #s-gate {
       background: var(--grey-bg);
-      padding: 64px 24px;
-      border-top: 1px solid var(--border);
+      padding: 64px 56px;
     }
-
-    .gate-inner { max-width: 600px; margin: 0 auto; }
-
+    .gate-inner { max-width: 480px; }
     .gate-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--black);
-      margin-bottom: 10px;
-      line-height: 1.2;
+      font-size: 26px; font-weight: 700; color: var(--black);
+      margin-bottom: 10px; line-height: 1.2;
     }
-
     .gate-sub {
-      font-size: 15px;
-      color: var(--mid);
-      line-height: 1.65;
-      margin-bottom: 36px;
+      font-size: 15px; color: var(--mid);
+      line-height: 1.65; margin-bottom: 32px;
     }
-
-    .form-rows {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
-      margin-bottom: 20px;
-    }
-
+    .form-rows { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 20px; }
     .f-group { display: flex; flex-direction: column; }
-
     .f-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--black);
-      margin-bottom: 7px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--black); margin-bottom: 7px;
     }
-
     .f-ctrl {
-      background: var(--white);
-      border: 1px solid var(--black);
-      padding: 13px 16px;
-      font-size: 15px;
-      font-family: var(--font);
-      color: var(--black);
-      outline: none;
-      border-radius: 0;
-      width: 100%;
+      background: var(--white); border: 1px solid var(--black);
+      padding: 13px 16px; font-size: 15px; font-family: var(--font);
+      color: var(--black); outline: none; border-radius: 0; width: 100%;
       transition: border-color .15s;
     }
     .f-ctrl:focus { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: -1px; }
     .f-ctrl.err { border-color: var(--red); }
-
-    .f-err {
-      font-size: 12px;
-      color: var(--red);
-      margin-top: 5px;
-      display: none;
-    }
+    .f-err { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
     .f-err.show { display: block; }
+    .gate-note { font-size: 12px; color: #999; text-align: center; margin-top: 12px; }
 
-    .gate-note {
-      font-size: 12px;
-      color: #999;
-      text-align: center;
-      margin-top: 12px;
-    }
-
-    /* ════════════════════════════════════════════
-       STATE 5 — SUCCESS
-    ════════════════════════════════════════════ */
+    /* ── SUCCESS (inside gate) ── */
     .success-check {
-      width: 60px; height: 60px;
-      background: var(--black);
-      color: var(--white);
-      font-size: 26px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 22px;
-      flex-shrink: 0;
+      width: 56px; height: 56px; background: var(--black); color: var(--white);
+      font-size: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-
-    .success-row {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      margin-bottom: 22px;
-    }
-
-    .success-title {
-      font-size: 30px;
-      font-weight: 700;
-    }
-
-    .success-body {
-      font-size: 16px;
-      color: var(--mid);
-      line-height: 1.65;
-      margin-bottom: 28px;
-    }
-
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 28px 0;
-    }
-
-    .cta-dark {
-      background: var(--black);
-      padding: 32px;
-    }
-
+    .success-row { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; }
+    .success-title { font-size: 28px; font-weight: 700; }
+    .success-body { font-size: 15px; color: var(--mid); line-height: 1.65; margin-bottom: 24px; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+    .cta-dark { background: var(--black); padding: 28px; }
     .cta-dark .eyebrow { color: rgba(255,255,255,.38); margin-bottom: 10px; }
+    .cta-title { font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 10px; line-height: 1.25; }
+    .cta-body { font-size: 14px; color: rgba(255,255,255,.62); line-height: 1.65; margin-bottom: 20px; }
 
-    .cta-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--white);
-      margin-bottom: 10px;
-      line-height: 1.25;
-    }
-
-    .cta-body {
-      font-size: 14px;
-      color: rgba(255,255,255,.62);
-      line-height: 1.65;
-      margin-bottom: 22px;
-    }
-
-    /* ════════════════════════════════════════════
-       STATE 6 — ERROR
-    ════════════════════════════════════════════ */
+    /* ── STATE 4 · ERROR ── */
     #s-error {
-      min-height: 100vh;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 48px 24px;
-      position: relative;
+      background: var(--dark);
+      align-items: center; justify-content: center;
+      text-align: center; padding: 64px 48px;
     }
-
-    .err-logo {
-      position: absolute;
-      top: 32px; left: 24px;
-      height: 28px;
-    }
-
     .err-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--white);
-      margin-bottom: 14px;
-      max-width: 440px;
-      line-height: 1.2;
+      font-size: 26px; font-weight: 700; color: var(--white);
+      margin-bottom: 14px; max-width: 400px; line-height: 1.2;
     }
-
     .err-body {
-      font-size: 16px;
-      color: rgba(255,255,255,.58);
-      max-width: 400px;
-      margin-bottom: 36px;
-      line-height: 1.65;
+      font-size: 15px; color: rgba(255,255,255,.58);
+      max-width: 380px; margin-bottom: 32px; line-height: 1.65;
     }
 
     /* ════════════════════════════════════════════
-       FOOTER
+       RIGHT COLUMN
     ════════════════════════════════════════════ */
-    #site-footer {
+    #col-right {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── TERMINAL ANIMATION ── */
+    #r-terminal {
+      flex: 1;
+      background: var(--dark);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      line-height: 1.85;
+      padding: 64px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      min-height: 100vh;
+    }
+    #term-lines { display: flex; flex-direction: column; gap: 1px; }
+    .tl { white-space: pre; opacity: 0; transition: opacity 0.12s ease; }
+    .tl.show { opacity: 1; }
+    .tl-w { color: rgba(255,255,255,.82); }
+    .tl-d { color: rgba(255,255,255,.36); }
+    .tl-g { color: #4af068; }
+    .tl-r { color: #ff4444; }
+    .tl-o { color: #f5a623; }
+
+    /* ── RESULTS ── */
+    #r-results {
+      flex: 1;
       background: var(--white);
-      border-top: 1px solid var(--border);
-      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Score hub — horizontal (circle left, meta right) */
+    .score-hub {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
+      gap: 36px;
+      padding: 56px 56px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .circ-wrap { position: relative; display: inline-block; flex-shrink: 0; }
+    .circ-svg  { transform: rotate(-90deg); display: block; }
+    .circ-text {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .circ-num   { font-size: 52px; font-weight: 700; line-height: 1; color: var(--black); }
+    .circ-denom { font-size: 15px; color: var(--mid); margin-top: 2px; }
+
+    .score-meta { display: flex; flex-direction: column; gap: 14px; }
+    .score-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--black);
+    }
+    .conf-badge {
+      display: inline-block; background: var(--black); color: var(--white);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; padding: 7px 16px; border-radius: 2px;
+    }
+    /* Prominent scanned URL */
+    .scanned-lbl {
+      font-size: 18px; font-weight: 700; color: var(--black);
     }
 
-    .ft-left  { display: flex; align-items: center; gap: 14px; }
-    .ft-logo  { height: 22px; }
+    /* ── ISSUES SECTION ── */
+    .issues-section { padding: 40px 56px; flex: 1; }
+    .section-head {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.24em;
+      text-transform: uppercase; color: var(--black);
+      padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    }
+    .issue-row {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 18px 0; border-bottom: 1px solid var(--border);
+    }
+    .chip {
+      font-size: 8px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--white);
+      padding: 4px 8px; flex-shrink: 0; margin-top: 2px; white-space: nowrap;
+    }
+    .chip-c { background: var(--red); }
+    .chip-s { background: var(--orange); }
+    .chip-m { background: #757575; }
+    .issue-body  { flex: 1; min-width: 0; }
+    .issue-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .issue-desc  { font-size: 13px; color: var(--mid); line-height: 1.55; }
+    .wcag-ref    {
+      font-size: 11px; color: #aaa; white-space: nowrap;
+      flex-shrink: 0; padding-top: 3px; letter-spacing: 0.04em;
+    }
+
+    /* Locked rows */
+    .locked-wrap { position: relative; }
+    .locked-blur { filter: blur(4px); pointer-events: none; user-select: none; }
+    .locked-overlay {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,.76);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; gap: 6px;
+    }
+    .locked-icon  { font-size: 26px; line-height: 1; }
+    .locked-count { font-size: 20px; font-weight: 700; }
+    .locked-hint  { font-size: 13px; color: var(--mid); }
+
+    /* ── FOOTER ────────────────────────────────── */
+    #site-footer {
+      background: var(--white); border-top: 1px solid var(--border);
+      padding: 20px 24px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
     .ft-copy  { font-size: 12px; color: var(--mid); }
     .ft-email { font-size: 12px; color: var(--accent); text-decoration: none; }
     .ft-email:hover { text-decoration: underline; }
@@ -574,233 +319,211 @@
     /* ════════════════════════════════════════════
        RESPONSIVE
     ════════════════════════════════════════════ */
-    @media (min-width: 768px) {
-      #s-input       { padding: 48px 64px 80px; }
-      .hero-title    { font-size: 56px; }
-      .hero-sub      { font-size: 19px; }
-      .btn           { width: auto; }
-      #scan-btn,
-      #gate-btn      { width: 100%; max-width: 600px; }
-      .load-pct      { font-size: 136px; }
-      .results-inner { padding: 80px 48px 0; }
-      .form-rows     { grid-template-columns: 1fr 1fr; }
-      .field-phone   { grid-column: 1 / -1; }
-      #gate          { padding: 72px 48px; }
-      .issue-row     { padding: 20px 0; gap: 18px; }
+    @media (min-width: 1200px) {
+      .hero-title { font-size: 46px; }
     }
-
-    @media (max-width: 420px) {
-      .wcag-ref { display: none; }
+    @media (min-width: 901px) {
+      .form-rows  { grid-template-columns: 1fr 1fr; }
+      .field-phone { grid-column: 1 / -1; }
+    }
+    @media (max-width: 900px) {
+      #layout { grid-template-columns: 1fr; }
+      #col-left  { border-right: none; border-bottom: 1px solid var(--black); }
+      #r-terminal { min-height: 60vh; padding: 48px 32px; }
+      .score-hub { padding: 40px 32px 32px; gap: 24px; }
+      .issues-section { padding: 32px; }
+      #s-input, #s-gate, #s-error { padding: 48px 32px; }
+      #s-loading { padding: 48px 32px; }
+    }
+    @media (max-width: 480px) {
+      .score-hub { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .wcag-ref  { display: none; }
     }
   </style>
 </head>
-<body style="background:#0d0c11;">
+<body>
 
-<!-- ═══════════════════════════════════
-     STATE 1 · INPUT
-════════════════════════════════════ -->
-<div id="s-input" class="state active photo-bg">
+<div id="layout">
 
-  <div class="hero-inner">
-    <span class="eyebrow ew">GRATIS VERKTYG &nbsp;·&nbsp; WCAG 2.2</span>
-    <h1 class="hero-title">Klarar Din Webbplats<br>WCAG&nbsp;2.2?</h1>
-    <p class="hero-sub">Få ett omedelbart tillgänglighetsbetyg och ta reda på om din webbplats utsätter dig för juridiska risker. Gratis. Ingen inloggning.</p>
+  <!-- ══════════════ LEFT COLUMN ══════════════ -->
+  <div id="col-left">
 
-    <div class="input-group">
-      <input
-        type="url"
-        id="url-input"
-        class="url-field"
-        placeholder="https://dinwebbplats.se"
-        autocomplete="url"
-        spellcheck="false">
-      <div class="url-err" id="url-err">Ange din webbplatsadress</div>
-      <button class="btn" id="scan-btn" onclick="handleScan()" style="max-width:600px;width:100%;">
-        SKANNA MIN WEBBPLATS &rarr;
-      </button>
-      <p class="scan-note">Tar ~30 sekunder. Din data lagras aldrig.</p>
-    </div>
-  </div>
-</div>
-
-
-<!-- ═══════════════════════════════════
-     STATE 2 · LOADING
-════════════════════════════════════ -->
-<div id="s-loading" class="state photo-bg">
-  <div class="load-pct" id="load-pct">0%</div>
-  <div class="load-msg" id="load-msg">Ansluter till din webbplats...</div>
-  <div class="prog-track">
-    <div class="prog-fill" id="prog-fill"></div>
-  </div>
-</div>
-
-
-<!-- ═══════════════════════════════════
-     STATE 3 · RESULTS
-════════════════════════════════════ -->
-<div id="s-results" class="state">
-
-  <div class="results-inner">
-
-    <!-- Score circle -->
-    <div class="score-hub">
-      <span class="eyebrow eb">DITT WCAG 2.2 BETYG</span>
-
-      <div class="circ-wrap">
-        <svg class="circ-svg" width="160" height="160" viewBox="0 0 160 160" aria-hidden="true">
-          <circle cx="80" cy="80" r="68" fill="none" stroke="#ececec" stroke-width="8"/>
-          <circle
-            id="score-arc"
-            cx="80" cy="80" r="68"
-            fill="none"
-            stroke="#d32f2f"
-            stroke-width="8"
-            stroke-dasharray="427.26"
-            stroke-dashoffset="427.26"
-            stroke-linecap="butt"
-            style="transition: stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1), stroke .3s ease;"/>
-        </svg>
-        <div class="circ-text">
-          <span class="circ-num" id="score-num">0</span>
-          <span class="circ-denom">/100</span>
-        </div>
-      </div>
-
-      <div><span class="conf-badge" id="conf-badge">EJ GODKÄND</span></div>
-      <p class="scanned-lbl" id="scanned-lbl">Skannad: example.com</p>
-    </div>
-
-    <!-- Visible issues — rendered dynamically from API -->
-    <p class="section-head">HITTADE PROBLEM</p>
-    <div id="visible-issues"></div>
-
-    <!-- Locked issues -->
-    <div class="locked-wrap">
-      <div class="locked-blur">
-        <div class="issue-row">
-          <span class="chip chip-c">Kritisk</span>
-          <div class="issue-body">
-            <p class="issue-title">Ingen tangentbordsåtkomst</p>
-            <p class="issue-desc">Interaktiva element kan inte nås enbart med tangentbordet.</p>
-          </div>
-          <span class="wcag-ref">2.1.1 · Nivå A</span>
-        </div>
-        <div class="issue-row">
-          <span class="chip chip-s">Allvarlig</span>
-          <div class="issue-body">
-            <p class="issue-title">Saknar sidspråk</p>
-            <p class="issue-desc">HTML lang-attributet saknas, vilket förvirrar skärmläsare.</p>
-          </div>
-          <span class="wcag-ref">3.1.1 · Nivå A</span>
-        </div>
-        <div class="issue-row">
-          <span class="chip chip-m">Måttlig</span>
-          <div class="issue-body">
-            <p class="issue-title">Saknar hoppnavigering</p>
-            <p class="issue-desc">Tangentbordsanvändare måste tabba igenom all navigering vid varje sidinläsning.</p>
-          </div>
-          <span class="wcag-ref">2.4.1 · Nivå A</span>
-        </div>
-      </div>
-
-      <div class="locked-overlay">
-        <div class="locked-icon">🔒</div>
-        <p class="locked-count" id="locked-count">9 FLER PROBLEM HITTADE</p>
-        <p class="locked-hint">Lås upp din fullständiga rapport nedan</p>
-      </div>
-    </div>
-
-
-  </div><!-- /results-inner -->
-
-
-  <!-- ═══════════════════════════════════
-       STATE 4 · GATE
-  ════════════════════════════════════ -->
-  <div id="gate">
-    <div class="gate-inner">
-
-      <span class="eyebrow eb">GRATIS FULLSTÄNDIG RAPPORT</span>
-      <h2 class="gate-title">Få Alla Problem + Hur Du Åtgärdar Dem</h2>
-      <p class="gate-sub">Vi skickar en komplett PDF till din inkorg med alla överträdelser, WCAG-referenser och steg-för-steg-åtgärder.</p>
-
-      <!-- Form -->
-      <div id="gate-form">
-        <div class="form-rows">
-          <div class="f-group">
-            <label class="f-label" for="f-name">Fullständigt namn *</label>
-            <input type="text" id="f-name" class="f-ctrl" placeholder="Anna Lindqvist" autocomplete="name">
-            <span class="f-err" id="err-name">Ange ditt namn</span>
-          </div>
-          <div class="f-group">
-            <label class="f-label" for="f-email">E-postadress *</label>
-            <input type="email" id="f-email" class="f-ctrl" placeholder="anna@foretag.se" autocomplete="email">
-            <span class="f-err" id="err-email">Ange en giltig e-postadress</span>
-          </div>
-          <div class="f-group field-phone">
-            <label class="f-label" for="f-phone">Telefon (valfritt)</label>
-            <input type="tel" id="f-phone" class="f-ctrl" placeholder="+46 70 000 00 00" autocomplete="tel">
-          </div>
-        </div>
-        <button class="btn" id="gate-btn" onclick="handleGate()" style="width:100%;">
-          SKICKA MIG HELA RAPPORTEN &rarr;
+    <!-- STATE 1 · INPUT -->
+    <div id="s-input" class="lstate active">
+      <span class="eyebrow ew">GRATIS VERKTYG &nbsp;·&nbsp; WCAG 2.2</span>
+      <h1 class="hero-title">Klarar Din Webbplats<br>WCAG&nbsp;2.2?</h1>
+      <p class="hero-sub">Få ett omedelbart tillgänglighetsbetyg och ta reda på om din webbplats utsätter dig för juridiska risker. Gratis. Ingen inloggning.</p>
+      <div class="input-group">
+        <input type="url" id="url-input" class="url-field"
+          placeholder="https://dinwebbplats.se" autocomplete="url" spellcheck="false">
+        <div class="url-err" id="url-err">Ange din webbplatsadress</div>
+        <button class="btn" id="scan-btn" onclick="handleScan()" style="width:100%;">
+          SKANNA MIN WEBBPLATS &rarr;
         </button>
-        <p class="gate-note">PDF skickas inom sekunder. Aldrig spam. Du kan avregistrera dig när som helst.</p>
+        <p class="scan-note">Tar ~30 sekunder. Din data lagras aldrig.</p>
       </div>
-
-      <!-- ═══════════════════════════════════
-           STATE 5 · SUCCESS  (replaces form)
-      ════════════════════════════════════ -->
-      <div id="success-wrap" class="hidden">
-        <div class="success-row">
-          <div class="success-check">&#10003;</div>
-          <h2 class="success-title">Rapport skickad!</h2>
-        </div>
-        <p class="success-body" id="success-msg">
-          Kolla din inkorg. Din fullständiga WCAG-rapport är på väg.
-        </p>
-        <hr class="divider">
-        <div class="cta-dark">
-          <span class="eyebrow">VILL DU HA EXPERTHJÄLP?</span>
-          <h3 class="cta-title">Boka en Gratis 30-Min WCAG-konsultation</h3>
-          <p class="cta-body">Vårt team har hjälpt 50+ företag att åtgärda tillgänglighetsproblem och klara WCAG-granskningar.</p>
-          <a href="#" class="btn btn-inv">BOKA GRATIS SAMTAL &rarr;</a>
-        </div>
-      </div>
-
     </div>
-  </div><!-- /gate -->
 
-</div><!-- /s-results -->
+    <!-- STATE 2 · LOADING -->
+    <div id="s-loading" class="lstate">
+      <div class="load-pct" id="load-pct">0%</div>
+      <div class="load-msg" id="load-msg">Ansluter till din webbplats...</div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    </div>
+
+    <!-- STATE 3 · GATE + SUCCESS -->
+    <div id="s-gate" class="lstate">
+      <div class="gate-inner">
+        <span class="eyebrow eb">GRATIS FULLSTÄNDIG RAPPORT</span>
+        <h2 class="gate-title">Få Alla Problem + Hur Du Åtgärdar Dem</h2>
+        <p class="gate-sub">Vi skickar en komplett rapport med alla WCAG-överträdelser, kriteriereferenser och steg-för-steg-åtgärder.</p>
+
+        <div id="gate-form">
+          <div class="form-rows">
+            <div class="f-group">
+              <label class="f-label" for="f-name">Fullständigt namn *</label>
+              <input type="text" id="f-name" class="f-ctrl" placeholder="Anna Lindqvist" autocomplete="name">
+              <span class="f-err" id="err-name">Ange ditt namn</span>
+            </div>
+            <div class="f-group">
+              <label class="f-label" for="f-email">E-postadress *</label>
+              <input type="email" id="f-email" class="f-ctrl" placeholder="anna@foretag.se" autocomplete="email">
+              <span class="f-err" id="err-email">Ange en giltig e-postadress</span>
+            </div>
+            <div class="f-group field-phone">
+              <label class="f-label" for="f-phone">Telefon (valfritt)</label>
+              <input type="tel" id="f-phone" class="f-ctrl" placeholder="+46 70 000 00 00" autocomplete="tel">
+            </div>
+          </div>
+          <button class="btn" id="gate-btn" onclick="handleGate()" style="width:100%;">
+            SKICKA MIG HELA RAPPORTEN &rarr;
+          </button>
+          <p class="gate-note">Skickas inom sekunder. Aldrig spam.</p>
+        </div>
+
+        <div id="success-wrap" class="hidden">
+          <div class="success-row">
+            <div class="success-check">&#10003;</div>
+            <h2 class="success-title">Rapport skickad!</h2>
+          </div>
+          <p class="success-body" id="success-msg">
+            Kolla din inkorg. Din fullständiga WCAG-rapport är på väg.
+          </p>
+          <hr class="divider">
+          <div class="cta-dark">
+            <span class="eyebrow">VILL DU HA EXPERTHJÄLP?</span>
+            <h3 class="cta-title">Boka en Gratis 30-Min WCAG-konsultation</h3>
+            <p class="cta-body">Vårt team har hjälpt 50+ företag att åtgärda tillgänglighetsproblem och klara WCAG-granskningar.</p>
+            <a href="mailto:hello@devies.se" class="btn btn-inv">BOKA GRATIS SAMTAL &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATE 4 · ERROR -->
+    <div id="s-error" class="lstate">
+      <h2 class="err-title">Hmm, vi kunde inte nå den webbadressen</h2>
+      <p class="err-body" id="err-body">Kontrollera att webbplatsen är offentligt tillgänglig och försök igen.</p>
+      <button class="btn" onclick="resetToInput()" style="max-width:240px;">FÖRSÖK IGEN &rarr;</button>
+    </div>
+
+  </div><!-- /#col-left -->
 
 
-<!-- ═══════════════════════════════════
-     STATE 6 · ERROR
-════════════════════════════════════ -->
-<div id="s-error" class="state photo-bg">
-  <h2 class="err-title">Hmm, vi kunde inte nå den webbadressen</h2>
-  <p class="err-body">Kontrollera att webbplatsen är offentligt tillgänglig (inte bakom en inloggning) och försök igen.</p>
-  <button class="btn" onclick="resetToInput()">FÖRSÖK IGEN &rarr;</button>
-</div>
+  <!-- ══════════════ RIGHT COLUMN ══════════════ -->
+  <div id="col-right">
+
+    <!-- INITIAL: Terminal animation (shown until first scan completes) -->
+    <div id="r-terminal">
+      <div id="term-lines"></div>
+    </div>
+
+    <!-- RESULTS: Score + violations (shown after scan) -->
+    <div id="r-results" class="hidden">
+
+      <div class="score-hub">
+        <div class="circ-wrap">
+          <svg class="circ-svg" width="160" height="160" viewBox="0 0 160 160" aria-hidden="true">
+            <circle cx="80" cy="80" r="68" fill="none" stroke="#ececec" stroke-width="8"/>
+            <circle id="score-arc"
+              cx="80" cy="80" r="68"
+              fill="none" stroke="#d32f2f" stroke-width="8"
+              stroke-dasharray="427.26" stroke-dashoffset="427.26"
+              stroke-linecap="butt"
+              style="transition: stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1), stroke .3s ease;"/>
+          </svg>
+          <div class="circ-text">
+            <span class="circ-num" id="score-num">0</span>
+            <span class="circ-denom">/100</span>
+          </div>
+        </div>
+        <div class="score-meta">
+          <p class="score-eyebrow">DITT WCAG 2.2 BETYG</p>
+          <div><span class="conf-badge" id="conf-badge">EJ GODKÄND</span></div>
+          <p class="scanned-lbl" id="scanned-lbl">Skannad: —</p>
+        </div>
+      </div>
+
+      <div class="issues-section">
+        <p class="section-head">HITTADE PROBLEM</p>
+        <div id="visible-issues"></div>
+
+        <div class="locked-wrap">
+          <div class="locked-blur">
+            <div class="issue-row">
+              <span class="chip chip-c">Kritisk</span>
+              <div class="issue-body">
+                <p class="issue-title">Ingen tangentbordsåtkomst</p>
+                <p class="issue-desc">Interaktiva element kan inte nås enbart med tangentbordet.</p>
+              </div>
+              <span class="wcag-ref">2.1.1 · Nivå A</span>
+            </div>
+            <div class="issue-row">
+              <span class="chip chip-s">Allvarlig</span>
+              <div class="issue-body">
+                <p class="issue-title">Saknar sidspråk</p>
+                <p class="issue-desc">HTML lang-attributet saknas, vilket förvirrar skärmläsare.</p>
+              </div>
+              <span class="wcag-ref">3.1.1 · Nivå A</span>
+            </div>
+            <div class="issue-row">
+              <span class="chip chip-m">Måttlig</span>
+              <div class="issue-body">
+                <p class="issue-title">Saknar hoppnavigering</p>
+                <p class="issue-desc">Tangentbordsanvändare måste tabba igenom all navigering vid varje sidinläsning.</p>
+              </div>
+              <span class="wcag-ref">2.4.1 · Nivå A</span>
+            </div>
+          </div>
+          <div class="locked-overlay">
+            <div class="locked-icon">🔒</div>
+            <p class="locked-count" id="locked-count">9 FLER PROBLEM HITTADE</p>
+            <p class="locked-hint">Lås upp din fullständiga rapport till vänster</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /#r-results -->
+
+  </div><!-- /#col-right -->
+
+</div><!-- /#layout -->
 
 
+<footer id="site-footer">
+  <span class="ft-copy">&copy; 2026 Devies Group</span>
+  <a href="mailto:hello@devies.se" class="ft-email">hello@devies.se</a>
+</footer>
 
 
 <script>
-  /* ─────────────────────────────────────────────
-     STATE MACHINE
-  ───────────────────────────────────────────── */
-  const STATES = {
-    INPUT:   'input',
-    LOADING: 'loading',
-    RESULTS: 'results',
-    SUCCESS: 'success',
-    ERROR:   'error'
-  };
+  /* ═══════════════════════════════════════════════════════
+     CONSTANTS
+  ═══════════════════════════════════════════════════════ */
+  const API_SCAN   = 'https://wcag-production.up.railway.app/api/scan';
+  const API_REPORT = 'https://wcag-production.up.railway.app/api/send-report';
+  const CIRC       = 427.26; // 2π × r(68)
 
-  const API_URL   = 'https://wcag-production.up.railway.app/api/scan';
-  const CIRC      = 427.26; // 2π × 68
   const LOAD_MSGS = [
     'Ansluter till din webbplats...',
     'Kör WCAG 2.2 tillgänglighetskontroller...',
@@ -810,6 +533,29 @@
     'Beräknar ditt betyg...'
   ];
 
+  /* Terminal lines: { t: text, c: color class (w/d/g/r/o) } */
+  const TERM_LINES = [
+    { t: 'Initializing WCAG 2.2 audit engine...', c: 'w' },
+    { t: 'Loading ruleset: wcag2a, wcag2aa, wcag2aaa', c: 'd' },
+    { t: 'Connecting to target URL...', c: 'w' },
+    { t: '[■■■□□□□□□□] 30% \u2014 Checking 1.1.1 Non-text Content', c: 'w' },
+    { t: '[■■■■■□□□□□] 50% \u2014 Checking 1.4.3 Contrast (Minimum)', c: 'w' },
+    { t: '[■■■■■■■□□□] 70% \u2014 Checking 2.1.1 Keyboard Access', c: 'g' },
+    { t: '[■■■■■■■■□□] 80% \u2014 Checking 4.1.2 Name, Role, Value', c: 'g' },
+    { t: '[■■■■■■■■■□] 90% \u2014 Checking 2.4.7 Focus Visible', c: 'g' },
+    { t: 'CRITICAL: img[alt] missing \u2014 3 elements', c: 'r' },
+    { t: 'SERIOUS: contrast ratio 2.8:1 \u2014 expected 4.5:1', c: 'r' },
+    { t: 'MODERATE: label missing on input#email', c: 'o' },
+    { t: 'Calculating conformance level...', c: 'w' },
+    { t: 'Running final checks...', c: 'd' },
+    { t: '[■■■■■■■■■■] 100% \u2014 Audit complete', c: 'g' },
+  ];
+
+  /* ═══════════════════════════════════════════════════════
+     STATE
+  ═══════════════════════════════════════════════════════ */
+  const STATES = { INPUT: 'input', LOADING: 'loading', GATE: 'gate', ERROR: 'error' };
+
   let currentState  = STATES.INPUT;
   let enteredUrl    = '';
   let enteredEmail  = '';
@@ -817,105 +563,84 @@
   let loadIntervals = [];
   let apiResult     = null;
 
-  const elInput   = document.getElementById('s-input');
-  const elLoading = document.getElementById('s-loading');
-  const elResults = document.getElementById('s-results');
-  const elError   = document.getElementById('s-error');
-
-  /* ─── showState ─── */
-  function showState(s) {
-    [elInput, elLoading, elResults, elError].forEach(el => el.classList.remove('active'));
+  /* ═══════════════════════════════════════════════════════
+     LEFT COLUMN STATE MACHINE
+  ═══════════════════════════════════════════════════════ */
+  function showLeftState(s) {
+    ['s-input', 's-loading', 's-gate', 's-error'].forEach(id => {
+      document.getElementById(id).classList.remove('active');
+    });
     currentState = s;
-
-    if (s === STATES.INPUT) {
-      elInput.classList.add('active');
-      document.body.style.background = '#0d0c11';
-    } else if (s === STATES.LOADING) {
-      elLoading.classList.add('active');
-      document.body.style.background = '#0d0c11';
-      startLoading();
-
-    } else if (s === STATES.RESULTS) {
-      elResults.classList.add('active');
-      document.body.style.background = '#ffffff';
-      setTimeout(animateScore, 100);
-
-    } else if (s === STATES.ERROR) {
-      elError.classList.add('active');
-      document.body.style.background = '#0d0c11';
-    }
+    document.getElementById('s-' + s).classList.add('active');
   }
 
-  /* ─────────────────────────────────────────────
-     STATE 1 — INPUT HANDLER
-  ───────────────────────────────────────────── */
+  /* ═══════════════════════════════════════════════════════
+     RIGHT COLUMN: terminal → results
+  ═══════════════════════════════════════════════════════ */
+  function showRightResults() {
+    stopTerminal();
+    document.getElementById('r-terminal').classList.add('hidden');
+    document.getElementById('r-results').classList.remove('hidden');
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     STATE 1 — URL INPUT
+  ═══════════════════════════════════════════════════════ */
   function isValidUrl(str) {
-    const withProto = /^https?:\/\//i.test(str) ? str : 'https://' + str;
-    let parsed;
-    try { parsed = new URL(withProto); } catch (_) { return false; }
-    if (!/^https?:$/.test(parsed.protocol)) return false;
-    const host = parsed.hostname;
-    if (!host.includes('.')) return false;
-    const tld = host.split('.').pop();
-    if (!/^[a-z]{2,}$/i.test(tld)) return false;
-    if (/^\d+$/.test(host.replace(/\./g, ''))) return false;
+    const w = /^https?:\/\//i.test(str) ? str : 'https://' + str;
+    let p;
+    try { p = new URL(w); } catch (_) { return false; }
+    if (!/^https?:$/.test(p.protocol)) return false;
+    const h = p.hostname;
+    if (!h.includes('.')) return false;
+    if (!/^[a-z]{2,}$/i.test(h.split('.').pop())) return false;
+    if (/^\d+$/.test(h.replace(/\./g, ''))) return false;
     return true;
   }
 
   function showUrlError(msg) {
-    const inp   = document.getElementById('url-input');
-    const errEl = document.getElementById('url-err');
+    const inp = document.getElementById('url-input');
+    const err = document.getElementById('url-err');
     inp.classList.add('err');
-    errEl.textContent = msg;
-    errEl.classList.add('show');
+    err.textContent = msg;
+    err.classList.add('show');
     inp.focus();
   }
 
   function handleScan() {
-    const inp   = document.getElementById('url-input');
-    const errEl = document.getElementById('url-err');
-    let url = inp.value.trim();
+    const inp = document.getElementById('url-input');
+    const err = document.getElementById('url-err');
+    let url   = inp.value.trim();
 
     inp.classList.remove('err');
-    errEl.classList.remove('show');
+    err.classList.remove('show');
 
-    if (!url) {
-      showUrlError('Ange din webbplatsadress');
-      return;
-    }
-    if (!isValidUrl(url)) {
-      showUrlError('Ange en giltig webbadress — t.ex. https://example.com');
-      return;
-    }
-    if (!/^https?:\/\//i.test(url)) {
-      url = 'https://' + url;
-      inp.value = url;
-    }
+    if (!url) { showUrlError('Ange din webbplatsadress'); return; }
+    if (!isValidUrl(url)) { showUrlError('Ange en giltig webbadress — t.ex. https://example.com'); return; }
+    if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; inp.value = url; }
 
     enteredUrl = url;
-
     try {
-      const host = new URL(url).hostname;
-      document.getElementById('scanned-lbl').textContent = 'Skannad: ' + host;
+      document.getElementById('scanned-lbl').textContent = 'Skannad: ' + new URL(url).hostname;
     } catch (_) {
       document.getElementById('scanned-lbl').textContent = 'Skannad: ' + url;
     }
 
-    showState(STATES.LOADING);
+    showLeftState(STATES.LOADING);
+    startLoading();
   }
 
-  document.getElementById('url-input').addEventListener('keydown', function(e) {
+  document.getElementById('url-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') handleScan();
   });
 
-  /* ─────────────────────────────────────────────
-     STATE 2 — LOADING + REAL API CALL
-  ───────────────────────────────────────────── */
+  /* ═══════════════════════════════════════════════════════
+     STATE 2 — LOADING + API CALL
+  ═══════════════════════════════════════════════════════ */
   function startLoading() {
     loadTimers.forEach(clearTimeout);
     loadIntervals.forEach(clearInterval);
-    loadTimers    = [];
-    loadIntervals = [];
+    loadTimers = []; loadIntervals = [];
 
     const fill = document.getElementById('prog-fill');
     const pct  = document.getElementById('load-pct');
@@ -954,7 +679,7 @@
     }, 5000);
     loadIntervals.push(cycleId);
 
-    fetch(API_URL, {
+    fetch(API_SCAN, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ url: enteredUrl })
@@ -969,21 +694,35 @@
       fill.style.width = '100%';
       pct.textContent = '100%';
       renderResults(data);
-      const advId = setTimeout(() => showState(STATES.RESULTS), 400);
-      loadTimers.push(advId);
+      loadTimers.push(setTimeout(() => {
+        showRightResults();
+        setTimeout(animateScore, 100);
+        showLeftState(STATES.GATE);
+      }, 400));
     })
     .catch(() => {
       if (currentState !== STATES.LOADING) return;
       clearInterval(cycleId);
-      showApiError('Kunde inte ansluta till skanningstjänsten. Starta servern med: cd wcag-backend && npm start');
+      showApiError('Kunde inte ansluta till skanningstjänsten.');
     });
   }
 
-  /* ─────────────────────────────────────────────
-     RENDER RESULTS FROM API DATA
-  ───────────────────────────────────────────── */
-  function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  /* ═══════════════════════════════════════════════════════
+     CONFORMANCE LOGIC (computed from issues, not from API)
+  ═══════════════════════════════════════════════════════ */
+  function computeConformance(issues) {
+    if (!issues || issues.length === 0) return 'level-aaa';
+    if (issues.some(i => i.severity === 'critical')) return 'non-conformant';
+    if (issues.some(i => i.severity === 'serious'))  return 'level-a';
+    if (issues.some(i => i.severity === 'moderate')) return 'level-aa';
+    return 'level-aaa';
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     RENDER RESULTS
+  ═══════════════════════════════════════════════════════ */
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   function issueCardHTML(issue) {
@@ -1000,16 +739,16 @@
   }
 
   function renderResults(data) {
-    const visibleEl = document.getElementById('visible-issues');
-    const first3    = (data.issues || []).slice(0, 3);
-    visibleEl.innerHTML = first3.length
+    const visEl  = document.getElementById('visible-issues');
+    const first3 = (data.issues || []).slice(0, 3);
+    visEl.innerHTML = first3.length
       ? first3.map(issueCardHTML).join('')
       : '<p style="color:#4d4d4d;padding:16px 0">Inga problem hittades — bra jobbat!</p>';
 
-    const remaining  = Math.max(0, (data.totalIssues || 0) - 3);
+    const rem        = Math.max(0, (data.totalIssues || 0) - 3);
     const lockedWrap = document.querySelector('.locked-wrap');
-    if (remaining > 0) {
-      document.getElementById('locked-count').textContent = remaining + ' FLER PROBLEM HITTADE';
+    if (rem > 0) {
+      document.getElementById('locked-count').textContent = rem + ' FLER PROBLEM HITTADE';
       lockedWrap.style.display = '';
     } else {
       lockedWrap.style.display = 'none';
@@ -1017,38 +756,37 @@
   }
 
   function showApiError(msg) {
-    document.querySelector('#s-error .err-body').textContent =
-      msg || 'Något gick fel. Försök igen om en stund.';
+    document.getElementById('err-body').textContent = msg || 'Något gick fel. Försök igen om en stund.';
     loadTimers.forEach(clearTimeout);
     loadIntervals.forEach(clearInterval);
-    loadTimers    = [];
-    loadIntervals = [];
-    showState(STATES.ERROR);
+    loadTimers = []; loadIntervals = [];
+    showLeftState(STATES.ERROR);
   }
 
-  /* ─────────────────────────────────────────────
-     STATE 3 — SCORE ANIMATION
-  ───────────────────────────────────────────── */
+  /* ═══════════════════════════════════════════════════════
+     SCORE ANIMATION — uses computed conformance
+  ═══════════════════════════════════════════════════════ */
   function animateScore() {
-    const data  = apiResult || { score: 0, conformance: 'non-conformant' };
-    const score = data.score || 0;
+    const data   = apiResult || { score: 0, issues: [] };
+    const score  = data.score || 0;
+    const issues = data.issues || [];
+    const conf   = computeConformance(issues);
+
     const arc   = document.getElementById('score-arc');
     const num   = document.getElementById('score-num');
     const badge = document.getElementById('conf-badge');
 
+    /* Badge colors per spec */
     let colour, label;
-    const conf = data.conformance || 'non-conformant';
-    if      (conf === 'level-aaa') { colour = '#007396'; label = 'NIVÅ AAA'; }
-    else if (conf === 'level-aa')  { colour = '#388e3c'; label = 'NIVÅ AA';  }
+    if      (conf === 'level-aaa') { colour = '#388e3c'; label = 'NIVÅ AAA'; }
+    else if (conf === 'level-aa')  { colour = '#1976d2'; label = 'NIVÅ AA';  }
     else if (conf === 'level-a')   { colour = '#f57c00'; label = 'NIVÅ A';   }
-    else                            { colour = '#d32f2f'; label = 'EJ GODKÄND'; }
+    else                           { colour = '#d32f2f'; label = 'EJ GODKÄND'; }
 
     arc.style.stroke       = colour;
     badge.textContent      = label;
     badge.style.background = colour;
-
-    const targetOffset = CIRC * (1 - score / 100);
-    arc.style.strokeDashoffset = targetOffset;
+    arc.style.strokeDashoffset = CIRC * (1 - score / 100);
 
     const dur = 1600;
     const t0  = Date.now();
@@ -1061,9 +799,9 @@
     requestAnimationFrame(tickNum);
   }
 
-  /* ─────────────────────────────────────────────
-     STATE 4 — GATE / LEAD FORM
-  ───────────────────────────────────────────── */
+  /* ═══════════════════════════════════════════════════════
+     STATE 3 — GATE FORM
+  ═══════════════════════════════════════════════════════ */
   function handleGate() {
     const nameEl  = document.getElementById('f-name');
     const emailEl = document.getElementById('f-email');
@@ -1075,27 +813,16 @@
     [errN, errE].forEach(el => el.classList.remove('show'));
 
     let ok = true;
-
-    if (!nameEl.value.trim()) {
-      nameEl.classList.add('err');
-      errN.classList.add('show');
-      ok = false;
-    }
-
+    if (!nameEl.value.trim()) { nameEl.classList.add('err'); errN.classList.add('show'); ok = false; }
     const ev = emailEl.value.trim();
-    if (!ev || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) {
-      emailEl.classList.add('err');
-      errE.classList.add('show');
-      ok = false;
-    }
-
+    if (!ev || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) { emailEl.classList.add('err'); errE.classList.add('show'); ok = false; }
     if (!ok) return;
 
     enteredEmail = ev;
     btn.innerHTML = '<span class="spinner"></span>SKICKAR...';
     btn.disabled  = true;
 
-    fetch('https://wcag-production.up.railway.app/api/send-report', {
+    fetch(API_REPORT, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({
@@ -1114,43 +841,103 @@
         errE.textContent = data.error;
         errE.classList.add('show');
       } else {
-        showSuccess();
+        document.getElementById('gate-form').classList.add('hidden');
+        document.getElementById('success-wrap').classList.remove('hidden');
+        document.getElementById('success-msg').textContent =
+          'Kolla din inkorg på ' + enteredEmail + '. Din fullständiga WCAG-rapport är på väg.';
       }
     })
     .catch(() => {
       btn.innerHTML = 'SKICKA MIG HELA RAPPORTEN &rarr;';
       btn.disabled  = false;
-      errE.textContent = 'Kunde inte skicka. Kontrollera att servern körs.';
+      errE.textContent = 'Kunde inte skicka. Försök igen.';
       errE.classList.add('show');
     });
   }
 
-  /* ─────────────────────────────────────────────
-     STATE 5 — SUCCESS
-  ───────────────────────────────────────────── */
-  function showSuccess() {
-    document.getElementById('gate-form').classList.add('hidden');
-    const wrap = document.getElementById('success-wrap');
-    wrap.classList.remove('hidden');
-    document.getElementById('success-msg').textContent =
-      'Kolla din inkorg på ' + enteredEmail + '. Din fullständiga WCAG-rapport är på väg.';
-  }
-
-  /* ─────────────────────────────────────────────
+  /* ═══════════════════════════════════════════════════════
      RESET
-  ───────────────────────────────────────────── */
+  ═══════════════════════════════════════════════════════ */
   function resetToInput() {
     document.getElementById('url-input').value = '';
     document.getElementById('url-err').classList.remove('show');
     document.getElementById('url-input').classList.remove('err');
     apiResult = null;
-    showState(STATES.INPUT);
+    showLeftState(STATES.INPUT);
   }
 
-  /* ─────────────────────────────────────────────
+  /* ═══════════════════════════════════════════════════════
+     TERMINAL ANIMATION
+  ═══════════════════════════════════════════════════════ */
+  let termActive  = true;
+  let termTimeout = null;
+  let termFlicker = null;
+
+  function runTerminal() {
+    const out = document.getElementById('term-lines');
+    let li = 0;
+
+    function next() {
+      if (!termActive) return;
+      if (li === TERM_LINES.length) {
+        /* End of cycle: fade out all, clear, restart */
+        li = 0;
+        [...out.children].forEach(el => el.classList.remove('show'));
+        termTimeout = setTimeout(() => {
+          if (!termActive) return;
+          out.innerHTML = '';
+          termTimeout = setTimeout(next, 300);
+        }, 700);
+        return;
+      }
+
+      const { t, c } = TERM_LINES[li++];
+      const el = document.createElement('div');
+      el.className = 'tl tl-' + c;
+      el.textContent = t;
+      out.appendChild(el);
+      /* Keep DOM lean — max 18 visible lines */
+      if (out.children.length > 18) out.removeChild(out.firstChild);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+      termTimeout = setTimeout(next, 75 + Math.random() * 85);
+    }
+
+    next();
+
+    /* Flicker: randomly tweak digits to simulate live scanning */
+    termFlicker = setInterval(() => {
+      if (!termActive) return;
+      [...out.querySelectorAll('.tl')].forEach(el => {
+        if (Math.random() > 0.87) {
+          const orig = el.textContent;
+          /* Flicker % values */
+          let s = orig.replace(/(\d+)%/g, (_, n) => {
+            return Math.max(1, Math.min(99, +n + (Math.random() > .5 ? 1 : -1))) + '%';
+          });
+          /* Flicker element counts on red/orange lines */
+          if (el.classList.contains('tl-r') || el.classList.contains('tl-o')) {
+            s = s.replace(/\u2014 (\d+)/, (_, n) => '\u2014 ' + Math.max(1, +n + (Math.random() > .6 ? 1 : 0)));
+          }
+          if (s !== orig) {
+            el.textContent = s;
+            setTimeout(() => { if (el.parentNode) el.textContent = orig; }, 90);
+          }
+        }
+      });
+    }, 380);
+  }
+
+  function stopTerminal() {
+    termActive = false;
+    clearTimeout(termTimeout);
+    clearInterval(termFlicker);
+  }
+
+  /* ═══════════════════════════════════════════════════════
      INIT
-  ───────────────────────────────────────────── */
-  showState(STATES.INPUT);
+  ═══════════════════════════════════════════════════════ */
+  showLeftState(STATES.INPUT);
+  runTerminal();
 </script>
 </body>
 </html>
