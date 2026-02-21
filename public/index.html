@@ -256,18 +256,20 @@
       font-family: 'Courier New', Courier, monospace;
       font-size: 11.5px;
       line-height: 1.9;
-      padding: 64px 56px;
+      padding: 0;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       overflow: hidden;
+      -webkit-mask-image: linear-gradient(to bottom,
+        transparent 0%, rgba(0,0,0,.6) 10%, black 24%,
+        black 76%, rgba(0,0,0,.6) 90%, transparent 100%);
+      mask-image: linear-gradient(to bottom,
+        transparent 0%, rgba(0,0,0,.6) 10%, black 24%,
+        black 76%, rgba(0,0,0,.6) 90%, transparent 100%);
     }
-    #term-lines {
-      display: flex; flex-direction: column;
-      transition: opacity 0.75s ease;
-    }
-    .tl { white-space: pre; opacity: 0; transition: opacity 0.10s ease; }
-    .tl.show { opacity: 1; }
+    #term-lines { display: flex; flex-direction: column; padding: 0 40px; }
+    .tl { white-space: pre; opacity: 1; }
 
     /* Muted colors — report text */
     .tl-head    { color: rgba(0,0,0,.50); }
@@ -402,7 +404,7 @@
     @media (max-width: 900px) {
       #layout    { grid-template-columns: 1fr; }
       #col-left  { border-bottom: 1px solid var(--border); }
-      #r-terminal { height: 60vh; padding: 40px 28px; font-size: 10.5px; }
+      #r-terminal { height: 60vh; font-size: 10.5px; }
       #col-right  { height: 60vh; }
       .score-hub { padding: 40px 32px 32px; gap: 24px; }
       .issues-section { padding: 32px; }
@@ -436,25 +438,27 @@
       <ul class="check-list">
         <li>Gratis tillgänglighetsanalys — inga dolda kostnader</li>
         <li>Se dina kritiska WCAG-problem direkt</li>
-        <li>Kontrolleras mot 50+ WCAG 2.2-kriterier</li>
+        <li>Kontrolleras mot 50+ WCAG 2.2-kriterier
+          <span class="info-wrap">
+            <button class="info-btn" aria-label="Se vad vi kontrollerar">ⓘ</button>
+            <span class="info-tip" role="tooltip" style="line-height:1.8;">
+              <strong style="display:block;font-size:10px;letter-spacing:0.08em;margin-bottom:6px;">VI KONTROLLERAR BLAND ANNAT</strong>
+              Textalternativ (alt-texter)<br>
+              Tangentbordsnavigering<br>
+              Färgkontrast (1.4.3)<br>
+              Fokusindikator (2.4.7)<br>
+              Sidspråk — HTML lang<br>
+              ARIA-roller och semantik<br>
+              Rubrikstruktur (H1–H6)<br>
+              Formuläretiketter<br>
+              Länktexter och syfte<br>
+              Hoppa-till-innehåll-länk
+            </span>
+          </span>
+        </li>
         <li>Täcker Level A och Level AA (EU-krav)</li>
         <li>Få en komplett PDF-rapport via e-post</li>
       </ul>
-      <div class="audit-cats">
-        <span class="audit-cats-label">VI KONTROLLERAR BLAND ANNAT</span>
-        <div class="audit-grid">
-          <span>Textalternativ (alt-texter)</span>
-          <span>Tangentbordsnavigering</span>
-          <span>Färgkontrast (1.4.3)</span>
-          <span>Fokusindikator (2.4.7)</span>
-          <span>Sidspråk — HTML lang</span>
-          <span>ARIA-roller och semantik</span>
-          <span>Rubrikstruktur (H1–H6)</span>
-          <span>Formuläretiketter</span>
-          <span>Länktexter och syfte</span>
-          <span>Hoppa-till-innehåll-länk</span>
-        </div>
-      </div>
       <div class="input-group">
         <input type="url" id="url-input" class="url-field"
           placeholder="https://dinwebbplats.se" autocomplete="url" spellcheck="false">
@@ -1151,9 +1155,31 @@
     return wrap;
   }
 
+  /* ms-per-character by line type */
+  const TYPE_SPEED = {
+    head: 16, meta: 5, fail: 11, done: 11,
+    rule: 2, section: 11, viol: 9, body: 5,
+    fix: 7, mod: 9
+  };
+
   function runTerminal() {
     const out = document.getElementById('term-lines');
     let li = 0;
+
+    function typeIn(el, text, c) {
+      let ci = 0;
+      const spd = TYPE_SPEED[c] || 7;
+      function tick() {
+        if (!termActive) return;
+        el.textContent = text.slice(0, ++ci);
+        if (ci < text.length) {
+          termTimeout = setTimeout(tick, spd + (Math.random() * spd * 0.5 | 0));
+        } else {
+          termTimeout = setTimeout(next, 18 + (Math.random() * 18 | 0));
+        }
+      }
+      tick();
+    }
 
     function next() {
       if (!termActive) return;
@@ -1161,50 +1187,32 @@
 
       const entry = TERM_LINES[li++];
 
-      /* Mini score card — rich element, no white-space:pre */
+      /* Mini score card */
       if (entry.c === 'score-card') {
         const el = createMiniCard(entry);
         out.appendChild(el);
-        if (out.children.length > 48) out.removeChild(out.firstChild);
+        if (out.children.length > 56) out.removeChild(out.firstChild);
         requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
-        termTimeout = setTimeout(next, 700 + Math.random() * 300);
+        termTimeout = setTimeout(next, 320);
         return;
       }
 
       const { t, c } = entry;
       const el = document.createElement('div');
       el.className = 'tl tl-' + c;
-      el.textContent = t || '\u00a0';
       out.appendChild(el);
+      if (out.children.length > 56) out.removeChild(out.firstChild);
 
-      /* Rolling window keeps DOM bounded */
-      if (out.children.length > 48) out.removeChild(out.firstChild);
+      if (c === 'gap') {
+        el.textContent = '\u00a0';
+        termTimeout = setTimeout(next, 28);
+        return;
+      }
 
-      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
-
-      const delay = (c === 'gap') ? 0 : 55 + Math.random() * 70;
-      termTimeout = setTimeout(next, delay);
+      typeIn(el, t || '\u00a0', c);
     }
 
     next();
-
-    /* Subtle contrast-ratio flicker */
-    termFlicker = setInterval(() => {
-      if (!termActive) return;
-      [...out.querySelectorAll('.tl-body')].forEach(el => {
-        if (Math.random() > 0.90 && el.textContent.match(/\d\.\d+:\d/)) {
-          const orig = el.textContent;
-          const s = orig.replace(/(\d+)\.(\d+):1/, (_, a, b) => {
-            const d = Math.random() > .5 ? 1 : -1;
-            return a + '.' + Math.max(10, Math.min(99, +b + d)) + ':1';
-          });
-          if (s !== orig) {
-            el.textContent = s;
-            setTimeout(() => { if (el.parentNode) el.textContent = orig; }, 120);
-          }
-        }
-      });
-    }, 700);
   }
 
   function stopTerminal() {
