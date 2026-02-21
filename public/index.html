@@ -287,6 +287,13 @@
     .tl-sc-o { color: rgba(160,85,0,.78); }
     .tl-sc-g { color: rgba(0,120,55,.78); }
 
+    /* Mini score hub — inline card in animation flow */
+    .mini-hub { display: flex; align-items: center; gap: 14px; padding: 10px 0 8px; opacity: 0; transition: opacity 0.10s ease; }
+    .mini-hub.show { opacity: 1; }
+    .mini-meta { display: flex; flex-direction: column; gap: 5px; }
+    .mini-site { font-size: 10px; color: rgba(0,0,0,.30); font-family: 'Courier New', Courier, monospace; letter-spacing: 0.02em; }
+    .mini-badge { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; color: #fff; padding: 2px 8px; display: inline-block; }
+
     /* ── RESULTS ── */
     #r-results {
       flex: 1;
@@ -647,11 +654,10 @@
     { t: '',                                                   c: 'gap'  },
     { t: '\u2500'.repeat(44),                                 c: 'rule' },
     { t: '',                                                   c: 'gap'  },
-    { t: '\u2588 SCORE    28 / 100',                          c: 'sc-r' },
-    { t: '  EJ GODKÄND  \u00b7  Non-conformant  \u00b7  14 issues', c: 'sc-r' },
+    { c: 'score-card', score: 28, conf: 'fail', site: 'bad-site.se' },
     { t: '',                                                   c: 'gap'  },
     { t: '',                                                   c: 'gap'  },
-    { t: '',                                                   c: 'fade' },
+    { t: '',                                                   c: 'gap'  },
 
     // ─── REPORT 2 — nordic-firm.se · 54/100 · NIVÅ A ────────────────
     { t: '# WCAG 2.2 Audit Report \u2014 nordic-firm.se',    c: 'head' },
@@ -695,11 +701,10 @@
     { t: '',                                                   c: 'gap'  },
     { t: '\u2500'.repeat(44),                                 c: 'rule' },
     { t: '',                                                   c: 'gap'  },
-    { t: '\u2588 SCORE    54 / 100',                          c: 'sc-o' },
-    { t: '  NIV\u00c5 A  \u00b7  Level A conformance  \u00b7  6 issues', c: 'sc-o' },
+    { c: 'score-card', score: 54, conf: 'mid', site: 'nordic-firm.se' },
     { t: '',                                                   c: 'gap'  },
     { t: '',                                                   c: 'gap'  },
-    { t: '',                                                   c: 'fade' },
+    { t: '',                                                   c: 'gap'  },
 
     // ─── REPORT 3 — digital-hub.se · 87/100 · NIVÅ AA ───────────────
     { t: '# WCAG 2.2 Audit Report \u2014 digital-hub.se',    c: 'head' },
@@ -739,11 +744,10 @@
     { t: '',                                                   c: 'gap'  },
     { t: '\u2500'.repeat(44),                                 c: 'rule' },
     { t: '',                                                   c: 'gap'  },
-    { t: '\u2588 SCORE    87 / 100',                          c: 'sc-g' },
-    { t: '  NIV\u00c5 AA  \u00b7  Level AA conformant  \u00b7  3 minor issues', c: 'sc-g' },
+    { c: 'score-card', score: 87, conf: 'pass', site: 'digital-hub.se' },
     { t: '',                                                   c: 'gap'  },
     { t: '',                                                   c: 'gap'  },
-    { t: '',                                                   c: 'fade' },
+    { t: '',                                                   c: 'gap'  },
   ];
 
   /* ═══════════════════════════════════════════════════════
@@ -1065,37 +1069,55 @@
   let termTimeout = null;
   let termFlicker = null;
 
+  /* Build a mini score-hub card element for inline animation */
+  function createMiniCard({ score, conf, site }) {
+    const r    = 18;
+    const circ = 2 * Math.PI * r; // ≈ 113.10
+    let colour, label;
+    if      (conf === 'pass') { colour = '#388e3c'; label = 'GODKÄND';    }
+    else if (conf === 'mid')  { colour = '#c17f00'; label = 'FÖRBÄTTRA';  }
+    else                      { colour = '#c62828'; label = 'EJ GODKÄND'; }
+    const offset = circ * (1 - score / 100);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'mini-hub';
+    wrap.innerHTML =
+      '<svg width="44" height="44" viewBox="0 0 44 44">' +
+        '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="3"/>' +
+        '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="' + colour + '" stroke-width="3"' +
+          ' stroke-dasharray="' + circ.toFixed(2) + '" stroke-dashoffset="' + offset.toFixed(2) + '"' +
+          ' stroke-linecap="round" transform="rotate(-90 22 22)"/>' +
+        '<text x="22" y="26" text-anchor="middle" font-family="\'Courier New\',monospace"' +
+          ' font-size="10" font-weight="700" fill="rgba(0,0,0,.52)">' + score + '</text>' +
+      '</svg>' +
+      '<div class="mini-meta">' +
+        '<span class="mini-site">' + site + '</span>' +
+        '<span class="mini-badge" style="background:' + colour + '">' + label + '</span>' +
+      '</div>';
+    return wrap;
+  }
+
   function runTerminal() {
     const out = document.getElementById('term-lines');
     let li = 0;
-
-    /* Fade the lines container out, clear DOM, fade back in, then call cb */
-    function fadeTransition(cb) {
-      out.style.opacity = '0';
-      termTimeout = setTimeout(() => {
-        if (!termActive) return;
-        out.innerHTML = '';
-        /* tiny delay so paint clears before fade-in starts */
-        termTimeout = setTimeout(() => {
-          if (!termActive) return;
-          out.style.opacity = '1';
-          termTimeout = setTimeout(cb, 300);
-        }, 60);
-      }, 800);
-    }
 
     function next() {
       if (!termActive) return;
       if (li >= TERM_LINES.length) li = 0;
 
-      const { t, c } = TERM_LINES[li++];
+      const entry = TERM_LINES[li++];
 
-      /* Fade marker — transition between reports */
-      if (c === 'fade') {
-        fadeTransition(next);
+      /* Mini score card — rich element, no white-space:pre */
+      if (entry.c === 'score-card') {
+        const el = createMiniCard(entry);
+        out.appendChild(el);
+        if (out.children.length > 48) out.removeChild(out.firstChild);
+        requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+        termTimeout = setTimeout(next, 700 + Math.random() * 300);
         return;
       }
 
+      const { t, c } = entry;
       const el = document.createElement('div');
       el.className = 'tl tl-' + c;
       el.textContent = t || '\u00a0';
