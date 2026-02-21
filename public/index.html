@@ -236,15 +236,22 @@
     /* ════════════════════════════════════════════
        RIGHT COLUMN
     ════════════════════════════════════════════ */
+    /* ── RIGHT COLUMN — sticky so it never affects left column height ── */
     #col-right {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
     }
 
     /* ── TERMINAL ANIMATION — white bg, muted report text ── */
     #r-terminal {
-      flex: 1;
+      flex: none;
+      width: 100%;
+      height: 100vh;
       background: var(--white);
       font-family: 'Courier New', Courier, monospace;
       font-size: 11.5px;
@@ -254,13 +261,15 @@
       flex-direction: column;
       justify-content: flex-end;
       overflow: hidden;
-      min-height: 100vh;
     }
-    #term-lines { display: flex; flex-direction: column; }
+    #term-lines {
+      display: flex; flex-direction: column;
+      transition: opacity 0.75s ease;
+    }
     .tl { white-space: pre; opacity: 0; transition: opacity 0.10s ease; }
     .tl.show { opacity: 1; }
 
-    /* All muted colors on white background */
+    /* Muted colors — report text */
     .tl-head    { color: rgba(0,0,0,.50); }
     .tl-meta    { color: rgba(0,0,0,.26); }
     .tl-fail    { color: rgba(155,20,20,.52); }
@@ -270,11 +279,13 @@
     .tl-body    { color: rgba(0,0,0,.24); }
     .tl-fix     { color: rgba(0,95,45,.36); }
     .tl-mod     { color: rgba(145,75,0,.44); }
-    .tl-p1      { color: rgba(155,20,20,.38); }
-    .tl-p2      { color: rgba(145,75,0,.34); }
-    .tl-p3      { color: rgba(0,95,45,.30); }
     .tl-done    { color: rgba(0,0,0,.42); }
     .tl-gap     { color: transparent; }
+
+    /* Score summary lines — stronger color, one per report */
+    .tl-sc-r { color: rgba(180,20,20,.78); }
+    .tl-sc-o { color: rgba(160,85,0,.78); }
+    .tl-sc-g { color: rgba(0,120,55,.78); }
 
     /* ── RESULTS ── */
     #r-results {
@@ -376,7 +387,8 @@
     @media (max-width: 900px) {
       #layout    { grid-template-columns: 1fr; }
       #col-left  { border-bottom: 1px solid var(--border); }
-      #r-terminal { min-height: 60vh; padding: 40px 28px; font-size: 10.5px; }
+      #r-terminal { height: 60vh; padding: 40px 28px; font-size: 10.5px; }
+      #col-right  { height: 60vh; }
       .score-hub { padding: 40px 32px 32px; gap: 24px; }
       .issues-section { padding: 32px; }
       #s-input, #s-gate, #s-error { padding: 48px 32px; }
@@ -591,136 +603,147 @@
     'Beräknar ditt betyg...'
   ];
 
-  /* ── WCAG report animation — long seamless loop ── */
+  /* ── WCAG animation: 3 reports, each ends with score + fade ── */
+  /* c:'fade' entries trigger a fade-out/clear/fade-in transition  */
   const TERM_LINES = [
-    { t: '# WCAG 2.2 Audit Report \u2014 example.se',              c: 'head' },
-    { t: '',                                                         c: 'gap'  },
-    { t: 'Audit Date:    2026-01-15',                               c: 'meta' },
-    { t: 'Auditor:       WCAG 2.2 audit engine v2.2',               c: 'meta' },
-    { t: 'Target:        WCAG 2.2 Level AA conformance',            c: 'meta' },
-    { t: 'Pages tested:  12 (homepage, nav, forms, media)',         c: 'meta' },
-    { t: 'Result:        \u2717 Does not conform',                  c: 'fail' },
-    { t: 'Score:         42 / 100',                                 c: 'meta' },
-    { t: 'Total issues:  9 violations  \u00b7  3 moderate',         c: 'meta' },
-    { t: '',                                                         c: 'gap'  },
-    { t: '\u2500'.repeat(48),                                       c: 'rule' },
-    { t: '',                                                         c: 'gap'  },
-    { t: 'VIOLATIONS \u2014 LEVEL A  (6 found)',                    c: 'section' },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[1] Missing page language declaration \u2014 WCAG 3.1.1', c: 'viol' },
-    { t: '    Element:  <html> (no lang attribute)',                 c: 'body' },
-    { t: '    Impact:   Screen readers use OS language, may',       c: 'body' },
-    { t: '              mispronounce or skip Swedish content.',      c: 'body' },
-    { t: '    JAWS/NVDA: reads page in wrong voice.',               c: 'body' },
-    { t: '    Fix:      <html lang="sv">',                          c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[2] Images missing alt text \u2014 WCAG 1.1.1',          c: 'viol' },
-    { t: '    Elements: img.hero-banner, img.ceo-photo (+4 more)',  c: 'body' },
-    { t: '    Impact:   6 images convey zero information to',       c: 'body' },
-    { t: '              screen reader and braille users.',           c: 'body' },
-    { t: '    Fix:      alt="Descriptive text" on each image.',     c: 'fix'  },
-    { t: '              Decorative: alt="" (empty, not missing).',   c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[3] No skip navigation mechanism \u2014 WCAG 2.4.1',     c: 'viol' },
-    { t: '    Impact:   Keyboard-only users must Tab through all',  c: 'body' },
-    { t: '              47 navigation links on every page load.',    c: 'body' },
-    { t: '    Fix:      <a class="skip-link" href="#main">',        c: 'fix'  },
-    { t: '                Skip to main content</a>',                c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[4] Broken heading hierarchy \u2014 WCAG 1.3.1',         c: 'viol' },
-    { t: '    Found:    H1 \u2192 H3 \u2192 H5 (H2 and H4 absent)', c: 'body' },
-    { t: '    Impact:   AT users cannot navigate by heading.',      c: 'body' },
-    { t: '              Document outline is broken.',                c: 'body' },
-    { t: '    Fix:      H1 \u2192 H2 \u2192 H3  (sequential only)', c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[5] Icon links without accessible names \u2014 2.4.4',   c: 'viol' },
-    { t: '    Found:    14 <a> elements (social icons, arrows)',    c: 'body' },
-    { t: '    Impact:   NVDA announces "link" with no context.',    c: 'body' },
-    { t: '              Users cannot predict link destination.',     c: 'body' },
-    { t: '    Fix:      aria-label="Follow on Instagram"',          c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[6] Custom tab widget inaccessible \u2014 WCAG 4.1.2',   c: 'viol' },
-    { t: '    Found:    <div> tabs with no ARIA semantics.',        c: 'body' },
-    { t: '    Impact:   Screen readers see plain div/button mix.',  c: 'body' },
-    { t: '              No keyboard arrow key navigation.',          c: 'body' },
-    { t: '    Fix:      role="tablist" + role="tab"',               c: 'fix'  },
-    { t: '              aria-selected + tabindex management',        c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '\u2500'.repeat(48),                                       c: 'rule' },
-    { t: '',                                                         c: 'gap'  },
-    { t: 'VIOLATIONS \u2014 LEVEL AA  (3 found)',                   c: 'section' },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[7] Focus indicators suppressed globally \u2014 2.4.7',  c: 'viol' },
-    { t: '    Source:   * { outline: none !important; }',           c: 'body' },
-    { t: '    Impact:   Zero keyboard focus visibility on all',     c: 'body' },
-    { t: '              interactive elements (links, buttons, inputs).', c: 'body' },
-    { t: '    WCAG req: Focus must be visible and meet 3:1 contrast.', c: 'body' },
-    { t: '    Fix:      :focus-visible {',                          c: 'fix'  },
-    { t: '                outline: 3px solid #005fcc;',             c: 'fix'  },
-    { t: '                outline-offset: 2px; }',                  c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[8] Text contrast failures \u2014 WCAG 1.4.3',           c: 'viol' },
-    { t: '    .nav-link (teal #4DB6C0 / white):   2.26:1  \u2717',  c: 'body' },
-    { t: '    .cta-label (orange #F5A623 / white): 2.94:1  \u2717', c: 'body' },
-    { t: '    footer p (grey #9E9E9E / white):     3.12:1  \u2717', c: 'body' },
-    { t: '    Required: 4.5:1 (normal text)',                       c: 'body' },
-    { t: '    Fix:      Darken foreground or lighten background.',  c: 'fix'  },
-    { t: '    Tool:     WebAIM Contrast Checker',                   c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[9] Form fields without labels \u2014 WCAG 1.3.1',       c: 'viol' },
-    { t: '    Elements: input#search, input#newsletter',            c: 'body' },
-    { t: '    Impact:   Purpose not programmatically determinable.', c: 'body' },
-    { t: '              VoiceOver reads field type only.',           c: 'body' },
-    { t: '    Fix:      <label for="search">S\u00f6k</label>',      c: 'fix'  },
-    { t: '              or aria-label="S\u00f6k p\u00e5 webbplatsen"', c: 'fix' },
-    { t: '',                                                         c: 'gap'  },
-    { t: '\u2500'.repeat(48),                                       c: 'rule' },
-    { t: '',                                                         c: 'gap'  },
-    { t: 'MODERATE ISSUES  (3 found)',                              c: 'section' },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[10] Duplicate link text \u2014 WCAG 2.4.4',             c: 'mod'  },
-    { t: '     8 \u00d7 "L\u00e4s mer" links pointing to different URLs.', c: 'body' },
-    { t: '     Screen reader users browsing by links list',         c: 'body' },
-    { t: '     see 8 identical "L\u00e4s mer" entries.',            c: 'body' },
-    { t: '     Fix: "L\u00e4s mer om WCAG-revisioner \u2192"',     c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[11] Language mismatch in alt text \u2014 WCAG 3.1.2',   c: 'mod'  },
-    { t: '     3 images have English alt on Swedish page.',         c: 'body' },
-    { t: '     Screen readers switch TTS language mid-sentence.',   c: 'body' },
-    { t: '     Fix: alt="Beskrivning p\u00e5 svenska"',             c: 'fix'  },
-    { t: '',                                                         c: 'gap'  },
-    { t: '[12] Superfluous markup in headings \u2014 WCAG 1.3.1',  c: 'mod'  },
-    { t: '     <h2><strong>Full heading</strong></h2>',             c: 'body' },
-    { t: '     <strong> inside heading adds no semantic value.',    c: 'body' },
-    { t: '     AT may double-announce emphasis unnecessarily.',     c: 'body' },
-    { t: '',                                                         c: 'gap'  },
-    { t: '\u2500'.repeat(48),                                       c: 'rule' },
-    { t: '',                                                         c: 'gap'  },
-    { t: 'REMEDIATION PRIORITY',                                    c: 'section' },
-    { t: '',                                                         c: 'gap'  },
-    { t: 'P1  Add lang attribute              5 min     dev',       c: 'p1'   },
-    { t: 'P1  Restore :focus-visible         30 min     CSS',      c: 'p1'   },
-    { t: 'P1  Fix 3 contrast failures         3 hr     design+CSS', c: 'p1'  },
-    { t: 'P2  Add alt text to 6 images        1 hr     content',   c: 'p2'   },
-    { t: 'P2  Add skip navigation link       20 min     dev',      c: 'p2'   },
-    { t: 'P2  Fix heading hierarchy           2 hr     content',   c: 'p2'   },
-    { t: 'P2  Label 14 icon links             1 hr     dev',       c: 'p2'   },
-    { t: 'P2  Associate 2 form labels        20 min     dev',      c: 'p2'   },
-    { t: 'P3  ARIA tab widget pattern         4 hr     dev',       c: 'p3'   },
-    { t: 'P3  Resolve duplicate link text     1 hr     content',   c: 'p3'   },
-    { t: '',                                                         c: 'gap'  },
-    { t: '\u2500'.repeat(48),                                       c: 'rule' },
-    { t: '',                                                         c: 'gap'  },
-    { t: 'ESTIMATED EFFORT',                                        c: 'section' },
-    { t: '',                                                         c: 'gap'  },
-    { t: 'Developer:   ~9 hr',                                      c: 'meta' },
-    { t: 'Designer:    ~3 hr',                                      c: 'meta' },
-    { t: 'Content:     ~2 hr',                                      c: 'meta' },
-    { t: 'Total:       ~14 hr to full AA conformance',              c: 'meta' },
-    { t: '',                                                         c: 'gap'  },
-    { t: 'Report complete. 9 violations  \u00b7  3 moderate.',      c: 'done' },
-    { t: '',                                                         c: 'gap'  },
-    { t: '',                                                         c: 'gap'  },
+
+    // ─── REPORT 1 — bad-site.se · 28/100 · EJ GODKÄND ──────────────
+    { t: '# WCAG 2.2 Audit Report \u2014 bad-site.se',       c: 'head' },
+    { t: '',                                                   c: 'gap'  },
+    { t: 'Audit Date:  2026-01-15',                           c: 'meta' },
+    { t: 'Target:      WCAG 2.2 Level AA',                    c: 'meta' },
+    { t: 'Result:      \u2717 Does not conform',              c: 'fail' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: 'VIOLATIONS \u2014 LEVEL A  (7 found)',              c: 'section' },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[1] Missing lang attribute \u2014 3.1.1',           c: 'viol' },
+    { t: '    Impact: Screen readers mispronounce content.',  c: 'body' },
+    { t: '    Fix:    <html lang="sv">',                      c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[2] 9 images missing alt text \u2014 1.1.1',        c: 'viol' },
+    { t: '    Affected: img.hero, img.ceo-photo (+7 more)',   c: 'body' },
+    { t: '    Fix:    alt="Descriptive text" per image.',     c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[3] No skip navigation link \u2014 2.4.1',          c: 'viol' },
+    { t: '    Impact: 47 nav links must be tabbed every load.', c: 'body' },
+    { t: '    Fix:    <a href="#main" class="skip">Skip</a>', c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[4] Focus indicators removed globally \u2014 2.4.7', c: 'viol' },
+    { t: '    CSS:    * { outline: none !important }',        c: 'body' },
+    { t: '    Fix:    :focus-visible { outline: 3px solid }', c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[5] 17 icon links unlabeled \u2014 2.4.4',          c: 'viol' },
+    { t: '    Fix:    aria-label on every icon link.',        c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[6] Contrast failures \u00d7 5 \u2014 1.4.3',       c: 'viol' },
+    { t: '    Range:  1.84:1 \u2013 2.91:1 / required 4.5:1', c: 'body' },
+    { t: '    Fix:    Darken all low-contrast text.',         c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[7] Keyboard trap in modal dialog \u2014 2.1.2',    c: 'viol' },
+    { t: '    Impact: Focus escapes modal, page unusable.',   c: 'body' },
+    { t: '    Fix:    Focus trap + Escape key handler.',      c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2588 SCORE    28 / 100',                          c: 'sc-r' },
+    { t: '  EJ GODKÄND  \u00b7  Non-conformant  \u00b7  14 issues', c: 'sc-r' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'fade' },
+
+    // ─── REPORT 2 — nordic-firm.se · 54/100 · NIVÅ A ────────────────
+    { t: '# WCAG 2.2 Audit Report \u2014 nordic-firm.se',    c: 'head' },
+    { t: '',                                                   c: 'gap'  },
+    { t: 'Audit Date:  2026-01-15',                           c: 'meta' },
+    { t: 'Target:      WCAG 2.2 Level AA',                    c: 'meta' },
+    { t: 'Result:      \u25b3 Partial conformance',           c: 'fail' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: 'VIOLATIONS \u2014 LEVEL A  (3 found)',              c: 'section' },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[1] Missing lang attribute \u2014 3.1.1',           c: 'viol' },
+    { t: '    Fix: <html lang="sv">',                         c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[2] 3 images missing alt text \u2014 1.1.1',        c: 'viol' },
+    { t: '    Affected: hero banner, two card images.',       c: 'body' },
+    { t: '    Fix: Add meaningful alt attributes.',           c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[3] Form labels missing \u2014 1.3.1',              c: 'viol' },
+    { t: '    Affected: input#search, input#email',           c: 'body' },
+    { t: '    Fix: <label for="search">S\u00f6k</label>',    c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: 'VIOLATIONS \u2014 LEVEL AA  (1 found)',             c: 'section' },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[4] Contrast failure \u2014 1.4.3',                 c: 'viol' },
+    { t: '    .nav-text: 3.10:1  required 4.5:1  \u2717',    c: 'body' },
+    { t: '    Fix: #666 \u2192 #444 on white background.',   c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: 'MODERATE  (2 found)',                               c: 'section' },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[5] Duplicate "L\u00e4s mer" links \u00d7 4',       c: 'mod'  },
+    { t: '    Fix: Unique descriptive link text per item.',   c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[6] Heading order skipped H2 \u2192 H4',           c: 'mod'  },
+    { t: '    Fix: H1 \u2192 H2 \u2192 H3, no levels skipped.', c: 'fix' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2588 SCORE    54 / 100',                          c: 'sc-o' },
+    { t: '  NIV\u00c5 A  \u00b7  Level A conformance  \u00b7  6 issues', c: 'sc-o' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'fade' },
+
+    // ─── REPORT 3 — digital-hub.se · 87/100 · NIVÅ AA ───────────────
+    { t: '# WCAG 2.2 Audit Report \u2014 digital-hub.se',    c: 'head' },
+    { t: '',                                                   c: 'gap'  },
+    { t: 'Audit Date:  2026-01-15',                           c: 'meta' },
+    { t: 'Target:      WCAG 2.2 Level AA',                    c: 'meta' },
+    { t: 'Result:      \u2713 Substantially conformant',      c: 'done' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: 'VIOLATIONS \u2014 LEVEL AA  (1 found)',             c: 'section' },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[1] Focus not visible on mobile nav \u2014 2.4.7',  c: 'viol' },
+    { t: '    CSS: .hamburger { outline: none }',             c: 'body' },
+    { t: '    Fix: :focus-visible { outline: 2px solid }',   c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: 'MODERATE  (2 found)',                               c: 'section' },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[2] Decorative images: alt not empty \u2014 1.1.1', c: 'mod'  },
+    { t: '    Fix: alt="" for purely decorative images.',     c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[3] Cart update: no live region \u2014 4.1.3',      c: 'mod'  },
+    { t: '    Fix: role="status" aria-live="polite"',         c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: 'PASSES  (\u2713 6 checks)',                         c: 'section' },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2713 All images with meaning have alt text',      c: 'fix'  },
+    { t: '\u2713 Headings H1\u2013H4 fully sequential',       c: 'fix'  },
+    { t: '\u2713 All forms have associated visible labels',   c: 'fix'  },
+    { t: '\u2713 Keyboard navigation fully functional',       c: 'fix'  },
+    { t: '\u2713 Color contrast: 7.20:1 avg ratio',           c: 'fix'  },
+    { t: '\u2713 Skip link present and functional',           c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2500'.repeat(44),                                 c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '\u2588 SCORE    87 / 100',                          c: 'sc-g' },
+    { t: '  NIV\u00c5 AA  \u00b7  Level AA conformant  \u00b7  3 minor issues', c: 'sc-g' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'fade' },
   ];
 
   /* ═══════════════════════════════════════════════════════
@@ -1047,31 +1070,56 @@
     const out = document.getElementById('term-lines');
     let li = 0;
 
+    /* Fade the lines container out, clear DOM, fade back in, then call cb */
+    function fadeTransition(cb) {
+      out.style.opacity = '0';
+      termTimeout = setTimeout(() => {
+        if (!termActive) return;
+        out.innerHTML = '';
+        /* tiny delay so paint clears before fade-in starts */
+        termTimeout = setTimeout(() => {
+          if (!termActive) return;
+          out.style.opacity = '1';
+          termTimeout = setTimeout(cb, 300);
+        }, 60);
+      }, 800);
+    }
+
     function next() {
       if (!termActive) return;
-
-      /* Seamless loop — restart index without any pause or clear */
       if (li >= TERM_LINES.length) li = 0;
 
       const { t, c } = TERM_LINES[li++];
+
+      /* Fade marker — transition between reports */
+      if (c === 'fade') {
+        fadeTransition(next);
+        return;
+      }
+
       const el = document.createElement('div');
       el.className = 'tl tl-' + c;
       el.textContent = t || '\u00a0';
       out.appendChild(el);
 
-      /* Rolling window — oldest line scrolls off the top */
+      /* Rolling window keeps DOM bounded */
       if (out.children.length > 48) out.removeChild(out.firstChild);
 
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
 
-      /* Gap lines appear instantly; content lines stream with natural delay */
       const delay = (c === 'gap') ? 0 : 55 + Math.random() * 70;
       termTimeout = setTimeout(next, delay);
     }
 
-    next();
+    /* Initial fade-in */
+    out.style.opacity = '0';
+    termTimeout = setTimeout(() => {
+      if (!termActive) return;
+      out.style.opacity = '1';
+      termTimeout = setTimeout(next, 300);
+    }, 200);
 
-    /* Subtle flicker on contrast ratio values to suggest live measurement */
+    /* Subtle contrast-ratio flicker */
     termFlicker = setInterval(() => {
       if (!termActive) return;
       [...out.querySelectorAll('.tl-body')].forEach(el => {
