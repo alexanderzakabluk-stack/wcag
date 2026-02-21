@@ -905,12 +905,12 @@
   /* ═══════════════════════════════════════════════════════
      CONFORMANCE (computed from issues array)
   ═══════════════════════════════════════════════════════ */
+  /* 3 ranks: pass (green) · mid (yellow) · fail (red) */
   function computeConformance(issues) {
-    if (!issues || issues.length === 0) return 'level-aaa';
-    if (issues.some(i => i.severity === 'critical')) return 'non-conformant';
-    if (issues.some(i => i.severity === 'serious'))  return 'level-a';
-    if (issues.some(i => i.severity === 'moderate')) return 'level-aa';
-    return 'level-aaa';
+    if (!issues || issues.length === 0) return 'pass';
+    if (issues.some(i => i.severity === 'critical')) return 'fail';
+    if (issues.some(i => i.severity === 'serious'))  return 'mid';
+    return 'pass'; /* only moderate issues — still OK */
   }
 
   /* ═══════════════════════════════════════════════════════
@@ -971,10 +971,9 @@
     const badge = document.getElementById('conf-badge');
 
     let colour, label;
-    if      (conf === 'level-aaa') { colour = '#388e3c'; label = 'NIVÅ AAA'; }
-    else if (conf === 'level-aa')  { colour = '#1976d2'; label = 'NIVÅ AA';  }
-    else if (conf === 'level-a')   { colour = '#f57c00'; label = 'NIVÅ A';   }
-    else                           { colour = '#d32f2f'; label = 'EJ GODKÄND'; }
+    if      (conf === 'pass') { colour = '#388e3c'; label = 'GODKÄND';    }
+    else if (conf === 'mid')  { colour = '#c17f00'; label = 'FÖRBÄTTRA';  }
+    else                      { colour = '#c62828'; label = 'EJ GODKÄND'; }
 
     arc.style.stroke       = colour;
     badge.textContent      = label;
