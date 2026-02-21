@@ -63,7 +63,7 @@
     ════════════════════════════════════════════ */
     #layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 58fr 42fr;
       min-height: 100vh;
     }
 
@@ -371,15 +371,23 @@
     .locked-count { font-size: 20px; font-weight: 700; }
     .locked-hint  { font-size: 13px; color: var(--mid); }
 
-    /* ── FOOTER ────────────────────────────────── */
-    #site-footer {
-      background: var(--white); border-top: 1px solid var(--border);
-      padding: 20px 24px; display: flex; align-items: center;
-      justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    /* ── AUDIT CATEGORIES ── */
+    .audit-cats { margin-bottom: 32px; }
+    .audit-cats-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      color: rgba(0,0,0,.30); margin-bottom: 12px; display: block;
     }
-    .ft-copy  { font-size: 12px; color: var(--mid); }
-    .ft-email { font-size: 12px; color: var(--accent); text-decoration: none; }
-    .ft-email:hover { text-decoration: underline; }
+    .audit-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px;
+    }
+    .audit-grid span {
+      font-size: 13px; color: var(--mid);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .audit-grid span::before {
+      content: ''; display: inline-block; width: 5px; height: 5px;
+      background: rgba(0,0,0,.18); border-radius: 50%; flex-shrink: 0;
+    }
 
     /* ════════════════════════════════════════════
        RESPONSIVE
@@ -426,10 +434,27 @@
       <h1 class="hero-title">Klarar Din Webbplats<br>WCAG&nbsp;2.2?</h1>
       <p class="hero-sub">Få ett omedelbart tillgänglighetsbetyg och ta reda på om din webbplats utsätter dig för juridiska risker.</p>
       <ul class="check-list">
-        <li>Gratis tillgänglighetsanalys</li>
-        <li>Se dina största problem direkt</li>
-        <li>Få en komplett PDF-rapport</li>
+        <li>Gratis tillgänglighetsanalys — inga dolda kostnader</li>
+        <li>Se dina kritiska WCAG-problem direkt</li>
+        <li>Kontrolleras mot 50+ WCAG 2.2-kriterier</li>
+        <li>Täcker Level A och Level AA (EU-krav)</li>
+        <li>Få en komplett PDF-rapport via e-post</li>
       </ul>
+      <div class="audit-cats">
+        <span class="audit-cats-label">VI KONTROLLERAR BLAND ANNAT</span>
+        <div class="audit-grid">
+          <span>Textalternativ (alt-texter)</span>
+          <span>Tangentbordsnavigering</span>
+          <span>Färgkontrast (1.4.3)</span>
+          <span>Fokusindikator (2.4.7)</span>
+          <span>Sidspråk — HTML lang</span>
+          <span>ARIA-roller och semantik</span>
+          <span>Rubrikstruktur (H1–H6)</span>
+          <span>Formuläretiketter</span>
+          <span>Länktexter och syfte</span>
+          <span>Hoppa-till-innehåll-länk</span>
+        </div>
+      </div>
       <div class="input-group">
         <input type="url" id="url-input" class="url-field"
           placeholder="https://dinwebbplats.se" autocomplete="url" spellcheck="false">
@@ -587,12 +612,6 @@
 </div><!-- /#layout -->
 
 
-<footer id="site-footer">
-  <span class="ft-copy">&copy; 2026 Devies Group</span>
-  <a href="mailto:hello@devies.se" class="ft-email">hello@devies.se</a>
-</footer>
-
-
 <script>
   /* ═══════════════════════════════════════════════════════
      CONSTANTS
@@ -610,145 +629,180 @@
     'Beräknar ditt betyg...'
   ];
 
-  /* ── WCAG animation: 3 reports, each ends with score + fade ── */
-  /* c:'fade' entries trigger a fade-out/clear/fade-in transition  */
+  /* ── WCAG animation: 3 reports loop endlessly ── */
   const TERM_LINES = [
 
-    // ─── REPORT 1 — bad-site.se · 28/100 · EJ GODKÄND ──────────────
-    { t: '# WCAG 2.2 Audit Report \u2014 bad-site.se',       c: 'head' },
-    { t: '',                                                   c: 'gap'  },
-    { t: 'Audit Date:  2026-01-15',                           c: 'meta' },
-    { t: 'Target:      WCAG 2.2 Level AA',                    c: 'meta' },
-    { t: 'Result:      \u2717 Does not conform',              c: 'fail' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: 'VIOLATIONS \u2014 LEVEL A  (7 found)',              c: 'section' },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[1] Missing lang attribute \u2014 3.1.1',           c: 'viol' },
-    { t: '    Impact: Screen readers mispronounce content.',  c: 'body' },
-    { t: '    Fix:    <html lang="sv">',                      c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[2] 9 images missing alt text \u2014 1.1.1',        c: 'viol' },
-    { t: '    Affected: img.hero, img.ceo-photo (+7 more)',   c: 'body' },
-    { t: '    Fix:    alt="Descriptive text" per image.',     c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[3] No skip navigation link \u2014 2.4.1',          c: 'viol' },
-    { t: '    Impact: 47 nav links must be tabbed every load.', c: 'body' },
-    { t: '    Fix:    <a href="#main" class="skip">Skip</a>', c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[4] Focus indicators removed globally \u2014 2.4.7', c: 'viol' },
-    { t: '    CSS:    * { outline: none !important }',        c: 'body' },
-    { t: '    Fix:    :focus-visible { outline: 3px solid }', c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[5] 17 icon links unlabeled \u2014 2.4.4',          c: 'viol' },
-    { t: '    Fix:    aria-label on every icon link.',        c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[6] Contrast failures \u00d7 5 \u2014 1.4.3',       c: 'viol' },
-    { t: '    Range:  1.84:1 \u2013 2.91:1 / required 4.5:1', c: 'body' },
-    { t: '    Fix:    Darken all low-contrast text.',         c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[7] Keyboard trap in modal dialog \u2014 2.1.2',    c: 'viol' },
-    { t: '    Impact: Focus escapes modal, page unusable.',   c: 'body' },
-    { t: '    Fix:    Focus trap + Escape key handler.',      c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
-    { c: 'score-card', score: 28, conf: 'fail', site: 'bad-site.se' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '',                                                   c: 'gap'  },
+    // ─── REPORT 1 — leabank.se · 42/100 · EJ GODKÄND ───────────────
+    { t: '# WCAG 2.2 Audit Report — leabank.se',          c: 'head' },
+    { t: '',                                                     c: 'gap'  },
+    { t: 'Audit Date:  2026-02-20',                             c: 'meta' },
+    { t: 'Auditor:     Devies WCAG Agent',                      c: 'meta' },
+    { t: 'Target:      WCAG 2.2 Level AA',                      c: 'meta' },
+    { t: 'Result:      ✗ Does not conform',                c: 'fail' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: 'VIOLATIONS — LEVEL A  (6 found)',                c: 'section' },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[1] Empty lang attribute — 3.1.1',               c: 'viol' },
+    { t: '    <html lang=""> — attribute exists but empty.', c: 'body' },
+    { t: '    JAWS reads page in OS default language, not sv.', c: 'body' },
+    { t: '    Fix: <html lang="sv">',                           c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[2] 7 images with non-descriptive alt — 1.1.1',  c: 'viol' },
+    { t: '    hero photo:   alt="alt"  ← meaningless.',    c: 'body' },
+    { t: '    Apple banner: alt="Multi-Product Apple Asset.png"', c: 'body' },
+    { t: '    Credit card:  Norwegian-language filename text.', c: 'body' },
+    { t: '    Fix: alt="Person sitter vid laptop i hemmet"',    c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[3] No skip navigation link — 2.4.1',            c: 'viol' },
+    { t: '    Keyboard users must tab all nav items every load.', c: 'body' },
+    { t: '    Fix: <a href="#main-content" class="skip-link">',  c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[4] Broken heading hierarchy — 1.3.1',           c: 'viol' },
+    { t: '    H1 → H3 → H5  (H2 and H4 absent)',     c: 'body' },
+    { t: '    H2 → H5  (H3 and H4 skipped in products)',  c: 'body' },
+    { t: '    Fix: H1 → H2 → H3  (sequential only)', c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[5] 6+ links without accessible names — 2.4.4',  c: 'viol' },
+    { t: '    Logo, 4 card image links, LinkedIn, Facebook.',   c: 'body' },
+    { t: '    NVDA announces "link" with no destination.',      c: 'body' },
+    { t: '    Fix: aria-label="Lea Bank – Startsida"',     c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[6] Product tabs lack ARIA pattern — 4.1.2',     c: 'viol' },
+    { t: '    <button type="submit"> outside any form.',        c: 'body' },
+    { t: '    No role="tab" — AT sees unlabeled buttons.', c: 'body' },
+    { t: '    Fix: role="tablist" + role="tab" + aria-selected', c: 'fix' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: 'VIOLATIONS — LEVEL AA  (2 found)',               c: 'section' },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[7] Focus indicator removed globally — 2.4.7',   c: 'viol' },
+    { t: '    .btn:focus-visible { outline: 0px }',             c: 'body' },
+    { t: '    All buttons: outlineWidth = "0px" confirmed.',    c: 'body' },
+    { t: '    Fix: :focus-visible { outline: 3px solid #005fcc }', c: 'fix' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[8] Color contrast failures — 1.4.3',            c: 'viol' },
+    { t: '    Privatlån  #0AC2A7/white:  2.26:1  ✗',       c: 'body' },
+    { t: '    Samla lån #FE653E/white:  2.94:1  ✗',   c: 'body' },
+    { t: '    Sparkonto  #71427B/white:  7.59:1  ✓',       c: 'body' },
+    { t: '    Required: 4.5:1  Fix: #007A69 / #C03A18',        c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: 'MODERATE  (3 found)',                                 c: 'section' },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[9]  Duplicate "Läs mer och ansök" — 2.4.4', c: 'mod' },
+    { t: '     2 links, same text, different destinations.',    c: 'body' },
+    { t: '     Fix: aria-label="...om Privatlån" per link.',    c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[10] Norwegian alt text on Swedish page — 3.1.2', c: 'mod' },
+    { t: '     SVG alt: "leakort med riktig visa størrelse"', c: 'body' },
+    { t: '     Fix: translate to Swedish or use alt="".',       c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[11] <strong> inside every heading — 1.3.1',    c: 'mod'  },
+    { t: '     NVDA: "heading level 2, bold, Kreditkort".',    c: 'body' },
+    { t: '     Fix: remove <strong> wrappers from headings.',  c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { c: 'score-card', score: 42, conf: 'fail', site: 'leabank.se' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '',                                                     c: 'gap'  },
 
-    // ─── REPORT 2 — nordic-firm.se · 54/100 · NIVÅ A ────────────────
-    { t: '# WCAG 2.2 Audit Report \u2014 nordic-firm.se',    c: 'head' },
-    { t: '',                                                   c: 'gap'  },
-    { t: 'Audit Date:  2026-01-15',                           c: 'meta' },
-    { t: 'Target:      WCAG 2.2 Level AA',                    c: 'meta' },
-    { t: 'Result:      \u25b3 Partial conformance',           c: 'fail' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: 'VIOLATIONS \u2014 LEVEL A  (3 found)',              c: 'section' },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[1] Missing lang attribute \u2014 3.1.1',           c: 'viol' },
-    { t: '    Fix: <html lang="sv">',                         c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[2] 3 images missing alt text \u2014 1.1.1',        c: 'viol' },
-    { t: '    Affected: hero banner, two card images.',       c: 'body' },
-    { t: '    Fix: Add meaningful alt attributes.',           c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[3] Form labels missing \u2014 1.3.1',              c: 'viol' },
-    { t: '    Affected: input#search, input#email',           c: 'body' },
-    { t: '    Fix: <label for="search">S\u00f6k</label>',    c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: 'VIOLATIONS \u2014 LEVEL AA  (1 found)',             c: 'section' },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[4] Contrast failure \u2014 1.4.3',                 c: 'viol' },
-    { t: '    .nav-text: 3.10:1  required 4.5:1  \u2717',    c: 'body' },
-    { t: '    Fix: #666 \u2192 #444 on white background.',   c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: 'MODERATE  (2 found)',                               c: 'section' },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[5] Duplicate "L\u00e4s mer" links \u00d7 4',       c: 'mod'  },
-    { t: '    Fix: Unique descriptive link text per item.',   c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[6] Heading order skipped H2 \u2192 H4',           c: 'mod'  },
-    { t: '    Fix: H1 \u2192 H2 \u2192 H3, no levels skipped.', c: 'fix' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
+    // ─── REPORT 2 — nordic-firm.se · 54/100 · FÖRBÄTTRA ─────────────
+    { t: '# WCAG 2.2 Audit Report — nordic-firm.se',      c: 'head' },
+    { t: '',                                                     c: 'gap'  },
+    { t: 'Audit Date:  2026-02-20',                             c: 'meta' },
+    { t: 'Target:      WCAG 2.2 Level AA',                      c: 'meta' },
+    { t: 'Result:      △ Partial conformance',             c: 'fail' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: 'VIOLATIONS — LEVEL A  (3 found)',                c: 'section' },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[1] Missing lang attribute — 3.1.1',             c: 'viol' },
+    { t: '    Fix: <html lang="sv">',                           c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[2] 3 images missing alt text — 1.1.1',          c: 'viol' },
+    { t: '    Affected: hero banner, two card images.',         c: 'body' },
+    { t: '    Fix: Add meaningful alt attributes.',             c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[3] Form labels missing — 1.3.1',                c: 'viol' },
+    { t: '    Affected: input#search, input#email',             c: 'body' },
+    { t: '    Fix: <label for="search">Sök</label>',      c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: 'VIOLATIONS — LEVEL AA  (1 found)',               c: 'section' },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[4] Contrast failure — 1.4.3',                   c: 'viol' },
+    { t: '    .nav-text: 3.10:1  required 4.5:1  ✗',      c: 'body' },
+    { t: '    Fix: #666 → #444 on white background.',     c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: 'MODERATE  (2 found)',                                 c: 'section' },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[5] Duplicate "Läs mer" links × 4',         c: 'mod'  },
+    { t: '    Fix: Unique descriptive link text per item.',     c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[6] Heading order skipped H2 → H4',             c: 'mod'  },
+    { t: '    Fix: H1 → H2 → H3, no levels skipped.', c: 'fix' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
     { c: 'score-card', score: 54, conf: 'mid', site: 'nordic-firm.se' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '',                                                     c: 'gap'  },
 
-    // ─── REPORT 3 — digital-hub.se · 87/100 · NIVÅ AA ───────────────
-    { t: '# WCAG 2.2 Audit Report \u2014 digital-hub.se',    c: 'head' },
-    { t: '',                                                   c: 'gap'  },
-    { t: 'Audit Date:  2026-01-15',                           c: 'meta' },
-    { t: 'Target:      WCAG 2.2 Level AA',                    c: 'meta' },
-    { t: 'Result:      \u2713 Substantially conformant',      c: 'done' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: 'VIOLATIONS \u2014 LEVEL AA  (1 found)',             c: 'section' },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[1] Focus not visible on mobile nav \u2014 2.4.7',  c: 'viol' },
-    { t: '    CSS: .hamburger { outline: none }',             c: 'body' },
-    { t: '    Fix: :focus-visible { outline: 2px solid }',   c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: 'MODERATE  (2 found)',                               c: 'section' },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[2] Decorative images: alt not empty \u2014 1.1.1', c: 'mod'  },
-    { t: '    Fix: alt="" for purely decorative images.',     c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '[3] Cart update: no live region \u2014 4.1.3',      c: 'mod'  },
-    { t: '    Fix: role="status" aria-live="polite"',         c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: 'PASSES  (\u2713 6 checks)',                         c: 'section' },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2713 All images with meaning have alt text',      c: 'fix'  },
-    { t: '\u2713 Headings H1\u2013H4 fully sequential',       c: 'fix'  },
-    { t: '\u2713 All forms have associated visible labels',   c: 'fix'  },
-    { t: '\u2713 Keyboard navigation fully functional',       c: 'fix'  },
-    { t: '\u2713 Color contrast: 7.20:1 avg ratio',           c: 'fix'  },
-    { t: '\u2713 Skip link present and functional',           c: 'fix'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '\u2500'.repeat(44),                                 c: 'rule' },
-    { t: '',                                                   c: 'gap'  },
+    // ─── REPORT 3 — digital-hub.se · 87/100 · GODKÄND ───────────────
+    { t: '# WCAG 2.2 Audit Report — digital-hub.se',      c: 'head' },
+    { t: '',                                                     c: 'gap'  },
+    { t: 'Audit Date:  2026-02-20',                             c: 'meta' },
+    { t: 'Target:      WCAG 2.2 Level AA',                      c: 'meta' },
+    { t: 'Result:      ✓ Substantially conformant',        c: 'done' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: 'VIOLATIONS — LEVEL AA  (1 found)',               c: 'section' },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[1] Focus not visible on mobile nav — 2.4.7',    c: 'viol' },
+    { t: '    CSS: .hamburger { outline: none }',               c: 'body' },
+    { t: '    Fix: :focus-visible { outline: 2px solid }',     c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: 'MODERATE  (2 found)',                                 c: 'section' },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[2] Decorative images: alt not empty — 1.1.1',  c: 'mod'  },
+    { t: '    Fix: alt="" for purely decorative images.',       c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '[3] Cart update: no live region — 4.1.3',        c: 'mod'  },
+    { t: '    Fix: role="status" aria-live="polite"',           c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: 'PASSES  (✓ 6 checks)',                           c: 'section' },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
+    { t: '✓ All images with meaning have alt text',        c: 'fix'  },
+    { t: '✓ Headings H1–H4 fully sequential',         c: 'fix'  },
+    { t: '✓ All forms have associated visible labels',     c: 'fix'  },
+    { t: '✓ Keyboard navigation fully functional',         c: 'fix'  },
+    { t: '✓ Color contrast: 7.20:1 avg ratio',             c: 'fix'  },
+    { t: '✓ Skip link present and functional',             c: 'fix'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '─'.repeat(44),                                   c: 'rule' },
+    { t: '',                                                     c: 'gap'  },
     { c: 'score-card', score: 87, conf: 'pass', site: 'digital-hub.se' },
-    { t: '',                                                   c: 'gap'  },
-    { t: '',                                                   c: 'gap'  },
-    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '',                                                     c: 'gap'  },
+    { t: '',                                                     c: 'gap'  },
   ];
+
 
   /* ═══════════════════════════════════════════════════════
      STATE
@@ -1132,13 +1186,7 @@
       termTimeout = setTimeout(next, delay);
     }
 
-    /* Initial fade-in */
-    out.style.opacity = '0';
-    termTimeout = setTimeout(() => {
-      if (!termActive) return;
-      out.style.opacity = '1';
-      termTimeout = setTimeout(next, 300);
-    }, 200);
+    next();
 
     /* Subtle contrast-ratio flicker */
     termFlicker = setInterval(() => {
