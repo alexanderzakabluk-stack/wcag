@@ -600,9 +600,6 @@
      STATE 1 · INPUT
 ════════════════════════════════════ -->
 <div id="s-input" class="state active photo-bg">
-  <img
-    src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg"
-    alt="Devies Group" class="hero-logo">
 
   <div class="hero-inner">
     <span class="eyebrow ew">GRATIS VERKTYG &nbsp;·&nbsp; WCAG 2.2</span>
@@ -631,9 +628,6 @@
      STATE 2 · LOADING
 ════════════════════════════════════ -->
 <div id="s-loading" class="state photo-bg">
-  <img
-    src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg"
-    alt="Devies Group" class="load-logo">
   <div class="load-pct" id="load-pct">0%</div>
   <div class="load-msg" id="load-msg">Ansluter till din webbplats...</div>
   <div class="prog-track">
@@ -717,7 +711,6 @@
       </div>
     </div>
 
-    <p class="powered-row">Drivs av Devies</p>
 
   </div><!-- /results-inner -->
 
@@ -786,27 +779,12 @@
      STATE 6 · ERROR
 ════════════════════════════════════ -->
 <div id="s-error" class="state photo-bg">
-  <img
-    src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg"
-    alt="Devies Group" class="err-logo">
   <h2 class="err-title">Hmm, vi kunde inte nå den webbadressen</h2>
   <p class="err-body">Kontrollera att webbplatsen är offentligt tillgänglig (inte bakom en inloggning) och försök igen.</p>
   <button class="btn" onclick="resetToInput()">FÖRSÖK IGEN &rarr;</button>
 </div>
 
 
-<!-- ═══════════════════════════════════
-     FOOTER — always at bottom
-════════════════════════════════════ -->
-<footer id="site-footer">
-  <div class="ft-left">
-    <img
-      src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg"
-      alt="Devies Group" class="ft-logo">
-    <span class="ft-copy">&copy; 2026 Devies Group</span>
-  </div>
-  <a href="mailto:hello@devies.se" class="ft-email">hello@devies.se</a>
-</footer>
 
 
 <script>
@@ -843,7 +821,6 @@
   const elLoading = document.getElementById('s-loading');
   const elResults = document.getElementById('s-results');
   const elError   = document.getElementById('s-error');
-  const elFooter  = document.getElementById('site-footer');
 
   /* ─── showState ─── */
   function showState(s) {
@@ -853,24 +830,19 @@
     if (s === STATES.INPUT) {
       elInput.classList.add('active');
       document.body.style.background = '#0d0c11';
-      elFooter.style.display = 'flex';
-
     } else if (s === STATES.LOADING) {
       elLoading.classList.add('active');
       document.body.style.background = '#0d0c11';
-      elFooter.style.display = 'none';
       startLoading();
 
     } else if (s === STATES.RESULTS) {
       elResults.classList.add('active');
       document.body.style.background = '#ffffff';
-      elFooter.style.display = 'flex';
       setTimeout(animateScore, 100);
 
     } else if (s === STATES.ERROR) {
       elError.classList.add('active');
       document.body.style.background = '#0d0c11';
-      elFooter.style.display = 'none';
     }
   }
 
