@@ -92,7 +92,7 @@
     }
     .hero-sub {
       font-size: 16px; color: var(--mid);
-      line-height: 1.65; max-width: 480px; margin-bottom: 40px;
+      line-height: 1.65; max-width: 480px; margin-bottom: 24px;
     }
     .input-group { max-width: 480px; width: 100%; }
     .url-field {
@@ -112,6 +112,46 @@
       font-size: 11px; color: rgba(0,0,0,.35);
       text-align: center; margin-top: 12px; letter-spacing: 0.05em;
     }
+
+    /* ── INFO TOOLTIP ── */
+    .info-wrap {
+      position: relative; display: inline-flex;
+      align-items: center; vertical-align: middle;
+    }
+    .info-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 12px; color: rgba(0,0,0,.30); padding: 0 2px;
+      font-family: inherit; line-height: 1; vertical-align: middle;
+      transition: color .15s;
+    }
+    .info-btn:hover, .info-btn:focus { color: rgba(0,0,0,.65); outline: none; }
+    .info-tip {
+      display: none; position: absolute;
+      top: calc(100% + 8px); left: 0;
+      background: var(--black); color: var(--white);
+      font-size: 11.5px; line-height: 1.6; font-weight: 400;
+      letter-spacing: 0; text-transform: none;
+      padding: 12px 16px; width: 300px; z-index: 200;
+    }
+    .info-wrap:hover .info-tip,
+    .info-btn:focus + .info-tip { display: block; }
+
+    /* ── CHECK LIST ── */
+    .check-list {
+      list-style: none; display: flex; flex-direction: column;
+      gap: 9px; margin-bottom: 36px;
+    }
+    .check-list li {
+      font-size: 14px; color: var(--mid);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .check-list li::before {
+      content: '\2713'; color: var(--black); font-weight: 700;
+      font-size: 12px; flex-shrink: 0; width: 16px;
+    }
+
+    /* ── SCAN BUTTON ── */
+    #scan-btn { text-transform: none; font-size: 14px; letter-spacing: 0.05em; }
 
     /* ── STATE 2 · LOADING ── */
     #s-loading {
@@ -357,17 +397,28 @@
 
     <!-- STATE 1 · INPUT -->
     <div id="s-input" class="lstate active">
-      <span class="eyebrow ew">GRATIS VERKTYG &nbsp;·&nbsp; WCAG 2.2</span>
+      <span class="eyebrow ew">GRATIS VERKTYG
+        <span class="info-wrap">
+          <button class="info-btn" aria-label="Mer information om analysen">ⓘ</button>
+          <span class="info-tip" role="tooltip">Resultaten genereras automatiskt via Devies Digital Core ML Agent och WCAG&nbsp;2.2. En fullständig tillgänglighetsrevision kräver även manuell testning.</span>
+        </span>
+        &nbsp;·&nbsp; WCAG 2.2
+      </span>
       <h1 class="hero-title">Klarar Din Webbplats<br>WCAG&nbsp;2.2?</h1>
-      <p class="hero-sub">Få ett omedelbart tillgänglighetsbetyg och ta reda på om din webbplats utsätter dig för juridiska risker. Gratis. Ingen inloggning.</p>
+      <p class="hero-sub">Få ett omedelbart tillgänglighetsbetyg och ta reda på om din webbplats utsätter dig för juridiska risker.</p>
+      <ul class="check-list">
+        <li>Gratis tillgänglighetsanalys</li>
+        <li>Se dina största problem direkt</li>
+        <li>Få en komplett PDF-rapport</li>
+      </ul>
       <div class="input-group">
         <input type="url" id="url-input" class="url-field"
           placeholder="https://dinwebbplats.se" autocomplete="url" spellcheck="false">
         <div class="url-err" id="url-err">Ange din webbplatsadress</div>
         <button class="btn" id="scan-btn" onclick="handleScan()" style="width:100%;margin-top:4px;">
-          SKANNA MIN WEBBPLATS &rarr;
+          Skanna min webbplats &rarr;
         </button>
-        <p class="scan-note">Tar ~30 sekunder. Din data lagras aldrig.</p>
+        <p class="scan-note">Ingen spam. Bara din rapport.</p>
       </div>
     </div>
 
