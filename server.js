@@ -459,6 +459,177 @@ app.post('/api/send-report', async (req, res) => {
   }
 });
 
+/* ─────────────────────────────────────────────────────
+   PDF REPORT GENERATOR
+───────────────────────────────────────────────────── */
+function buildPdfHtml(url, scanResult, name) {
+  const hostname = (() => { try { return new URL(url).hostname; } catch(_) { return url; } })();
+  const score    = scanResult.score || 0;
+  const conf     = scanResult.conformance || 'non-conformant';
+  const issues   = scanResult.issues || [];
+  const date     = new Date().toLocaleDateString('sv-SE', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const scoreCol = score >= 80 ? '#388e3c' : score >= 50 ? '#c17f00' : '#c62828';
+  const confLabel = {
+    'non-conformant': 'EJ GODKÄND',
+    'level-a':        'NIVÅ A',
+    'level-aa':       'NIVÅ AA',
+    'level-aaa':      'NIVÅ AAA',
+  }[conf] || 'EJ GODKÄND';
+
+  const chipColor = { critical: '#c62828', serious: '#e65100', moderate: '#c17f00', minor: '#555' };
+  const chipLabel = { critical: 'Kritisk', serious: 'Allvarlig', moderate: 'Måttlig', minor: 'Liten' };
+
+  const issuesHtml = issues.map((issue, i) => `
+    <div class="issue" style="${i > 0 ? 'border-top:1px solid #f0f0f0;' : ''}">
+      <div class="issue-header">
+        <span class="chip" style="background:${chipColor[issue.severity] || '#555'}">
+          ${chipLabel[issue.severity] || issue.severity}
+        </span>
+        <span class="wcag-ref">WCAG ${issue.wcag || '—'} · Nivå ${issue.level || 'A'}</span>
+      </div>
+      <p class="issue-title">${issue.title || ''}</p>
+      <p class="issue-desc">${issue.description || ''}</p>
+    </div>`).join('');
+
+  const critical = issues.filter(i => i.severity === 'critical').length;
+  const serious  = issues.filter(i => i.severity === 'serious').length;
+  const moderate = issues.filter(i => i.severity === 'moderate').length;
+
+  return `<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: Helvetica, Arial, sans-serif; color: #0d0c11; background: #fff; font-size: 13px; line-height: 1.5; }
+
+  /* ── Cover ── */
+  .cover { min-height: 100vh; display: flex; flex-direction: column; page-break-after: always; }
+  .cover-top { background: #0d0c11; padding: 36px 56px; display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-size: 18px; font-weight: 900; color: #fff; letter-spacing: 0.18em; text-transform: uppercase; }
+  .cover-date { font-size: 11px; color: rgba(255,255,255,.45); letter-spacing: 0.08em; text-transform: uppercase; }
+  .cover-body { flex: 1; padding: 72px 56px 56px; display: flex; gap: 64px; align-items: flex-start; }
+  .cover-left { flex: 1; }
+  .cover-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(0,0,0,.38); margin-bottom: 18px; }
+  .cover-title { font-size: 52px; font-weight: 900; line-height: 1.02; letter-spacing: -0.025em; margin-bottom: 20px; }
+  .cover-url { font-family: 'Courier New', monospace; font-size: 15px; color: #555; margin-bottom: 48px; }
+  .cover-name { font-size: 13px; color: rgba(0,0,0,.45); margin-top: 48px; }
+
+  /* Score box */
+  .score-box { background: #0d0c11; padding: 36px 40px; min-width: 200px; text-align: center; }
+  .score-num { font-size: 80px; font-weight: 900; color: ${scoreCol}; line-height: 1; letter-spacing: -0.04em; }
+  .score-denom { font-size: 20px; color: rgba(255,255,255,.3); }
+  .score-lbl { font-size: 10px; color: rgba(255,255,255,.38); letter-spacing: 0.16em; text-transform: uppercase; margin-top: 8px; }
+  .conf-badge { display: inline-block; background: ${scoreCol}; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 16px; margin-top: 14px; }
+
+  /* Summary bar */
+  .summary-bar { background: #f7f7f7; border-top: 1px solid #e8e8e8; padding: 24px 56px; display: flex; gap: 40px; }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat-num { font-size: 28px; font-weight: 700; }
+  .stat-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(0,0,0,.38); }
+  .stat-c { color: #c62828; }
+  .stat-s { color: #e65100; }
+  .stat-m { color: #c17f00; }
+
+  /* ── Issues page ── */
+  .page { padding: 48px 56px; }
+  .page-header { background: #0d0c11; color: #fff; padding: 10px 56px; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; margin: 0 -56px 32px; }
+  .issue { padding: 18px 0; }
+  .issue-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 12px; }
+  .chip { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; padding: 3px 10px; flex-shrink: 0; }
+  .wcag-ref { font-size: 10px; color: rgba(0,0,0,.35); font-family: 'Courier New', monospace; white-space: nowrap; }
+  .issue-title { font-size: 14px; font-weight: 700; color: #0d0c11; margin-bottom: 5px; }
+  .issue-desc { font-size: 12px; color: #555; line-height: 1.6; }
+
+  /* ── Footer ── */
+  .report-footer { background: #0d0c11; color: rgba(255,255,255,.4); padding: 20px 56px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 0.08em; margin-top: 48px; }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <div class="cover-top">
+    <span class="logo">Devies</span>
+    <span class="cover-date">${date}</span>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-left">
+      <p class="cover-eyebrow">WCAG 2.2 Tillgänglighetsrapport</p>
+      <h1 class="cover-title">Tillgänglighets-<br>analys</h1>
+      <p class="cover-url">${hostname}</p>
+      ${name ? `<p class="cover-name">Rapport för: <strong>${name}</strong></p>` : ''}
+    </div>
+    <div>
+      <div class="score-box">
+        <div>
+          <span class="score-num">${score}</span>
+          <span class="score-denom">/100</span>
+        </div>
+        <p class="score-lbl">WCAG 2.2 Poäng</p>
+        <span class="conf-badge">${confLabel}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-bar">
+    <div class="stat"><span class="stat-num">${issues.length}</span><span class="stat-lbl">Totalt</span></div>
+    <div class="stat"><span class="stat-num stat-c">${critical}</span><span class="stat-lbl">Kritiska</span></div>
+    <div class="stat"><span class="stat-num stat-s">${serious}</span><span class="stat-lbl">Allvarliga</span></div>
+    <div class="stat"><span class="stat-num stat-m">${moderate}</span><span class="stat-lbl">Måttliga</span></div>
+  </div>
+</div>
+
+<!-- ISSUES PAGE -->
+<div class="page">
+  <div class="page-header">Hittade problem</div>
+  ${issuesHtml || '<p style="color:#888;font-size:14px;">Inga problem hittades.</p>'}
+</div>
+
+<div class="report-footer">
+  <span>DEVIES.SE</span>
+  <span>${hostname} — WCAG 2.2 Rapport — ${date}</span>
+</div>
+
+</body>
+</html>`;
+}
+
+app.post('/api/generate-pdf', async (req, res) => {
+  const { url, scanResult, name } = req.body;
+
+  if (!scanResult) {
+    return res.status(400).json({ error: 'Scan result krävs.' });
+  }
+
+  let browser;
+  try {
+    console.log(`[PDF] Genererar rapport för ${url}`);
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage();
+
+    const html = buildPdfHtml(url || '', scanResult, name || '');
+    await page.setContent(html, { waitUntil: 'networkidle' });
+
+    const pdf = await page.pdf({
+      format:          'A4',
+      printBackground: true,
+      margin:          { top: '0', right: '0', bottom: '0', left: '0' },
+    });
+
+    await browser.close();
+    console.log(`[PDF] Klar, ${pdf.length} bytes`);
+    res.json({ pdf: pdf.toString('base64') });
+  } catch (err) {
+    if (browser) await browser.close().catch(() => {});
+    console.error('[PDF ERROR]', err.message);
+    res.status(500).json({ error: 'PDF-generering misslyckades: ' + err.message });
+  }
+});
+
 app.get('/health', (_, res) => res.json({ status: 'ok', model: 'claude-sonnet-4-6' }));
 
 app.listen(PORT, () => {
