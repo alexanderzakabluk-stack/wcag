@@ -15,12 +15,12 @@ app.use(express.static('public'));
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const transporter = nodemailer.createTransport({
-  host:   'smtp.gmail.com',
+  host:   'smtp-relay.brevo.com',
   port:   587,
   secure: false,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_PASS,
   },
 });
 
@@ -428,16 +428,14 @@ app.post('/api/send-report', async (req, res) => {
     return res.status(400).json({ error: 'Ofullständiga uppgifter.' });
   }
 
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    return res.status(500).json({ error: 'E-postkonfiguration saknas på servern.' });
-  }
+  // SMTP is configured directly in the transporter (Brevo)
 
   try {
     const hostname = (() => { try { return new URL(url).hostname; } catch(_) { return url; } })();
 
     // 1. Full report to the user
     await transporter.sendMail({
-      from:    `"Devies WCAG Agent" <${process.env.GMAIL_USER}>`,
+      from:    '"Devies WCAG Scanner" <no-reply@devies.se>',
       to:      email,
       subject: `Din WCAG 2.2-rapport för ${hostname} — ${report.score}/100`,
       html:    buildReportEmail(name, url, report),
@@ -445,7 +443,7 @@ app.post('/api/send-report', async (req, res) => {
 
     // 2. Lead copy to alexander
     await transporter.sendMail({
-      from:    `"Devies WCAG Agent" <${process.env.GMAIL_USER}>`,
+      from:    '"Devies WCAG Scanner" <no-reply@devies.se>',
       to:      'alexander.zakabluk@devies.se',
       subject: `🔔 Ny lead: ${name} — ${hostname} (${report.score}/100)`,
       html:    buildLeadEmail(name, email, phone, url, report),
