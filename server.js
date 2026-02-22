@@ -372,16 +372,20 @@ function buildReportEmail(name, url, report) {
     </table>
   </td></tr>
 
-  <!-- CTA -->
-  <tr><td style="background:#f8f8f8;padding:28px 32px;border-top:2px solid #0d0c11">
-    <p style="font-size:13px;font-weight:700;color:#0d0c11;margin:0 0 8px">Behöver du hjälp att åtgärda problemen?</p>
-    <p style="font-size:13px;color:#555;margin:0 0 16px;line-height:1.5">Devies team hjälper dig att uppfylla WCAG 2.2 AA — från kodfix till handlingsplan.</p>
-    <a href="mailto:hello@devies.se?subject=WCAG-hj%C3%A4lp%20f%C3%B6r%20${encodeURIComponent(hostname)}" style="display:inline-block;background:#0d0c11;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:12px 24px;text-decoration:none">KONTAKTA OSS &rarr;</a>
+  <!-- Quote + CTA -->
+  <tr><td style="background:#0d0c11;padding:32px">
+    <p style="font-size:15px;font-weight:300;color:#fff;line-height:1.65;font-style:italic;margin:0 0 20px">&ldquo;Every great digital transformation starts with a single decision. <strong style="font-weight:700;font-style:normal">We create the first ripple. Together we build the wave.</strong>&rdquo;</p>
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,.35);margin:0 0 10px">Behöver du hjälp?</p>
+    <p style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;margin:0 0 18px">Devies erbjuder professionell WCAG-analys, tillgänglighetsrevision, kodfix och en konkret handlingsplan — utförd av specialister som förstår både teknik och lagkrav.</p>
+    <a href="mailto:hello@devies.se?subject=WCAG-hj%C3%A4lp%20f%C3%B6r%20${encodeURIComponent(hostname)}" style="display:inline-block;background:#fff;color:#0d0c11;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:12px 24px;text-decoration:none">KONTAKTA OSS &rarr;</a>
   </td></tr>
 
-  <!-- Footer -->
-  <tr><td style="padding:20px 32px;border-top:1px solid #e8e8e8">
-    <p style="font-size:11px;color:#aaa;margin:0">&copy; 2026 Devies Group &bull; <a href="mailto:hello@devies.se" style="color:#007396;text-decoration:none">hello@devies.se</a></p>
+  <!-- Disclaimer -->
+  <tr><td style="padding:20px 32px;border-top:1px solid #e8e8e8;background:#f9f9f9">
+    <p style="font-size:10px;color:#aaa;line-height:1.7;margin:0">
+      Resultaten genereras automatiskt via Devies Digital Core ML Agent och WCAG 2.2. En fullständig tillgänglighetsrevision kräver även manuell testning av kvalificerade tillgänglighetsspecialister. Denna rapport utgör inte ett juridiskt utlåtande.<br>
+      &copy; 2026 Devies Group &bull; <a href="mailto:hello@devies.se" style="color:#007396;text-decoration:none">hello@devies.se</a> &bull; <a href="https://devies.se" style="color:#007396;text-decoration:none">devies.se</a>
+    </p>
   </td></tr>
 
 </table>
@@ -541,8 +545,23 @@ function buildPdfHtml(url, scanResult, name) {
   .issue-title { font-size: 14px; font-weight: 700; color: #0d0c11; margin-bottom: 5px; }
   .issue-desc { font-size: 12px; color: #555; line-height: 1.6; }
 
+  /* ── Disclaimer ── */
+  .disclaimer { padding: 32px 56px; border-top: 2px solid #0d0c11; margin-top: 48px; }
+  .disclaimer-title { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(0,0,0,.38); margin-bottom: 8px; }
+  .disclaimer-text { font-size: 11px; color: #777; line-height: 1.7; margin-bottom: 10px; }
+  .disclaimer-cta { font-size: 11px; color: #0d0c11; font-weight: 600; }
+  .disclaimer-cta a { color: #007396; text-decoration: none; }
+
+  /* ── Quote ── */
+  .quote-block { background: #0d0c11; padding: 40px 56px; margin-top: 0; }
+  .quote-text { font-size: 17px; font-weight: 300; color: #fff; line-height: 1.6; letter-spacing: 0.01em; margin-bottom: 24px; font-style: italic; }
+  .quote-text strong { font-weight: 700; font-style: normal; }
+  .quote-cta-label { font-size: 9px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,.38); margin-bottom: 12px; }
+  .quote-cta-text { font-size: 13px; color: rgba(255,255,255,.72); line-height: 1.6; margin-bottom: 16px; }
+  .quote-contact { font-size: 12px; color: #fff; font-weight: 700; letter-spacing: 0.06em; }
+
   /* ── Footer ── */
-  .report-footer { background: #0d0c11; color: rgba(255,255,255,.4); padding: 20px 56px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 0.08em; margin-top: 48px; }
+  .report-footer { background: #f7f7f7; border-top: 1px solid #e0e0e0; color: rgba(0,0,0,.35); padding: 16px 56px; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 0.06em; }
 </style>
 </head>
 <body>
@@ -585,6 +604,36 @@ function buildPdfHtml(url, scanResult, name) {
 <div class="page">
   <div class="page-header">Hittade problem</div>
   ${issuesHtml || '<p style="color:#888;font-size:14px;">Inga problem hittades.</p>'}
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  <p class="disclaimer-title">Juridisk ansvarsfriskrivning</p>
+  <p class="disclaimer-text">
+    Resultaten genereras automatiskt via Devies Digital Core ML Agent och WCAG 2.2.
+    En fullständig tillgänglighetsrevision kräver även manuell testning av kvalificerade
+    tillgänglighetsspecialister. Denna rapport utgör inte ett juridiskt utlåtande och
+    garanterar inte fullständig regelefterlevnad.
+  </p>
+  <p class="disclaimer-cta">
+    Behöver du en certifierad mänsklig granskning?
+    <a href="mailto:hello@devies.se">Kontakta oss på hello@devies.se</a>
+  </p>
+</div>
+
+<!-- QUOTE + CTA -->
+<div class="quote-block">
+  <p class="quote-text">
+    "Every great digital transformation starts with a single decision.<br>
+    <strong>We create the first ripple. Together we build the wave.</strong>"
+  </p>
+  <p class="quote-cta-label">Behöver du hjälp?</p>
+  <p class="quote-cta-text">
+    Devies erbjuder professionell WCAG-analys, tillgänglighetsrevision,
+    kodfix och en konkret handlingsplan — utförd av specialister som
+    förstår både teknik och lagkrav.
+  </p>
+  <p class="quote-contact">hello@devies.se &nbsp;·&nbsp; devies.se</p>
 </div>
 
 <div class="report-footer">
