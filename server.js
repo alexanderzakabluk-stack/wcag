@@ -3,8 +3,6 @@ const express    = require('express');
 const cors       = require('cors');
 const { chromium } = require('playwright');
 const Anthropic  = require('@anthropic-ai/sdk');
-const nodemailer = require('nodemailer');
-
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
@@ -14,21 +12,28 @@ app.use(express.static('public'));
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const transporter = nodemailer.createTransport({
-  host:   'smtp-relay.brevo.com',
-  port:   587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_PASS,
-  },
-});
-
-// Verify SMTP connection on startup
-transporter.verify((err, ok) => {
-  if (err) console.error('[SMTP] Anslutningsfel:', err.message);
-  else     console.log('[SMTP] Brevo-anslutning OK');
-});
+/* ─────────────────────────────────────────────────────
+   BREVO HTTP API  (avoids SMTP port blocks on Railway)
+───────────────────────────────────────────────────── */
+async function brevoSend({ to, subject, html }) {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method:  'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key':      process.env.BREVO_PASS,
+    },
+    body: JSON.stringify({
+      sender:      { name: 'Devies WCAG Scanner', email: 'no-reply@devies.se' },
+      to:          [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Brevo API ${res.status}: ${body}`);
+  }
+}
 
 /* ─────────────────────────────────────────────────────
    DOM DATA COLLECTOR  (runs inside Playwright)
@@ -444,18 +449,16 @@ app.post('/api/send-report', async (req, res) => {
     const hostname = (() => { try { return new URL(url).hostname; } catch(_) { return url; } })();
 
     // 1. Full report to the user
-    await transporter.sendMail({
-      from:    '"Devies WCAG Scanner" <no-reply@devies.se>',
+    await brevoSend({
       to:      email,
       subject: `Din WCAG 2.2-rapport för ${hostname} — ${report.score}/100`,
       html:    buildReportEmail(name, url, report),
     });
 
     // 2. Lead copy to alexander
-    await transporter.sendMail({
-      from:    '"Devies WCAG Scanner" <no-reply@devies.se>',
+    await brevoSend({
       to:      'alexander.zakabluk@devies.se',
-      subject: `🔔 Ny lead: ${name} — ${hostname} (${report.score}/100)`,
+      subject: `Ny lead: ${name} — ${hostname} (${report.score}/100)`,
       html:    buildLeadEmail(name, email, phone, url, report),
     });
 
