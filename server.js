@@ -24,6 +24,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Verify SMTP connection on startup
+transporter.verify((err, ok) => {
+  if (err) console.error('[SMTP] Anslutningsfel:', err.message);
+  else     console.log('[SMTP] Brevo-anslutning OK');
+});
+
 /* ─────────────────────────────────────────────────────
    DOM DATA COLLECTOR  (runs inside Playwright)
 ───────────────────────────────────────────────────── */
@@ -456,8 +462,8 @@ app.post('/api/send-report', async (req, res) => {
     console.log(`[EMAIL] Rapport skickad till ${email}, lead-kopia till alexander.zakabluk@devies.se`);
     res.json({ success: true });
   } catch (err) {
-    console.error('[EMAIL ERROR]', err.message);
-    res.status(500).json({ error: 'Kunde inte skicka e-post. Kontrollera SMTP-konfigurationen.' });
+    console.error('[EMAIL ERROR]', err.message, err.response || '');
+    res.status(500).json({ error: 'Kunde inte skicka e-post: ' + err.message });
   }
 });
 
