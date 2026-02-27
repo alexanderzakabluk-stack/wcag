@@ -13,18 +13,18 @@ app.use(express.static('public'));
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 /* ─────────────────────────────────────────────────────
-   SMTP — Google Workspace relay (smtp-relay.gmail.com)
+   EMAIL — Gmail API via OAuth2 (HTTPS, works on Railway)
 ───────────────────────────────────────────────────── */
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host:   'smtp-relay.gmail.com',
-  port:   587,
-  secure: false,
-  family: 4,
+  service: 'gmail',
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    type:         'OAuth2',
+    user:         process.env.GMAIL_USER,
+    clientId:     process.env.GMAIL_CLIENT_ID,
+    clientSecret: process.env.GMAIL_CLIENT_SECRET,
+    refreshToken: process.env.GMAIL_REFRESH_TOKEN,
   },
 });
 
