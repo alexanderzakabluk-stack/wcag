@@ -696,5 +696,9 @@ app.get('/health', (_, res) => res.json({ status: 'ok', model: 'claude-sonnet-4-
 
 app.listen(PORT, () => {
   console.log(`\n🔍 WCAG Scan API körs på http://localhost:${PORT}`);
-  console.log(`   Anthropic API-nyckel: ${process.env.ANTHROPIC_API_KEY ? '✅ konfigurerad' : '❌ saknas — sätt ANTHROPIC_API_KEY i .env'}\n`);
+  console.log(`   Anthropic API-nyckel: ${process.env.ANTHROPIC_API_KEY ? '✅ konfigurerad' : '❌ saknas'}`);
+  console.log(`   Gmail user:           ${process.env.GMAIL_USER        ? '✅ ' + process.env.GMAIL_USER : '❌ saknas'}`);
+  console.log(`   Gmail client ID:      ${process.env.GMAIL_CLIENT_ID   ? '✅ konfigurerad' : '❌ saknas'}`);
+  console.log(`   Gmail client secret:  ${process.env.GMAIL_CLIENT_SECRET ? '✅ konfigurerad' : '❌ saknas'}`);
+  console.log(`   Gmail refresh token:  ${process.env.GMAIL_REFRESH_TOKEN ? '✅ konfigurerad' : '❌ saknas'}\n`);
 });
