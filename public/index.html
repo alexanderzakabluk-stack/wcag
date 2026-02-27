@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Free WCAG 2.2 Accessibility Score — Devies</title>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -533,6 +534,7 @@
               <input type="tel" id="f-phone" class="f-ctrl" placeholder="+1 555 000 0000" autocomplete="tel">
             </div>
           </div>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAACjeDLXlIdRgIhsC" style="margin-bottom:12px;"></div>
           <button class="btn" id="gate-btn" onclick="handleGate()" style="width:100%;">
             SEND ME THE FULL REPORT &rarr;
           </button>
@@ -1128,6 +1130,13 @@
 
     if (!ok) return;
 
+    const cfToken = document.querySelector('[name="cf-turnstile-response"]')?.value || '';
+    if (!cfToken) {
+      errE.textContent = 'Please complete the security check.';
+      errE.classList.add('show');
+      return;
+    }
+
     enteredEmail = ev;
     btn.innerHTML = '<span class="spinner"></span>SENDING...';
     btn.disabled  = true;
@@ -1136,11 +1145,12 @@
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({
-        name:   nameEl.value.trim(),
-        email:  ev,
-        phone:  (document.getElementById('f-phone') || {}).value || '',
-        url:    enteredUrl,
-        report: apiResult,
+        name:    nameEl.value.trim(),
+        email:   ev,
+        phone:   (document.getElementById('f-phone') || {}).value || '',
+        url:     enteredUrl,
+        report:  apiResult,
+        cfToken,
       })
     })
     .then(r => r.json())

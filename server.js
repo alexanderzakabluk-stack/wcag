@@ -444,10 +444,21 @@ function buildLeadEmail(name, email, phone, url, report) {
    SEND REPORT ROUTE
 ───────────────────────────────────────────────────── */
 app.post('/api/send-report', async (req, res) => {
-  const { name, email, phone, url, report } = req.body;
+  const { name, email, phone, url, report, cfToken } = req.body;
 
   if (!name || !email || !url || !report) {
-    return res.status(400).json({ error: 'Ofullständiga uppgifter.' });
+    return res.status(400).json({ error: 'Incomplete details.' });
+  }
+
+  // Cloudflare Turnstile verification
+  const cfVerify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ secret: process.env.CF_TURNSTILE_SECRET, response: cfToken }),
+  }).then(r => r.json()).catch(() => ({ success: false }));
+
+  if (!cfVerify.success) {
+    return res.status(400).json({ error: 'Security check failed. Please try again.' });
   }
 
   // SMTP relay via smtp-relay.gmail.com (Google Workspace)
