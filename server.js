@@ -13,26 +13,27 @@ app.use(express.static('public'));
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 /* ─────────────────────────────────────────────────────
-   BREVO HTTP API  (avoids SMTP port blocks on Railway)
+   SMTP — Google Workspace relay (smtp-relay.gmail.com)
 ───────────────────────────────────────────────────── */
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  host:   'smtp-relay.gmail.com',
+  port:   587,
+  secure: false,
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
 async function brevoSend({ to, subject, html }) {
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method:  'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'api-key':      process.env.BREVO_PASS,
-    },
-    body: JSON.stringify({
-      sender:      { name: 'Devies WCAG Scanner', email: 'no-reply@devies.se' },
-      to:          [{ email: to }],
-      subject,
-      htmlContent: html,
-    }),
+  await transporter.sendMail({
+    from:    '"Devies WCAG Scanner" <no-reply@devies.se>',
+    to,
+    subject,
+    html,
   });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Brevo API ${res.status}: ${body}`);
-  }
 }
 
 /* ─────────────────────────────────────────────────────
@@ -443,7 +444,7 @@ app.post('/api/send-report', async (req, res) => {
     return res.status(400).json({ error: 'Ofullständiga uppgifter.' });
   }
 
-  // SMTP is configured directly in the transporter (Brevo)
+  // SMTP relay via smtp-relay.gmail.com (Google Workspace)
 
   try {
     const hostname = (() => { try { return new URL(url).hostname; } catch(_) { return url; } })();
