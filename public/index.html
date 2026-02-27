@@ -63,7 +63,7 @@
     ════════════════════════════════════════════ */
     #layout {
       display: grid;
-      grid-template-columns: 30fr 70fr;
+      grid-template-columns: minmax(320px, 460px) 1fr;
       min-height: 100vh;
     }
 
@@ -71,6 +71,7 @@
     #col-left {
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
 
     .lstate { display: none; }
@@ -83,8 +84,8 @@
     /* ── STATE 1 · INPUT — white background ── */
     #s-input {
       background: var(--white);
-      padding: 56px 28px;
-      justify-content: center;
+      padding: 48px 32px 40px;
+      justify-content: flex-start;
     }
     .hero-title {
       font-size: 26px; font-weight: 700; color: var(--black);
@@ -156,11 +157,11 @@
     /* ── STATE 2 · LOADING ── */
     #s-loading {
       background: var(--white);
-      align-items: center; justify-content: center;
-      text-align: center; padding: 56px 24px;
+      align-items: flex-start; justify-content: flex-start;
+      padding: 48px 32px 40px;
     }
     .load-pct {
-      font-size: 108px; font-weight: 700; color: var(--black);
+      font-size: 96px; font-weight: 700; color: var(--black);
       line-height: 1; letter-spacing: -0.04em; margin-bottom: 22px;
     }
     .load-msg {
@@ -175,7 +176,8 @@
     /* ── STATE 3 · GATE ── */
     #s-gate {
       background: var(--grey-bg);
-      padding: 56px 28px;
+      padding: 48px 32px 40px;
+      justify-content: flex-start;
     }
     .gate-inner { max-width: none; }
     .gate-title {
@@ -221,8 +223,8 @@
     /* ── STATE 4 · ERROR ── */
     #s-error {
       background: var(--white);
-      align-items: center; justify-content: center;
-      text-align: center; padding: 56px 24px;
+      align-items: flex-start; justify-content: flex-start;
+      padding: 48px 32px 40px;
     }
     .err-title {
       font-size: 26px; font-weight: 700; color: var(--black);
@@ -367,16 +369,32 @@
       flex-shrink: 0; padding-top: 3px; letter-spacing: 0.04em;
     }
 
-    .locked-wrap { position: relative; }
-    .locked-blur { filter: blur(4px); pointer-events: none; user-select: none; }
+    .locked-wrap { position: relative; margin-top: 8px; }
+    .locked-blur { filter: blur(5px); pointer-events: none; user-select: none; }
     .locked-overlay {
-      position: absolute; inset: 0; background: rgba(255,255,255,.76);
+      position: absolute; inset: 0; background: rgba(255,255,255,.82);
       display: flex; flex-direction: column; align-items: center;
-      justify-content: center; text-align: center; gap: 6px;
+      justify-content: center; text-align: center; gap: 8px;
     }
-    .locked-icon  { font-size: 26px; line-height: 1; }
-    .locked-count { font-size: 20px; font-weight: 700; }
-    .locked-hint  { font-size: 13px; color: var(--mid); }
+    .locked-icon  { font-size: 24px; line-height: 1; }
+    .locked-count { font-size: 18px; font-weight: 700; }
+    .locked-hint  { font-size: 12px; color: var(--mid); max-width: 200px; line-height: 1.5; }
+
+    /* Ghost company preview rows */
+    .ghost-company {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+      opacity: 0.5;
+    }
+    .ghost-score {
+      font-size: 22px; font-weight: 700; flex-shrink: 0; width: 42px;
+      text-align: right;
+    }
+    .ghost-info { flex: 1; min-width: 0; }
+    .ghost-domain { font-size: 12px; color: var(--mid); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ghost-bar-track { height: 3px; background: rgba(0,0,0,.08); width: 100%; }
+    .ghost-bar-fill  { height: 100%; }
+    .ghost-badge { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; padding: 2px 7px; flex-shrink: 0; }
 
     /* ── AUDIT CATEGORIES ── */
     .audit-cats { margin-bottom: 32px; }
@@ -400,25 +418,34 @@
        RESPONSIVE
     ════════════════════════════════════════════ */
     @media (min-width: 1200px) {
-      .hero-title { font-size: 46px; }
+      .hero-title { font-size: 42px; }
     }
     @media (min-width: 901px) {
       .form-rows   { grid-template-columns: 1fr 1fr; }
       .field-phone { grid-column: 1 / -1; }
     }
     @media (max-width: 900px) {
-      #layout    { grid-template-columns: 1fr; }
-      #col-left  { border-bottom: 1px solid var(--border); }
-      #r-terminal { height: 60vh; font-size: 10.5px; }
-      #col-right  { height: 60vh; }
-      .score-hub { padding: 40px 32px 32px; gap: 24px; }
-      .issues-section { padding: 32px; }
-      #s-input, #s-gate, #s-error { padding: 48px 32px; }
-      #s-loading { padding: 48px 32px; }
+      #layout     { grid-template-columns: 1fr; min-height: auto; }
+      #col-left   { border-bottom: 1px solid var(--border); min-height: auto; }
+      #col-right  { position: static; height: auto; align-self: auto; }
+      #r-terminal { height: 50vh; font-size: 10px; }
+      .score-hub  { padding: 24px 24px 0; gap: 20px; margin: 0; }
+      .issues-section { padding: 24px; }
+      #s-input, #s-gate, #s-error, #s-loading { padding: 36px 24px; }
+    }
+    @media (max-width: 600px) {
+      .hero-title  { font-size: 24px; }
+      .gate-title  { font-size: 21px; }
+      .url-field, .f-ctrl { font-size: 16px; }
+      .btn         { min-height: 52px; }
+      #term-lines  { padding: 0 20px; }
+      .prog-track  { width: 100%; }
     }
     @media (max-width: 480px) {
-      .score-hub { flex-direction: column; align-items: flex-start; gap: 20px; }
-      .wcag-ref  { display: none; }
+      .score-hub  { flex-direction: column; align-items: flex-start; gap: 16px; padding: 20px; }
+      .wcag-ref   { display: none; }
+      .issues-section { padding: 16px; }
+      #s-input, #s-gate, #s-error, #s-loading { padding: 28px 16px; }
     }
   </style>
 </head>
@@ -581,35 +608,35 @@
 
         <div class="locked-wrap">
           <div class="locked-blur">
-            <div class="issue-row">
-              <span class="chip chip-c">Kritisk</span>
-              <div class="issue-body">
-                <p class="issue-title">Ingen tangentbordsåtkomst</p>
-                <p class="issue-desc">Interaktiva element kan inte nås enbart med tangentbordet.</p>
+            <div class="ghost-company">
+              <span class="ghost-score" style="color:#c62828">42</span>
+              <div class="ghost-info">
+                <div class="ghost-domain">wonka-industries.com</div>
+                <div class="ghost-bar-track"><div class="ghost-bar-fill" style="width:42%;background:#c62828"></div></div>
               </div>
-              <span class="wcag-ref">2.1.1 · Nivå A</span>
+              <span class="ghost-badge" style="background:#c62828">EJ GODKÄND</span>
             </div>
-            <div class="issue-row">
-              <span class="chip chip-s">Allvarlig</span>
-              <div class="issue-body">
-                <p class="issue-title">Saknar sidspråk</p>
-                <p class="issue-desc">HTML lang-attributet saknas, vilket förvirrar skärmläsare.</p>
+            <div class="ghost-company">
+              <span class="ghost-score" style="color:#c17f00">54</span>
+              <div class="ghost-info">
+                <div class="ghost-domain">hogwarts.academy</div>
+                <div class="ghost-bar-track"><div class="ghost-bar-fill" style="width:54%;background:#c17f00"></div></div>
               </div>
-              <span class="wcag-ref">3.1.1 · Nivå A</span>
+              <span class="ghost-badge" style="background:#c17f00">FÖRBÄTTRA</span>
             </div>
-            <div class="issue-row">
-              <span class="chip chip-m">Måttlig</span>
-              <div class="issue-body">
-                <p class="issue-title">Saknar hoppnavigering</p>
-                <p class="issue-desc">Tangentbordsanvändare måste tabba igenom all navigering vid varje sidinläsning.</p>
+            <div class="ghost-company">
+              <span class="ghost-score" style="color:#388e3c">87</span>
+              <div class="ghost-info">
+                <div class="ghost-domain">wayneenterprises.com</div>
+                <div class="ghost-bar-track"><div class="ghost-bar-fill" style="width:87%;background:#388e3c"></div></div>
               </div>
-              <span class="wcag-ref">2.4.1 · Nivå A</span>
+              <span class="ghost-badge" style="background:#388e3c">GODKÄND</span>
             </div>
           </div>
           <div class="locked-overlay">
             <div class="locked-icon">🔒</div>
             <p class="locked-count" id="locked-count">9 FLER PROBLEM HITTADE</p>
-            <p class="locked-hint">Lås upp din fullständiga rapport till vänster</p>
+            <p class="locked-hint">Fyll i dina uppgifter till vänster för att låsa upp</p>
           </div>
         </div>
       </div>

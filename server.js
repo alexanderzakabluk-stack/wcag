@@ -27,10 +27,11 @@ oauth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
 const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
 async function brevoSend({ to, subject, html }) {
+  const encodedSubject = `=?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`;
   const raw = [
     `From: "Devies WCAG Scanner" <${process.env.GMAIL_USER}>`,
     `To: ${to}`,
-    `Subject: ${subject}`,
+    `Subject: ${encodedSubject}`,
     'MIME-Version: 1.0',
     'Content-Type: text/html; charset=utf-8',
     '',
@@ -361,12 +362,12 @@ function buildReportEmail(name, url, report) {
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;max-width:600px">
 
   <!-- Header -->
-  <tr><td style="background:#0d0c11;padding:28px 32px">
+  <tr><td style="background:#007396;padding:28px 32px">
     <img src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg" alt="Devies Group" height="28" style="display:block">
   </td></tr>
 
   <!-- Score banner -->
-  <tr><td style="background:#0d0c11;padding:32px;border-top:1px solid #222;text-align:center">
+  <tr><td style="background:#0a1f2e;padding:32px;border-top:1px solid #0d3348;text-align:center">
     <p style="color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 12px">WCAG 2.2 TILLGÄNGLIGHETSBETYG</p>
     <span style="display:inline-block;font-size:72px;font-weight:700;color:${scoreColor(report.score)};line-height:1">${report.score}</span>
     <span style="font-size:28px;color:rgba(255,255,255,0.4)">/100</span>
