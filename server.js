@@ -13,28 +13,32 @@ app.use(express.static('public'));
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 /* ─────────────────────────────────────────────────────
-   EMAIL — Gmail API via OAuth2 (HTTPS, works on Railway)
+   EMAIL — Gmail REST API over HTTPS (works on Railway)
 ───────────────────────────────────────────────────── */
-const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    type:         'OAuth2',
-    user:         process.env.GMAIL_USER,
-    clientId:     process.env.GMAIL_CLIENT_ID,
-    clientSecret: process.env.GMAIL_CLIENT_SECRET,
-    refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-  },
-});
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GMAIL_CLIENT_ID,
+  process.env.GMAIL_CLIENT_SECRET,
+  'https://developers.google.com/oauthplayground'
+);
+oauth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
+
+const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
 async function brevoSend({ to, subject, html }) {
-  await transporter.sendMail({
-    from:    '"Devies WCAG Scanner" <no-reply@devies.se>',
-    to,
-    subject,
+  const raw = [
+    `From: "Devies WCAG Scanner" <${process.env.GMAIL_USER}>`,
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    'MIME-Version: 1.0',
+    'Content-Type: text/html; charset=utf-8',
+    '',
     html,
-  });
+  ].join('\r\n');
+
+  const encoded = Buffer.from(raw).toString('base64url');
+  await gmail.users.messages.send({ userId: 'me', requestBody: { raw: encoded } });
 }
 
 /* ─────────────────────────────────────────────────────
