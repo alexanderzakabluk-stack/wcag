@@ -44,6 +44,7 @@ async function brevoSend({ to, subject, html }) {
 
 /* ─────────────────────────────────────────────────────
    DOM DATA COLLECTOR  (runs inside Playwright)
+   Full WCAG 2.2 Level A + AA automated checks
 ───────────────────────────────────────────────────── */
 async function collectAccessibilityData(url) {
   const browser = await chromium.launch({ headless: true });
@@ -79,30 +80,38 @@ async function collectAccessibilityData(url) {
         return 'rgb(255, 255, 255)';
       }
 
-      /* ── 1. Lang attribute ── */
+      /* ── 1. Lang attribute (WCAG 3.1.1 Level A) ── */
       const htmlLang = document.documentElement.lang || '';
 
-      /* ── 2. Images ── */
+      /* ── 2. Images (WCAG 1.1.1 Level A) ── */
       const allImgs = [...document.querySelectorAll('img')];
       const images = {
-        total:          allImgs.length,
-        withoutAlt:     allImgs.filter(i => !i.hasAttribute('alt')).length,
-        altIsFilename:  allImgs.filter(i => i.alt && /\.(png|jpe?g|svg|gif|webp|avif)$/i.test(i.alt)).length,
-        altIsGeneric:   allImgs.filter(i => ['alt','image','photo','img','picture','icon'].includes((i.alt||'').toLowerCase().trim())).length,
+        total:        allImgs.length,
+        withoutAlt:   allImgs.filter(i => !i.hasAttribute('alt')).length,
+        altIsFilename: allImgs.filter(i => i.alt && /\.(png|jpe?g|svg|gif|webp|avif)$/i.test(i.alt)).length,
+        altIsGeneric:  allImgs.filter(i => ['alt','image','photo','img','picture','icon'].includes((i.alt||'').toLowerCase().trim())).length,
       };
 
-      /* ── 3. Headings ── */
+      /* ── 2b. SVGs without accessible name (WCAG 1.1.1 Level A) ── */
+      const svgsWithoutTitle = [...document.querySelectorAll('svg')].filter(svg => {
+        const role = svg.getAttribute('role');
+        if (svg.getAttribute('aria-hidden') === 'true') return false;
+        if (role === 'none' || role === 'presentation') return false;
+        if (svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby')) return false;
+        if (svg.querySelector('title')) return false;
+        return role === 'img' || !!svg.getAttribute('focusable');
+      }).length;
+
+      /* ── 3. Headings (WCAG 1.3.1, 2.4.6 Level A/AA) ── */
       const headings = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')]
         .map(h => ({ level: parseInt(h.tagName[1]), text: h.textContent?.trim().substring(0, 80) }));
-
-      // Check for heading hierarchy jumps
       let headingJumps = 0;
       for (let i = 1; i < headings.length; i++) {
         if (headings[i].level - headings[i - 1].level > 1) headingJumps++;
       }
       const h1Count = headings.filter(h => h.level === 1).length;
 
-      /* ── 4. Skip link ── */
+      /* ── 4. Skip link (WCAG 2.4.1 Level A) ── */
       const hasSkipLink = [...document.querySelectorAll('a')].some(a => {
         const text = (a.textContent || '').toLowerCase();
         const href = a.getAttribute('href') || '';
@@ -110,29 +119,63 @@ async function collectAccessibilityData(url) {
                href.startsWith('#main') || href.startsWith('#content');
       });
 
-      /* ── 5. Empty links ── */
-      const emptyLinks = [...document.querySelectorAll('a')].filter(a => {
-        return !a.textContent?.trim() &&
-               !a.getAttribute('aria-label') &&
-               !a.getAttribute('title') &&
-               !a.querySelector('img[alt]');
+      /* ── 5. Empty links (WCAG 2.4.4 Level A) ── */
+      const emptyLinks = [...document.querySelectorAll('a')].filter(a =>
+        !a.textContent?.trim() &&
+        !a.getAttribute('aria-label') &&
+        !a.getAttribute('title') &&
+        !a.querySelector('img[alt]')
+      ).length;
+
+      /* ── 5b. Generic link text (WCAG 2.4.4 Level A) ── */
+      const genericLinkExamples = [...document.querySelectorAll('a')].filter(a => {
+        const t = (a.textContent || '').trim().toLowerCase();
+        return ['läs mer','read more','click here','here','more','mer','klicka här','se mer'].includes(t);
+      }).map(a => a.textContent.trim().substring(0, 40));
+
+      /* ── 5c. Links opening new tab without warning (WCAG 3.2.2 Level A) ── */
+      const newTabLinksWithoutWarning = [...document.querySelectorAll('a[target="_blank"]')].filter(a => {
+        const combined = ((a.textContent || '') + (a.getAttribute('aria-label') || '')).toLowerCase();
+        return !combined.includes('new tab') && !combined.includes('new window') &&
+               !combined.includes('nytt fönster') && !combined.includes('ny flik');
       }).length;
 
-      /* ── 6. Form labels ── */
+      /* ── 5d. Dead links href="#" (best practice) ── */
+      const deadLinks = [...document.querySelectorAll('a[href="#"]')].length;
+
+      /* ── 6. Form labels (WCAG 1.3.1, 3.3.2 Level A) ── */
       const inputs = [...document.querySelectorAll('input:not([type=hidden]), select, textarea')];
       const unlabelledInputs = inputs.filter(el => {
-        const byFor      = el.id ? !!document.querySelector(`label[for="${el.id}"]`) : false;
-        const byWrap     = !!el.closest('label');
-        const byAria     = !!(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'));
+        const byFor  = el.id ? !!document.querySelector(`label[for="${el.id}"]`) : false;
+        const byWrap = !!el.closest('label');
+        const byAria = !!(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'));
         return !byFor && !byWrap && !byAria;
       }).length;
 
-      /* ── 7. Unnamed buttons ── */
-      const unnamedButtons = [...document.querySelectorAll('button, [role="button"]')]
-        .filter(el => !el.textContent?.trim() && !el.getAttribute('aria-label') && !el.getAttribute('title'))
-        .length;
+      /* ── 6b. Required fields not programmatically marked (WCAG 3.3.2 Level A) ── */
+      const requiredFieldsWithoutMark = inputs.filter(el =>
+        el.hasAttribute('required') && !el.getAttribute('aria-required')
+      ).length;
 
-      /* ── 8. Landmarks ── */
+      /* ── 7. Unnamed buttons (WCAG 4.1.2 Level A) ── */
+      const unnamedButtons = [...document.querySelectorAll('button, [role="button"]')]
+        .filter(el =>
+          !el.textContent?.trim() &&
+          !el.getAttribute('aria-label') &&
+          !el.getAttribute('title') &&
+          !el.getAttribute('aria-labelledby')
+        ).length;
+
+      /* ── 7b. Custom interactive elements missing role/keyboard (WCAG 2.1.1, 4.1.2 Level A) ── */
+      const customInteractiveNoRole = [...document.querySelectorAll('[onclick], [onkeydown], [onkeyup]')]
+        .filter(el => {
+          const tag = el.tagName.toLowerCase();
+          if (['a','button','input','select','textarea','details','summary'].includes(tag)) return false;
+          const role = el.getAttribute('role') || '';
+          return !['button','link','checkbox','radio','menuitem','tab','switch','option','combobox'].includes(role);
+        }).length;
+
+      /* ── 8. Landmarks (WCAG 1.3.6, 2.4.1 Level A) ── */
       const landmarks = {
         hasMain:   !!document.querySelector('main, [role="main"]'),
         hasNav:    !!document.querySelector('nav, [role="navigation"]'),
@@ -140,14 +183,14 @@ async function collectAccessibilityData(url) {
         hasFooter: !!document.querySelector('footer, [role="contentinfo"]'),
       };
 
-      /* ── 9. Page title ── */
+      /* ── 9. Page title (WCAG 2.4.2 Level A) ── */
       const pageTitle = document.title || '';
 
-      /* ── 10. Color contrast (sample up to 40 leaf text nodes) ── */
+      /* ── 10. Color contrast (WCAG 1.4.3 Level AA) — sample up to 60 leaf text nodes ── */
       const contrastFailures = [];
       const leafTextEls = [...document.querySelectorAll('p, span, a, li, td, th, h1, h2, h3, h4, h5, h6, button, label')]
         .filter(el => el.children.length === 0 && (el.textContent?.trim().length || 0) > 0)
-        .slice(0, 40);
+        .slice(0, 60);
 
       leafTextEls.forEach(el => {
         const style    = window.getComputedStyle(el);
@@ -162,16 +205,16 @@ async function collectAccessibilityData(url) {
         const cr          = contrastRatio(getLuminance(...colorRgb), getLuminance(...bgRgb));
         if (cr < required) {
           contrastFailures.push({
-            text:     el.textContent?.trim().substring(0, 50),
-            cr:       +cr.toFixed(2),
+            text:        el.textContent?.trim().substring(0, 50),
+            cr:          +cr.toFixed(2),
             required,
-            fontSize: Math.round(fontSize),
+            fontSize:    Math.round(fontSize),
             isLargeText,
           });
         }
       });
 
-      /* ── 11. Focus outline suppression ── */
+      /* ── 11. Focus outline suppression (WCAG 2.4.7, 2.4.11 Level AA) ── */
       const focusSuppressed = [];
       try {
         [...document.styleSheets].forEach(sheet => {
@@ -188,41 +231,129 @@ async function collectAccessibilityData(url) {
         });
       } catch (_) {}
 
-      /* ── 12. Media ── */
+      /* ── 12. Media without captions (WCAG 1.2.2 Level A) ── */
       const videosWithoutCaptions = [...document.querySelectorAll('video')]
         .filter(v => !v.querySelector('track[kind="captions"]')).length;
+      const autoplayMedia = [...document.querySelectorAll('video[autoplay], audio[autoplay]')].length;
 
-      /* ── 13. iframes without title ── */
+      /* ── 13. iframes without title (WCAG 4.1.2 Level A) ── */
       const iframesWithoutTitle = [...document.querySelectorAll('iframe')]
         .filter(f => !f.getAttribute('title') && !f.getAttribute('aria-label')).length;
+      const iframeDetails = [...document.querySelectorAll('iframe')].map(f => ({
+        src:   (f.src || '').substring(0, 80),
+        title: f.getAttribute('title') || null,
+      }));
 
-      /* ── 14. Positive tabindex ── */
+      /* ── 14. Positive tabindex (WCAG 2.4.3 Level A) ── */
       const positiveTabindex = [...document.querySelectorAll('[tabindex]')]
         .filter(el => parseInt(el.getAttribute('tabindex')) > 0).length;
 
-      /* ── 15. Auto-play media ── */
-      const autoplayMedia = [...document.querySelectorAll('video[autoplay], audio[autoplay]')].length;
+      /* ── 15. Duplicate IDs (WCAG 4.1.1 Level A) ── */
+      const allIds = [...document.querySelectorAll('[id]')].map(e => e.id).filter(Boolean);
+      const idCounts = {};
+      allIds.forEach(id => { idCounts[id] = (idCounts[id] || 0) + 1; });
+      const duplicateIds = Object.entries(idCounts)
+        .filter(([, v]) => v > 1)
+        .map(([id, count]) => ({ id, count }))
+        .slice(0, 10);
+
+      /* ── 16. aria-hidden on focusable elements (WCAG 1.3.1, 4.1.2 Level A) ── */
+      const ariaHiddenFocusable = [...document.querySelectorAll(
+        '[aria-hidden="true"] a, [aria-hidden="true"] button, [aria-hidden="true"] input, ' +
+        '[aria-hidden="true"] select, [aria-hidden="true"] textarea, [aria-hidden="true"] [tabindex]'
+      )].filter(el => {
+        const ti = el.getAttribute('tabindex');
+        return ti === null || parseInt(ti) >= 0;
+      }).length;
+
+      /* ── 17. Tables (WCAG 1.3.1 Level A) ── */
+      const allTables = [...document.querySelectorAll('table')];
+      const tablesWithoutHeaders = allTables.filter(t =>
+        !t.querySelector('th') && !t.querySelector('[scope]') && !t.querySelector('[role="columnheader"]')
+      ).length;
+      const tablesWithoutCaption = allTables.filter(t =>
+        !t.querySelector('caption') && !t.getAttribute('aria-label') && !t.getAttribute('aria-labelledby')
+      ).length;
+
+      /* ── 18. Viewport meta — zoom disabled (WCAG 1.4.4 Level AA) ── */
+      const metaViewport   = document.querySelector('meta[name="viewport"]');
+      const viewportContent = metaViewport ? (metaViewport.getAttribute('content') || '') : '';
+      const viewportDisablesZoom = /user-scalable\s*=\s*no/i.test(viewportContent) ||
+                                   /maximum-scale\s*=\s*1[^.]/i.test(viewportContent);
+
+      /* ── 19. Meta refresh / auto-redirect (WCAG 2.2.1 Level A) ── */
+      const metaRefresh = !!document.querySelector('meta[http-equiv="refresh"]');
+
+      /* ── 20. Language of parts (WCAG 3.1.2 Level AA) ── */
+      const langChanges = [...document.querySelectorAll('[lang]')]
+        .filter(el => el !== document.documentElement)
+        .map(el => ({ tag: el.tagName, lang: el.getAttribute('lang'), text: el.textContent.trim().substring(0, 40) }))
+        .slice(0, 5);
+
+      /* ── 21. prefers-reduced-motion support (WCAG 2.3.3 Level AAA / best practice) ── */
+      const hasReducedMotionSupport = [...document.styleSheets].some(sheet => {
+        try {
+          return [...sheet.cssRules].some(rule =>
+            rule.type === CSSRule.MEDIA_RULE &&
+            rule.conditionText &&
+            rule.conditionText.includes('prefers-reduced-motion')
+          );
+        } catch (_) { return false; }
+      });
+
+      /* ── 22. Select elements in forms — label check ── */
+      const selectsWithoutLabel = [...document.querySelectorAll('select')].filter(el => {
+        const byFor  = el.id ? !!document.querySelector(`label[for="${el.id}"]`) : false;
+        const byWrap = !!el.closest('label');
+        const byAria = !!(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'));
+        return !byFor && !byWrap && !byAria;
+      }).length;
+
+      /* ── 23. Error messages linked to fields (WCAG 3.3.1 Level A) ── */
+      const inputsWithAriaDescribedby = inputs.filter(el =>
+        !!el.getAttribute('aria-describedby')
+      ).length;
+      const inputsWithAriaInvalid = inputs.filter(el =>
+        el.getAttribute('aria-invalid') === 'true'
+      ).length;
 
       return {
-        url:              window.location.href,
-        title:            pageTitle,
+        url:                      window.location.href,
+        title:                    pageTitle,
         htmlLang,
         images,
-        headings:         { count: headings.length, h1Count, jumps: headingJumps, list: headings.slice(0, 20) },
+        svgsWithoutTitle,
+        headings:                 { count: headings.length, h1Count, jumps: headingJumps, list: headings.slice(0, 20) },
         hasSkipLink,
         emptyLinks,
+        genericLinkText:          { count: genericLinkExamples.length, examples: genericLinkExamples.slice(0, 5) },
+        newTabLinksWithoutWarning,
+        deadLinks,
         unlabelledInputs,
-        totalInputs:      inputs.length,
+        totalInputs:              inputs.length,
+        requiredFieldsWithoutMark,
+        selectsWithoutLabel,
+        inputsWithAriaDescribedby,
+        inputsWithAriaInvalid,
         unnamedButtons,
+        customInteractiveNoRole,
         landmarks,
-        contrastFailures: contrastFailures.slice(0, 10),
-        totalContrastFailures: contrastFailures.length,
-        focusSuppressed:  focusSuppressed.length > 0,
-        focusSelectors:   focusSuppressed.slice(0, 5),
+        contrastFailures:         contrastFailures.slice(0, 10),
+        totalContrastFailures:    contrastFailures.length,
+        focusSuppressed:          focusSuppressed.length > 0,
+        focusSelectors:           focusSuppressed.slice(0, 5),
         videosWithoutCaptions,
-        iframesWithoutTitle,
-        positiveTabindex,
         autoplayMedia,
+        iframesWithoutTitle,
+        iframeDetails,
+        positiveTabindex,
+        duplicateIds:             { count: duplicateIds.length, examples: duplicateIds.slice(0, 5) },
+        ariaHiddenFocusable,
+        tables:                   { total: allTables.length, withoutHeaders: tablesWithoutHeaders, withoutCaption: tablesWithoutCaption },
+        viewportDisablesZoom,
+        metaRefresh,
+        langChanges,
+        hasReducedMotionSupport,
       };
     });
 
@@ -236,39 +367,78 @@ async function collectAccessibilityData(url) {
    CLAUDE ANALYSIS
 ───────────────────────────────────────────────────── */
 async function analyzeWithClaude(url, accessibilityData) {
-  const prompt = `Du är en WCAG 2.2-tillgänglighetsexpert. Analysera följande tillgänglighetsdata insamlad från en webbplats och returnera en strukturerad JSON-rapport.
+  const prompt = `Du är en WCAG 2.2-tillgänglighetsexpert (nivå AA). Analysera följande tillgänglighetsdata från en webbplats och returnera en strukturerad JSON-rapport.
 
 Webbplats-URL: ${url}
 Insamlad data:
 ${JSON.stringify(accessibilityData, null, 2)}
 
+Kontrollera VARJE fält i datan mot dessa WCAG 2.2-kriterier och rapportera alla problem:
+
+KRITISKA (critical) — Level A-blockerare:
+- htmlLang tom/saknas → WCAG 3.1.1
+- images.withoutAlt > 0 → WCAG 1.1.1
+- images.altIsFilename > 0 → WCAG 1.1.1
+- hasSkipLink === false → WCAG 2.4.1
+- landmarks.hasMain === false → WCAG 1.3.1
+- unlabelledInputs > 0 → WCAG 1.3.1 / 4.1.2
+- unnamedButtons > 0 → WCAG 4.1.2
+- ariaHiddenFocusable > 0 → WCAG 1.3.1 / 4.1.2
+- duplicateIds.count > 0 → WCAG 4.1.1
+- videosWithoutCaptions > 0 → WCAG 1.2.2
+- autoplayMedia > 0 → WCAG 1.4.2 / 2.2.2
+- title tom/saknas → WCAG 2.4.2
+- metaRefresh === true → WCAG 2.2.1
+- viewportDisablesZoom === true → WCAG 1.4.4
+- iframesWithoutTitle > 0 → WCAG 4.1.2
+- customInteractiveNoRole > 0 → WCAG 2.1.1 / 4.1.2
+
+ALLVARLIGA (serious) — Level AA:
+- totalContrastFailures > 0 → WCAG 1.4.3 (specificera antal + exempeltext från contrastFailures)
+- focusSuppressed === true → WCAG 2.4.7 / 2.4.11
+- emptyLinks > 0 → WCAG 2.4.4
+- genericLinkText.count > 0 → WCAG 2.4.4
+- headings.jumps > 0 → WCAG 1.3.1 (nivåhopp)
+- headings.h1Count !== 1 → WCAG 1.3.1 (saknas eller flera H1)
+- positiveTabindex > 0 → WCAG 2.4.3
+- tables.withoutHeaders > 0 → WCAG 1.3.1
+- svgsWithoutTitle > 0 → WCAG 1.1.1
+
+MÅTTLIGA (moderate) — best practice / Level AA:
+- images.altIsGeneric > 0 → WCAG 1.1.1
+- landmarks.hasNav/hasHeader/hasFooter saknas → WCAG 1.3.1
+- requiredFieldsWithoutMark > 0 → WCAG 3.3.2
+- newTabLinksWithoutWarning > 0 → WCAG 3.2.2
+- deadLinks > 0 → best practice
+- hasReducedMotionSupport === false → WCAG 2.3.3
+- tables.withoutCaption > 0 → WCAG 1.3.1
+- langChanges är tomt men sidan innehåller troligen annat språk → WCAG 3.1.2
+
 Returnera ENBART ett giltigt JSON-objekt med exakt denna struktur:
 {
   "score": <heltal 0-100>,
   "conformance": <"non-conformant" | "level-a" | "level-aa" | "level-aaa">,
-  "totalIssues": <totalt antal problem hittade>,
+  "totalIssues": <totalt antal problem>,
   "issues": [
     {
       "severity": <"critical" | "serious" | "moderate">,
-      "title": <kort problemrubrik på svenska>,
-      "description": <detaljerad beskrivning på svenska, inkludera specifika antal från datan>,
-      "wcag": <"1.1.1" eller liknande>,
+      "title": <kort problemrubrik på svenska, max 60 tecken>,
+      "description": <detaljerad beskrivning på svenska med specifika antal och vad det innebär för användaren>,
+      "wcag": <t.ex. "1.1.1">,
       "level": <"A" | "AA" | "AAA">
     }
   ]
 }
 
-Regler:
-- Score 0-49: non-conformant, 50-79: level-a, 80-89: level-aa, 90-100: level-aaa
-- Konformansens badge baseras på score
-- Inkludera ALLA problem du hittar i datan — issues-arrayen ska ha alla
-- Skriv ALLTID titlar och beskrivningar på svenska
-- Var specifik med antal (t.ex. "3 bilder saknar alt-text")
-- Sortera issues: critical → serious → moderate
-- Om inga problem hittas för en kontroll, inkludera den inte
+Scoreregler:
+- Börja på 100. Dra av: critical = −12p, serious = −7p, moderate = −3p
+- Score 0–49: non-conformant | 50–79: level-a | 80–89: level-aa | 90–100: level-aaa
+- Inkludera BARA problem som faktiskt finns i datan (värde > 0 / false när true krävs)
+- Sortera: critical → serious → moderate
+- Var specifik med siffror: "5 bilder saknar alt-text", "3 knappar saknar accessible name"
 - totalIssues = issues.length
 
-Returnera ENBART JSON. Ingen markdown, ingen förklaring, inget annat.`;
+Returnera ENBART JSON. Ingen markdown, ingen förklaring.`;
 
   const message = await anthropic.messages.create({
     model:      'claude-sonnet-4-6',
