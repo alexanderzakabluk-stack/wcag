@@ -362,46 +362,46 @@ function buildReportEmail(name, url, report) {
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;max-width:600px">
 
   <!-- Header -->
-  <tr><td style="background:#007396;padding:28px 32px">
+  <tr><td style="background:#ffffff;padding:28px 32px;border-bottom:2px solid #000000">
     <img src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg" alt="Devies Group" height="28" style="display:block">
   </td></tr>
 
   <!-- Score banner -->
-  <tr><td style="background:#0a1f2e;padding:32px;border-top:1px solid #0d3348;text-align:center">
-    <p style="color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 12px">WCAG 2.2 TILLGÄNGLIGHETSBETYG</p>
+  <tr><td style="background:#ffffff;padding:32px;border-bottom:1px solid #e8e8e8;text-align:center">
+    <p style="color:rgba(0,0,0,0.45);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 12px">WCAG 2.2 ACCESSIBILITY SCORE</p>
     <span style="display:inline-block;font-size:72px;font-weight:700;color:${scoreColor(report.score)};line-height:1">${report.score}</span>
-    <span style="font-size:28px;color:rgba(255,255,255,0.4)">/100</span>
+    <span style="font-size:28px;color:rgba(0,0,0,0.3)">/100</span>
     <br><br>
     <span style="display:inline-block;background:${scoreColor(report.score)};color:#fff;font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;padding:6px 16px">${conformanceLabel(report.conformance)}</span>
-    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin:12px 0 0">${hostname}</p>
+    <p style="color:rgba(0,0,0,0.4);font-size:12px;margin:12px 0 0">${hostname}</p>
   </td></tr>
 
   <!-- Intro -->
   <tr><td style="padding:32px">
-    <p style="font-size:15px;color:#0d0c11;margin:0 0 8px">Hej ${name},</p>
-    <p style="font-size:14px;color:#555;line-height:1.6;margin:0">Här är din fullständiga WCAG 2.2-rapport för <strong>${hostname}</strong>. Vi hittade totalt <strong>${report.totalIssues} problem</strong> som påverkar tillgängligheten.</p>
+    <p style="font-size:15px;color:#000000;margin:0 0 8px">Hi ${name},</p>
+    <p style="font-size:14px;color:#444;line-height:1.6;margin:0">Here is your full WCAG 2.2 report for <strong>${hostname}</strong>. We found a total of <strong>${report.totalIssues} issues</strong> affecting accessibility.</p>
   </td></tr>
 
   <!-- Issues table -->
   <tr><td style="padding:0 32px 32px">
-    <p style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#0d0c11;margin:0 0 12px">HITTADE PROBLEM</p>
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#000000;margin:0 0 12px">ISSUES FOUND</p>
     <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-bottom:none">
       ${issuesHtml}
     </table>
   </td></tr>
 
   <!-- Quote + CTA -->
-  <tr><td style="background:#0d0c11;padding:32px">
-    <p style="font-size:15px;font-weight:300;color:#fff;line-height:1.65;font-style:italic;margin:0 0 20px">&ldquo;Every great digital transformation starts with a single decision. <strong style="font-weight:700;font-style:normal">We create the first ripple. Together we build the wave.</strong>&rdquo;</p>
-    <p style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,.35);margin:0 0 10px">Behöver du hjälp?</p>
-    <p style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;margin:0 0 18px">Devies erbjuder professionell WCAG-analys, tillgänglighetsrevision, kodfix och en konkret handlingsplan — utförd av specialister som förstår både teknik och lagkrav.</p>
-    <a href="mailto:hello@devies.se?subject=WCAG-hj%C3%A4lp%20f%C3%B6r%20${encodeURIComponent(hostname)}" style="display:inline-block;background:#fff;color:#0d0c11;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:12px 24px;text-decoration:none">KONTAKTA OSS &rarr;</a>
+  <tr><td style="background:#ffffff;padding:32px;border-top:1px solid #e8e8e8;border-bottom:1px solid #e8e8e8">
+    <p style="font-size:15px;font-weight:300;color:#000000;line-height:1.65;font-style:italic;margin:0 0 20px">&ldquo;Every great digital transformation starts with a single decision. <strong style="font-weight:700;font-style:normal">We create the first ripple. Together we build the wave.</strong>&rdquo;</p>
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(0,0,0,.45);margin:0 0 10px">Need help?</p>
+    <p style="font-size:13px;color:#444;line-height:1.6;margin:0 0 18px">Devies offers professional WCAG analysis, accessibility audits, code fixes and a concrete action plan — delivered by specialists who understand both technology and legal requirements.</p>
+    <a href="mailto:hello@devies.se?subject=WCAG-help%20for%20${encodeURIComponent(hostname)}" style="display:inline-block;background:#000000;color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:12px 24px;text-decoration:none">CONTACT US &rarr;</a>
   </td></tr>
 
   <!-- Disclaimer -->
-  <tr><td style="padding:20px 32px;border-top:1px solid #e8e8e8;background:#f9f9f9">
-    <p style="font-size:10px;color:#aaa;line-height:1.7;margin:0">
-      Resultaten genereras automatiskt via Devies Digital Core ML Agent och WCAG 2.2. En fullständig tillgänglighetsrevision kräver även manuell testning av kvalificerade tillgänglighetsspecialister. Denna rapport utgör inte ett juridiskt utlåtande.<br>
+  <tr><td style="padding:20px 32px;background:#ffffff">
+    <p style="font-size:10px;color:#999;line-height:1.7;margin:0">
+      Results are automatically generated by the Devies Digital Core ML Agent in accordance with WCAG 2.2. A complete accessibility audit also requires manual testing by qualified specialists. This report does not constitute a legal statement.<br>
       &copy; 2026 Devies Group &bull; <a href="mailto:hello@devies.se" style="color:#007396;text-decoration:none">hello@devies.se</a> &bull; <a href="https://devies.se" style="color:#007396;text-decoration:none">devies.se</a>
     </p>
   </td></tr>
@@ -419,21 +419,21 @@ function buildLeadEmail(name, email, phone, url, report) {
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 16px">
 <tr><td align="center">
 <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;max-width:520px">
-  <tr><td style="background:#0d0c11;padding:24px 28px">
+  <tr><td style="background:#ffffff;padding:24px 28px;border-bottom:2px solid #000000">
     <img src="https://www.devies.se/wp-content/uploads/2025/11/Devies-Group-logo.svg" alt="Devies Group" height="24" style="display:block">
-    <p style="color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin:12px 0 0">NY LEAD — WCAG-SCANNER</p>
+    <p style="color:rgba(0,0,0,0.45);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin:12px 0 0">NEW LEAD — WCAG SCANNER</p>
   </td></tr>
   <tr><td style="padding:28px">
     <table width="100%" cellpadding="0" cellspacing="0">
-      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888;width:100px">Namn</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#0d0c11;font-weight:600">${name}</td></tr>
-      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888">E-post</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px"><a href="mailto:${email}" style="color:#007396">${email}</a></td></tr>
-      ${phone ? `<tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888">Telefon</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#0d0c11">${phone}</td></tr>` : ''}
-      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888">Webbplats</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px"><a href="${url}" style="color:#007396">${hostname}</a></td></tr>
-      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888">WCAG-betyg</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0"><span style="font-size:20px;font-weight:700;color:${scoreColor(report.score)}">${report.score}/100</span> &nbsp;<span style="font-size:11px;background:${scoreColor(report.score)};color:#fff;padding:2px 8px;font-weight:700;text-transform:uppercase">${conformanceLabel(report.conformance)}</span></td></tr>
-      <tr><td style="padding:8px 0;font-size:12px;color:#888">Problem</td><td style="padding:8px 0;font-size:14px;color:#0d0c11">${report.totalIssues} hittade</td></tr>
+      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888;width:100px">Name</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#000000;font-weight:600">${name}</td></tr>
+      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888">Email</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px"><a href="mailto:${email}" style="color:#007396">${email}</a></td></tr>
+      ${phone ? `<tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888">Phone</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#000000">${phone}</td></tr>` : ''}
+      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888">Website</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px"><a href="${url}" style="color:#007396">${hostname}</a></td></tr>
+      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#888">WCAG score</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0"><span style="font-size:20px;font-weight:700;color:${scoreColor(report.score)}">${report.score}/100</span> &nbsp;<span style="font-size:11px;background:${scoreColor(report.score)};color:#fff;padding:2px 8px;font-weight:700;text-transform:uppercase">${conformanceLabel(report.conformance)}</span></td></tr>
+      <tr><td style="padding:8px 0;font-size:12px;color:#888">Issues</td><td style="padding:8px 0;font-size:14px;color:#000000">${report.totalIssues} found</td></tr>
     </table>
     <br>
-    <a href="mailto:${email}?subject=Din%20WCAG-rapport%20f%C3%B6r%20${encodeURIComponent(hostname)}" style="display:inline-block;background:#0d0c11;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:11px 22px;text-decoration:none">SVARA TILL LEAD &rarr;</a>
+    <a href="mailto:${email}?subject=Your%20WCAG%20report%20for%20${encodeURIComponent(hostname)}" style="display:inline-block;background:#000000;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:11px 22px;text-decoration:none">REPLY TO LEAD &rarr;</a>
   </td></tr>
 </table>
 </td></tr></table>
