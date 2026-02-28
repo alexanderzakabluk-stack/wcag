@@ -13,6 +13,87 @@ app.use(express.static('public'));
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 /* ─────────────────────────────────────────────────────
+   QUALITY HELPERS
+───────────────────────────────────────────────────── */
+
+// Retry wrapper — handles Claude 529 overloaded
+async function withRetry(fn, attempts = 3, baseDelay = 3000) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    if (i > 0) {
+      await new Promise(r => setTimeout(r, baseDelay * i));
+      console.warn(`[CLAUDE] Retry attempt ${i + 1}/${attempts}...`);
+    }
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const overloaded = err.status === 529 || (err.message || '').toLowerCase().includes('overloaded');
+      if (!overloaded) throw err;
+      console.warn(`[CLAUDE] API overloaded — will retry in ${baseDelay * (i + 1)}ms`);
+    }
+  }
+  throw lastErr;
+}
+
+// Server-side URL validation + SSRF protection
+function isValidScanUrl(url) {
+  let parsed;
+  try { parsed = new URL(url); } catch (_) { return false; }
+  if (!['http:', 'https:'].includes(parsed.protocol)) return false;
+  if (url.length > 2000) return false;
+  const host = parsed.hostname.toLowerCase();
+  if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host === '::1') return false;
+  if (/^192\.168\./.test(host) || /^10\./.test(host)) return false;
+  if (/^172\.(1[6-9]|2[0-9]|3[01])\./.test(host)) return false;
+  if (/^169\.254\./.test(host)) return false;
+  if (!host.includes('.')) return false;
+  return true;
+}
+
+// Extract real IP behind Railway/proxy
+function getClientIp(req) {
+  return ((req.headers['x-forwarded-for'] || '') + ',' + (req.ip || ''))
+    .split(',')[0].trim() || 'unknown';
+}
+
+// Rate limiter — 3 scans per IP per minute
+const _scanRateMap = new Map();
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const window = 60 * 1000;
+  const max    = 3;
+  const times  = (_scanRateMap.get(ip) || []).filter(t => now - t < window);
+  if (times.length >= max) return false;
+  times.push(now);
+  _scanRateMap.set(ip, times);
+  // Periodically prune old IPs to avoid memory leak
+  if (_scanRateMap.size > 5000) {
+    for (const [k, v] of _scanRateMap) {
+      if (v.every(t => now - t >= window)) _scanRateMap.delete(k);
+    }
+  }
+  return true;
+}
+
+// Deterministic score — no Claude variability
+function computeScore(issues) {
+  let score = 100;
+  for (const issue of (issues || [])) {
+    if      (issue.severity === 'critical') score -= 12;
+    else if (issue.severity === 'serious')  score -= 7;
+    else if (issue.severity === 'moderate') score -= 3;
+  }
+  score = Math.max(0, score);
+  let conformance;
+  if      (score >= 90) conformance = 'level-aaa';
+  else if (score >= 80) conformance = 'level-aa';
+  else if (score >= 50) conformance = 'level-a';
+  else                  conformance = 'non-conformant';
+  return { score, conformance };
+}
+
+/* ─────────────────────────────────────────────────────
    EMAIL — Gmail REST API over HTTPS (works on Railway)
 ───────────────────────────────────────────────────── */
 const { google } = require('googleapis');
@@ -48,7 +129,7 @@ async function brevoSend({ to, subject, html }) {
 ───────────────────────────────────────────────────── */
 async function collectAccessibilityData(url) {
   const browser = await chromium.launch({ headless: true });
-  const page    = await browser.newPage();
+  const page    = await browser.newPage({ viewport: { width: 1280, height: 800 } });
 
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -152,10 +233,14 @@ async function collectAccessibilityData(url) {
         return !byFor && !byWrap && !byAria;
       }).length;
 
-      /* ── 6b. Required fields not programmatically marked (WCAG 3.3.2 Level A) ── */
-      const requiredFieldsWithoutMark = inputs.filter(el =>
-        el.hasAttribute('required') && !el.getAttribute('aria-required')
-      ).length;
+      /* ── 6b. Required fields: check if any input is required but completely unlabeled ── */
+      const requiredUnlabeled = inputs.filter(el => {
+        if (!el.hasAttribute('required') && !el.getAttribute('aria-required')) return false;
+        const byFor  = el.id ? !!document.querySelector(`label[for="${el.id}"]`) : false;
+        const byWrap = !!el.closest('label');
+        const byAria = !!(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'));
+        return !byFor && !byWrap && !byAria;
+      }).length;
 
       /* ── 7. Unnamed buttons (WCAG 4.1.2 Level A) ── */
       const unnamedButtons = [...document.querySelectorAll('button, [role="button"]')]
@@ -301,22 +386,6 @@ async function collectAccessibilityData(url) {
         } catch (_) { return false; }
       });
 
-      /* ── 22. Select elements in forms — label check ── */
-      const selectsWithoutLabel = [...document.querySelectorAll('select')].filter(el => {
-        const byFor  = el.id ? !!document.querySelector(`label[for="${el.id}"]`) : false;
-        const byWrap = !!el.closest('label');
-        const byAria = !!(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'));
-        return !byFor && !byWrap && !byAria;
-      }).length;
-
-      /* ── 23. Error messages linked to fields (WCAG 3.3.1 Level A) ── */
-      const inputsWithAriaDescribedby = inputs.filter(el =>
-        !!el.getAttribute('aria-describedby')
-      ).length;
-      const inputsWithAriaInvalid = inputs.filter(el =>
-        el.getAttribute('aria-invalid') === 'true'
-      ).length;
-
       return {
         url:                      window.location.href,
         title:                    pageTitle,
@@ -331,10 +400,7 @@ async function collectAccessibilityData(url) {
         deadLinks,
         unlabelledInputs,
         totalInputs:              inputs.length,
-        requiredFieldsWithoutMark,
-        selectsWithoutLabel,
-        inputsWithAriaDescribedby,
-        inputsWithAriaInvalid,
+        requiredUnlabeled,
         unnamedButtons,
         customInteractiveNoRole,
         landmarks,
@@ -407,7 +473,7 @@ ALLVARLIGA (serious) — Level AA:
 MÅTTLIGA (moderate) — best practice / Level AA:
 - images.altIsGeneric > 0 → WCAG 1.1.1
 - landmarks.hasNav/hasHeader/hasFooter saknas → WCAG 1.3.1
-- requiredFieldsWithoutMark > 0 → WCAG 3.3.2
+- requiredUnlabeled > 0 → WCAG 3.3.2 (obligatoriska fält utan synlig etikett)
 - newTabLinksWithoutWarning > 0 → WCAG 3.2.2
 - deadLinks > 0 → best practice
 - hasReducedMotionSupport === false → WCAG 2.3.3
@@ -440,16 +506,16 @@ Scoreregler:
 
 Returnera ENBART JSON. Ingen markdown, ingen förklaring.`;
 
-  const message = await anthropic.messages.create({
-    model:      'claude-sonnet-4-6',
-    max_tokens: 4096,
-    messages:   [{ role: 'user', content: prompt }],
+  return await withRetry(async () => {
+    const message = await anthropic.messages.create({
+      model:      'claude-sonnet-4-6',
+      max_tokens: 4096,
+      messages:   [{ role: 'user', content: prompt }],
+    });
+    const text = message.content[0].text.trim();
+    const json = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    return JSON.parse(json);
   });
-
-  const text = message.content[0].text.trim();
-  // Strip markdown code fences if present
-  const json = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-  return JSON.parse(json);
 }
 
 /* ─────────────────────────────────────────────────────
@@ -462,33 +528,51 @@ app.post('/api/scan', async (req, res) => {
     return res.status(400).json({ error: 'URL krävs' });
   }
 
+  // Server-side URL validation + SSRF protection
+  if (!isValidScanUrl(url)) {
+    return res.status(400).json({ error: 'Invalid or unsupported URL. Enter a public http/https address.' });
+  }
+
+  // Rate limit: 3 scans per IP per minute
+  const ip = getClientIp(req);
+  if (!checkRateLimit(ip)) {
+    return res.status(429).json({ error: 'Too many scans. Please wait a minute before scanning again.' });
+  }
+
   if (!process.env.ANTHROPIC_API_KEY) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY är inte konfigurerad på servern.' });
   }
 
   try {
-    console.log(`[SCAN] Startar skanning: ${url}`);
+    console.log(`[SCAN] Starting scan: ${url} (ip: ${ip})`);
 
     const rawData = await collectAccessibilityData(url);
-    console.log(`[SCAN] Data insamlad för ${url}`);
+    console.log(`[SCAN] Data collected for ${url}`);
 
     const result = await analyzeWithClaude(url, rawData);
-    console.log(`[SCAN] Claude-analys klar. Score: ${result.score}, Issues: ${result.totalIssues}`);
+
+    // Override score with deterministic server-side computation
+    const { score, conformance } = computeScore(result.issues);
+    result.score       = score;
+    result.conformance = conformance;
+    result.totalIssues = (result.issues || []).length;
+
+    console.log(`[SCAN] Done. Score: ${result.score} (${result.conformance}), Issues: ${result.totalIssues}`);
 
     res.json(result);
   } catch (err) {
     console.error('[SCAN ERROR]', err.message);
 
     if (err.message.includes('timeout') || err.message.includes('net::')) {
-      return res.status(422).json({ error: 'Kunde inte nå webbplatsen. Kontrollera att URL:en är offentligt tillgänglig.' });
+      return res.status(422).json({ error: 'Could not reach the website. Make sure the URL is publicly accessible.' });
     }
     if (err.message.includes('credit balance') || err.message.includes('billing')) {
-      return res.status(402).json({ error: 'Otillräckligt API-saldo. Lägg till credits på console.anthropic.com → Plans & Billing.' });
+      return res.status(402).json({ error: 'API balance too low. Add credits at console.anthropic.com → Plans & Billing.' });
     }
     if (err.message.includes('JSON')) {
-      return res.status(500).json({ error: 'Ogiltigt svar från AI-analysen. Försök igen.' });
+      return res.status(500).json({ error: 'Invalid AI response. Please try again.' });
     }
-    res.status(500).json({ error: 'Skanningen misslyckades. Försök igen om en stund.', debug: err.message });
+    res.status(500).json({ error: 'Scan failed. Please try again in a moment.', debug: err.message });
   }
 });
 

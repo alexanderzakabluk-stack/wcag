@@ -471,21 +471,26 @@
       <ul class="check-list">
         <li>Free accessibility analysis — no hidden costs</li>
         <li>See your critical WCAG issues instantly</li>
-        <li>Checked against 50+ WCAG 2.2 criteria
+        <li>32 automated WCAG 2.2 checks
           <span class="info-wrap">
             <button class="info-btn" aria-label="See what we check">ⓘ</button>
             <span class="info-tip" role="tooltip" style="line-height:1.8;">
               <strong style="display:block;font-size:10px;letter-spacing:0.08em;margin-bottom:6px;">WHAT WE CHECK</strong>
-              Text alternatives (alt text)<br>
-              Keyboard navigation<br>
-              Color contrast (1.4.3)<br>
-              Focus indicator (2.4.7)<br>
-              Page language — HTML lang<br>
-              ARIA roles and semantics<br>
-              Heading structure (H1–H6)<br>
-              Form labels<br>
-              Link text and purpose<br>
-              Skip navigation link
+              Image alt text &amp; SVG names (1.1.1)<br>
+              Color contrast — text &amp; UI (1.4.3)<br>
+              Skip navigation link (2.4.1)<br>
+              Heading hierarchy H1–H6 (1.3.1)<br>
+              Form labels &amp; input names (1.3.1)<br>
+              Keyboard &amp; focus indicator (2.4.7)<br>
+              Page language — HTML lang (3.1.1)<br>
+              ARIA roles &amp; semantics (4.1.2)<br>
+              Link text purpose (2.4.4)<br>
+              Duplicate IDs (4.1.1)<br>
+              Viewport zoom disabled (1.4.4)<br>
+              iframes without title (4.1.2)<br>
+              Tables without headers (1.3.1)<br>
+              Auto-play &amp; captions (1.2.2)<br>
+              + 18 more checks
             </span>
           </span>
         </li>
@@ -1054,7 +1059,7 @@
         <p class="issue-title">${escHtml(issue.title)}</p>
         <p class="issue-desc">${escHtml(issue.description)}</p>
       </div>
-      <span class="wcag-ref">${escHtml(issue.wcag)} · Nivå ${escHtml(issue.level)}</span>
+      <span class="wcag-ref">${escHtml(issue.wcag)} · Level ${escHtml(issue.level)}</span>
     </div>`;
   }
 
