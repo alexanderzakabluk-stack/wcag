@@ -763,6 +763,66 @@ Push to `window.dataLayer` at key conversion moments. Wire these up as Custom Ev
 
 ---
 
+## ✅ Last Known Working Version
+
+**Commit:** `932dfc9` — "March release: follow-up email, v2 tabbed report, GTM analytics, PDF checklist, favicon"
+**Date:** 9 Mar 2026
+**Branch:** `main`
+**Deployed to:** Railway (`stellar-consideration` / `wcag` service)
+**Status:** Fully working — scan, email, follow-up, PDF attachment, v2 tabbed report
+
+**To restore to this version at any time:**
+```bash
+git checkout 932dfc9        # inspect locally
+# or to hard-reset main to this commit:
+git reset --hard 932dfc9 && git push --force origin main
+```
+
+**To redeploy to Railway:**
+```bash
+cd ~/wcag-backend && ~/.local/bin/railway up
+# or just push any commit — Railway auto-deploys from GitHub main branch
+```
+
+---
+
+## Incident Log
+
+### 9 Mar 2026 — Gmail `invalid_grant` + Railway outage
+
+**Symptoms:**
+- Email sending failed with `[EMAIL ERROR] invalid_grant`
+- Railway showed "Deploys paused due to ongoing incident"
+
+**Root causes (two separate issues):**
+
+1. **Broken refresh token** — `GMAIL_REFRESH_TOKEN` in Railway had a line break embedded in the middle of the value. Google rejected it as malformed.
+2. **Railway Metal partial outage** — 60% of deployments failing, lasted ~4 hours.
+
+**Fixes applied:**
+
+| Fix | File | What changed |
+|---|---|---|
+| Token whitespace strip | `server.js:108` | `.replace(/\s/g, '')` on `GMAIL_REFRESH_TOKEN` before passing to OAuth2 |
+| New refresh token | Railway Variables | Old token revoked; new one generated from OAuth Playground and set in Railway |
+| All March work committed | git | 3 months of uncommitted local changes committed as `932dfc9` and pushed |
+
+**How to regenerate Gmail refresh token (if `invalid_grant` happens again):**
+1. Go to [developers.google.com/oauthplayground](https://developers.google.com/oauthplayground)
+2. Click ⚙️ gear → check "Use your own OAuth credentials"
+3. Enter Client ID + Client Secret (from `.env` or Railway variables)
+4. Authorize scope: `https://mail.google.com/`
+5. Click "Exchange authorization code for tokens"
+6. Copy the **Refresh token** (starts with `1//`)
+7. Set in Railway: Dashboard → Variables → `GMAIL_REFRESH_TOKEN` → paste as **one single line, no spaces/newlines**
+
+**Warning signs to watch for:**
+- `[EMAIL ERROR] invalid_grant` → refresh token expired or has whitespace → see above
+- `[EMAIL ERROR] invalid_grant` after password change → always regenerate token after Google account password changes
+- Railway deploy stuck → check [status.railway.app](https://status.railway.app)
+
+---
+
 ## Production Test Results (bokio.se, Feb 2026)
 
 Score: **9/100 — Non-Conformant** — 13 issues found:
