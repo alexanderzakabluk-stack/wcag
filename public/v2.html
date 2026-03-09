@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-T42T7FGV');</script>
+  <!-- End Google Tag Manager -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free WCAG 2.2 Accessibility Score — Devies</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --dark:    #0d0c11;
+      --white:   #ffffff;
+      --grey-bg: #f1f2f2;
+      --black:   #000000;
+      --accent:  #007396;
+      --mid:     #4d4d4d;
+      --border:  #e0e0e0;
+      --red:     #d32f2f;
+      --orange:  #f57c00;
+      --green:   #388e3c;
+      --blue:    #1976d2;
+      --font:    'Clofie', Helvetica, Arial, sans-serif;
+    }
+
+    html { font-family: var(--font); line-height: 1.5; color: var(--black); }
+    body { background: var(--white); }
+    img  { display: block; }
+
+    .hidden { display: none !important; }
+
+    .eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; display: block; margin-bottom: 14px;
+    }
+    .ew { color: rgba(0,0,0,.42); }
+    .eb { color: var(--black); }
+
+    .btn {
+      display: inline-block; background: var(--black); color: var(--white);
+      border: 2px solid var(--black); padding: 15px 32px;
+      font-family: var(--font); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer;
+      text-decoration: none; border-radius: 0;
+      transition: background .18s, border-color .18s, color .18s;
+      text-align: center; width: 100%;
+    }
+    .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--white); }
+    .btn-inv { background: var(--white); color: var(--black); border-color: var(--white); }
+    .btn-inv:hover { background: #e6e6e6; border-color: #e6e6e6; color: var(--black); }
+
+    .spinner {
+      display: inline-block; width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,.28); border-top-color: #fff;
+      border-radius: 50%; animation: spin .75s linear infinite;
+      vertical-align: middle; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── SPLIT LAYOUT ── */
+    #layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 460px) 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── LEFT COLUMN ── */
+    #col-left {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .lstate { display: none; }
+    .lstate.active {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    #s-input {
+      background: var(--white);
+      padding: 48px 32px 40px;
+      justify-content: flex-start;
+    }
+    .hero-title {
+      font-size: 26px; font-weight: 700; color: var(--black);
+      line-height: 1.07; margin-bottom: 18px; letter-spacing: -0.01em;
+    }
+    .hero-sub {
+      font-size: 14px; color: var(--mid);
+      line-height: 1.65; margin-bottom: 24px;
+    }
+    .input-group { max-width: none; width: 100%; }
+    .url-field {
+      display: block; width: 100%; background: var(--white);
+      border: 1px solid var(--black);
+      padding: 15px 20px;
+      font-size: 17px; font-family: var(--font); color: var(--black);
+      outline: none; border-radius: 0; margin-bottom: 4px;
+      transition: border-color .15s;
+    }
+    .url-field::placeholder { color: #aaa; }
+    .url-field:focus { border-color: var(--accent); }
+    .url-field.err { border-color: #e53935; }
+    .url-err { font-size: 12px; color: #e53935; display: none; padding: 5px 0 10px; }
+    .url-err.show { display: block; }
+    .url-err.info { color: #007396; }
+    .scan-note {
+      font-size: 11px; color: rgba(0,0,0,.35);
+      text-align: center; margin-top: 12px; letter-spacing: 0.05em;
+    }
+
+    .info-wrap {
+      position: relative; display: inline-flex;
+      align-items: center; vertical-align: middle;
+    }
+    .info-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 12px; color: rgba(0,0,0,.30); padding: 0 2px;
+      font-family: inherit; line-height: 1; vertical-align: middle;
+      transition: color .15s;
+    }
+    .info-btn:hover, .info-btn:focus { color: rgba(0,0,0,.65); outline: none; }
+    .info-tip {
+      display: none; position: absolute;
+      top: calc(100% + 8px); left: 0;
+      background: var(--black); color: var(--white);
+      font-size: 11.5px; line-height: 1.6; font-weight: 400;
+      letter-spacing: 0; text-transform: none;
+      padding: 12px 16px; width: 300px; z-index: 200;
+    }
+    .info-wrap:hover .info-tip,
+    .info-btn:focus + .info-tip { display: block; }
+
+    .check-list {
+      list-style: none; display: flex; flex-direction: column;
+      gap: 9px; margin-bottom: 36px;
+    }
+    .check-list li {
+      font-size: 14px; color: var(--mid);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .check-list li::before {
+      content: '\2713'; color: var(--black); font-weight: 700;
+      font-size: 12px; flex-shrink: 0; width: 16px;
+    }
+
+    #scan-btn { text-transform: none; font-size: 14px; letter-spacing: 0.05em; }
+
+    #s-loading {
+      background: var(--white);
+      align-items: flex-start; justify-content: flex-start;
+      padding: 48px 32px 40px;
+    }
+    .load-pct {
+      font-size: 96px; font-weight: 700; color: var(--black);
+      line-height: 1; letter-spacing: -0.04em; margin-bottom: 22px;
+    }
+    .load-msg {
+      font-size: 15px; color: var(--mid);
+      letter-spacing: 0.03em; margin-bottom: 38px; min-height: 22px;
+      transition: opacity .5s;
+    }
+    .load-msg.fade { opacity: 0; }
+    .prog-track { width: min(360px, 100%); height: 3px; background: rgba(0,0,0,.08); }
+    .prog-fill  { height: 100%; background: var(--black); width: 0%; transition: width 20s linear; }
+
+    #s-gate {
+      background: var(--grey-bg);
+      padding: 48px 32px 40px;
+      justify-content: flex-start;
+    }
+    .gate-inner { max-width: none; }
+    .gate-title {
+      font-size: 26px; font-weight: 700; color: var(--black);
+      margin-bottom: 10px; line-height: 1.2;
+    }
+    .gate-sub {
+      font-size: 15px; color: var(--mid);
+      line-height: 1.65; margin-bottom: 32px;
+    }
+    .form-rows { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 20px; }
+    .f-group { display: flex; flex-direction: column; }
+    .f-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--black); margin-bottom: 7px;
+    }
+    .f-ctrl {
+      background: var(--white); border: 1px solid var(--black);
+      padding: 13px 16px; font-size: 15px; font-family: var(--font);
+      color: var(--black); outline: none; border-radius: 0; width: 100%;
+      transition: border-color .15s;
+    }
+    .f-ctrl:focus { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: -1px; }
+    .f-ctrl.err { border-color: var(--red); }
+    .f-err { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
+    .f-err.show { display: block; }
+
+    .consent-wrap {
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px solid rgba(0,0,0,.08);
+    }
+    .consent-row {
+      display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
+    }
+    .consent-check {
+      width: 15px; height: 15px; flex-shrink: 0; margin-top: 2px;
+      accent-color: var(--black); cursor: pointer;
+    }
+    .consent-label {
+      font-size: 12px; color: var(--mid); line-height: 1.55; cursor: pointer;
+    }
+    .consent-disclaimer-row {
+      display: flex; align-items: flex-start; gap: 6px;
+    }
+    .consent-disclaimer {
+      font-size: 11px; color: rgba(0,0,0,.38); line-height: 1.6; flex: 1;
+    }
+    .consent-err {
+      font-size: 12px; color: var(--red); margin-top: 5px; display: none;
+    }
+    .consent-err.show { display: block; }
+
+    .info-tip-up {
+      top: auto !important; bottom: calc(100% + 8px); left: auto !important; right: 0;
+    }
+
+    .btn:disabled {
+      background: #c8c8c8; border-color: #c8c8c8; color: #fff;
+      cursor: not-allowed; opacity: 1;
+    }
+
+    .success-check {
+      width: 56px; height: 56px; background: var(--black); color: var(--white);
+      font-size: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .success-row { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; }
+    .success-title { font-size: 28px; font-weight: 700; }
+    .success-body { font-size: 15px; color: var(--mid); line-height: 1.65; margin-bottom: 24px; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    #s-error {
+      background: var(--white);
+      align-items: flex-start; justify-content: flex-start;
+      padding: 48px 32px 40px;
+    }
+    .err-title {
+      font-size: 26px; font-weight: 700; color: var(--black);
+      margin-bottom: 14px; max-width: 400px; line-height: 1.2;
+    }
+    .err-body {
+      font-size: 15px; color: var(--mid);
+      max-width: 380px; margin-bottom: 32px; line-height: 1.65;
+    }
+
+    /* ── RIGHT COLUMN ── */
+    #col-right {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* v2: expanded after full report reveal */
+    #col-right.report-expanded {
+      position: static;
+      height: auto;
+      overflow: visible;
+      align-self: stretch;
+    }
+
+    #r-terminal {
+      flex: none;
+      width: 100%;
+      height: 100vh;
+      background: var(--white);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      line-height: 1.85;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(to bottom,
+        transparent 0%, rgba(0,0,0,.6) 10%, black 24%,
+        black 76%, rgba(0,0,0,.6) 90%, transparent 100%);
+      mask-image: linear-gradient(to bottom,
+        transparent 0%, rgba(0,0,0,.6) 10%, black 24%,
+        black 76%, rgba(0,0,0,.6) 90%, transparent 100%);
+    }
+    #term-lines { display: flex; flex-direction: column; padding: 0 56px; }
+    .tl { white-space: pre; opacity: 1; }
+
+    .tl-head    { color: rgba(0,0,0,.50); }
+    .tl-meta    { color: rgba(0,0,0,.26); }
+    .tl-fail    { color: rgba(155,20,20,.52); }
+    .tl-rule    { color: rgba(0,0,0,.10); }
+    .tl-section { color: rgba(0,0,0,.44); letter-spacing: 0.04em; }
+    .tl-viol    { color: rgba(155,20,20,.46); }
+    .tl-body    { color: rgba(0,0,0,.24); }
+    .tl-fix     { color: rgba(0,95,45,.36); }
+    .tl-mod     { color: rgba(145,75,0,.44); }
+    .tl-done    { color: rgba(0,0,0,.42); }
+    .tl-gap     { color: transparent; }
+    .tl-cmd     { color: rgba(0,0,0,.82); font-weight: 700; }
+    .tl-init    { color: rgba(0,0,0,.32); }
+    .tl-bar     { color: rgba(0,0,0,.58); }
+    .tl-chkf    { color: rgba(170,25,25,.65); }
+    .tl-chko    { color: rgba(0,110,45,.58); }
+    .tl-chkw    { color: rgba(140,80,0,.60); }
+
+    .mini-hub { display: flex; align-items: center; gap: 14px; padding: 10px 0 8px; opacity: 0; transition: opacity 0.10s ease; }
+    .mini-hub.show { opacity: 1; }
+    .mini-meta { display: flex; flex-direction: column; gap: 5px; }
+    .mini-site { font-size: 10px; color: rgba(0,0,0,.30); font-family: 'Courier New', Courier, monospace; letter-spacing: 0.02em; }
+    .mini-badge { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; color: #fff; padding: 2px 8px; display: inline-block; }
+
+    #r-results {
+      flex: 1;
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 20px 24px 32px;
+    }
+    .kpi-card {
+      border: 1px solid var(--border);
+      padding: 16px 16px 14px;
+      transition: box-shadow .2s ease, transform .18s ease;
+      cursor: default;
+    }
+    .kpi-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,.08);
+      transform: translateY(-2px);
+    }
+    .kpi-lbl {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: rgba(0,0,0,.4);
+      margin: 0 0 12px; line-height: 1;
+    }
+    .kpi-donut-wrap  { position: relative; display: inline-block; flex-shrink: 0; }
+    .kpi-donut-svg   { transform: rotate(-90deg); display: block; }
+    .kpi-donut-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+    .kpi-score-num  { font-size: 32px; font-weight: 700; color: var(--black); line-height: 1; }
+    .kpi-score-meta { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .conf-badge { display: inline-block; align-self: flex-start; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 12px; }
+    .kpi-helper {
+      font-size: 12px; color: var(--mid); line-height: 1.55; margin: 0;
+      padding: 8px 10px; background: #f8f8f8; border-left: 3px solid #d0d0d0;
+    }
+    .kpi-risk-top    { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+    .kpi-risk-icon   { font-size: 14px; line-height: 1; }
+    .kpi-risk-text   { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
+    .kpi-risk-bar    { display: flex; gap: 3px; height: 6px; margin-bottom: 4px; }
+    .kpi-risk-seg    { flex: 1; background: #e8e8e8; border-radius: 1px; }
+    .kpi-risk-labels { display: flex; justify-content: space-between; font-size: 10px; color: rgba(0,0,0,.4); margin-bottom: 8px; }
+    .kpi-risk-desc   { font-size: 12px; color: var(--mid); line-height: 1.55; margin: 0; }
+    .kpi-crit-row  { display: flex; align-items: center; gap: 7px; padding: 7px 0; border-bottom: 1px solid #f0f0f0; }
+    .kpi-crit-row:last-child { border-bottom: none; }
+    .kpi-crit-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .kpi-crit-name { font-size: 12px; color: var(--black); flex: 1; }
+    .kpi-crit-val  { font-size: 11px; font-weight: 700; color: #fff; background: var(--black); padding: 2px 8px; min-width: 26px; text-align: center; }
+    .kpi-pages-num    { font-size: 40px; font-weight: 700; line-height: 1; color: var(--black); margin: 6px 0 2px; }
+    .kpi-pages-sub    { font-size: 12px; font-weight: 600; color: var(--black); margin: 0; }
+    .kpi-pages-domain { font-size: 14px; color: var(--mid); margin: 4px 0 0; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .kpi-pages-note   { font-size: 12px; color: var(--mid); margin: 2px 0 0; }
+    @media (max-width: 840px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .issues-section { padding: 40px 56px; flex: 1; }
+    .section-head {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--black);
+      padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    }
+    .issue-row {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 18px 0; border-bottom: 1px solid var(--border);
+    }
+    .chip {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--white);
+      padding: 4px 10px; flex-shrink: 0; margin-top: 1px; white-space: nowrap;
+    }
+    .chip-c { background: var(--red); }
+    .chip-s { background: var(--orange); }
+    .chip-m { background: #757575; }
+    .issue-body  { flex: 1; min-width: 0; }
+    .issue-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+    .issue-desc  { font-size: 13px; color: var(--mid); line-height: 1.6; }
+    .wcag-ref    { font-size: 11px; color: #888; white-space: nowrap; flex-shrink: 0; padding-top: 3px; letter-spacing: 0.04em; font-family: monospace; }
+
+    .locked-wrap { position: relative; margin-top: 8px; }
+    .locked-blur { filter: blur(2px); pointer-events: none; user-select: none; }
+    .locked-overlay {
+      position: absolute; inset: 0; background: rgba(255,255,255,.20);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; gap: 8px;
+    }
+    .locked-icon  { font-size: 24px; line-height: 1; }
+    .locked-count { font-size: 18px; font-weight: 700; }
+    .locked-hint  { font-size: 12px; color: var(--mid); max-width: 200px; line-height: 1.5; }
+
+    .ghost-company { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); opacity: 0.5; }
+    .ghost-score   { font-size: 22px; font-weight: 700; flex-shrink: 0; width: 42px; text-align: right; }
+    .ghost-info    { flex: 1; min-width: 0; }
+    .ghost-domain  { font-size: 12px; color: var(--mid); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ghost-bar-track { height: 3px; background: rgba(0,0,0,.08); width: 100%; }
+    .ghost-bar-fill  { height: 100%; }
+    .ghost-badge   { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; padding: 2px 7px; flex-shrink: 0; }
+
+    /* ─── v2 TABS ─── */
+    .tab-nav {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      background: var(--white);
+      overflow-x: auto;
+      padding: 0 24px;
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    .tab-nav::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 18px 20px 16px;
+      border: none; background: none;
+      font-family: var(--font); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.10em; text-transform: uppercase;
+      color: #666; cursor: pointer;
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+      white-space: nowrap;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .tab-btn.active { color: var(--black); border-bottom-color: var(--black); border-bottom-width: 4px; }
+    .tab-btn:hover:not(.active) { color: var(--black); }
+    .tab-chip {
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; min-width: 20px; height: 18px;
+      padding: 0 6px; border-radius: 2px;
+      background: rgba(0,0,0,.1); color: rgba(0,0,0,.55);
+    }
+    .tab-btn.active .tab-chip { background: var(--black) !important; color: var(--white) !important; }
+    .tab-chip.cc { background: var(--red);    color: #fff; }
+    .tab-chip.ci { background: var(--orange); color: #fff; }
+    .tab-chip.cp { background: var(--green);  color: #fff; }
+    .tab-chip.cl { background: var(--blue);   color: #fff; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .tab-content { padding: 0 40px 48px; }
+
+    .tab-sh {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.20em; text-transform: uppercase;
+      color: var(--black); padding: 20px 0 14px; border-bottom: 2px solid var(--border);
+      margin-bottom: 4px;
+    }
+    /* colored tab section headers */
+    #tab-critical .tab-sh  { color: #991b1b; border-bottom: 0; padding-top: 32px; }
+    #tab-improve  .tab-sh  { color: #92400e; border-bottom: 0; padding-top: 32px; }
+    #tab-passed   .tab-sh  { color: #14532d; border-bottom: 0; padding-top: 32px; }
+    #tab-lighthouse .tab-sh { color: #1e3a5f; border-bottom: 0; padding-top: 32px; }
+    #tab-manual   .tab-sh  { color: #1e3a5f; border-bottom: 0; padding-top: 32px; }
+
+    /* passed checks — grouped */
+    .passed-grid { display: flex; flex-direction: column; gap: 12px; }
+    .passed-group { border: 1px solid #d1fae5; border-radius: 2px; overflow: hidden; }
+    .passed-group-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #f0fdf4; padding: 10px 16px; border-bottom: 1px solid #d1fae5;
+    }
+    .passed-group-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #166534; }
+    .passed-group-count { font-size: 10px; font-weight: 700; color: #fff; background: #16a34a; padding: 2px 8px; border-radius: 2px; }
+    .passed-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f0fdf4; background: #fff; }
+    .passed-item:last-child { border-bottom: none; }
+    .passed-ok   { color: #16a34a; font-weight: 700; font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .passed-name { font-size: 13px; color: var(--black); line-height: 1.4; font-weight: 500; }
+    .passed-wcag { font-size: 10px; color: #888; font-family: monospace; margin-top: 3px; letter-spacing: 0.04em; }
+
+    /* affects badges */
+    .affects-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 8px; }
+    .affects-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: rgba(0,0,0,.4); margin-right: 2px; flex-shrink: 0; }
+    .affects-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; background: #ffffff !important; color: #000000 !important; border: 1px solid #000000; }
+
+    /* lighthouse */
+    .lh-hdr { display: flex; align-items: center; gap: 16px; padding: 20px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+    .lh-num { font-size: 48px; font-weight: 700; line-height: 1; }
+    .lh-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(0,0,0,.4); margin: 0 0 4px; }
+    .lh-sub { font-size: 13px; color: var(--mid); margin: 0; }
+    .lh-row { display: flex; gap: 14px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .lh-chip { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; padding: 3px 9px; flex-shrink: 0; margin-top: 2px; }
+    .lh-cs { background: var(--orange); }
+    .lh-cm { background: #757575; }
+    .lh-cn { background: #aaa; }
+    .lh-t  { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .lh-d  { font-size: 13px; color: var(--mid); line-height: 1.55; }
+    .lh-ft { font-size: 11px; color: #aaa; padding: 16px 0 0; font-family: monospace; letter-spacing: 0.04em; }
+
+    /* manual audits */
+    .man-row { display: flex; align-items: flex-start; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .man-n { font-size: 11px; font-weight: 700; color: rgba(0,0,0,.3); flex-shrink: 0; width: 24px; font-family: monospace; margin-top: 2px; }
+    .man-t { font-size: 14px; font-weight: 600; color: var(--black); line-height: 1.3; }
+    .man-d { font-size: 13px; color: var(--mid); line-height: 1.6; margin-top: 5px; }
+    .man-lk { font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+    .man-locked { position: relative; }
+    .man-blur { /* unblurred */ }
+    .man-cta-bottom {
+      margin-top: 28px; background: #f0fdf4; border: 1px solid #bbf7d0;
+      padding: 28px; text-align: center;
+    }
+    .man-cta-t { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--black); }
+    .man-cta-b { font-size: 13px; color: var(--mid); max-width: 300px; margin: 0 auto 20px; line-height: 1.6; }
+
+    /* ── RESPONSIVE ── */
+    @media (min-width: 1200px) { .hero-title { font-size: 42px; } }
+    .lang-toggle { display:flex; gap:0; margin-top:2px; }
+    .lang-opt {
+      flex:1; padding:9px 0; border:1px solid #d0d0d0; background:#fff;
+      font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+      color:#666; cursor:pointer; transition:background .15s,color .15s,border-color .15s;
+    }
+    .lang-opt:first-child { border-right:none; }
+    .lang-opt.lang-active { background:#0d0c11; color:#fff; border-color:#0d0c11; }
+    .lang-opt:hover:not(.lang-active) { background:#f4f4f4; }
+    @media (min-width: 901px) {
+      .form-rows   { grid-template-columns: 1fr 1fr; }
+      .field-phone { grid-column: 1 / -1; }
+    }
+    @media (max-width: 900px) {
+      #layout     { grid-template-columns: 1fr; min-height: auto; }
+      #col-left   { border-bottom: 1px solid var(--border); min-height: auto; }
+      #col-right  { position: static; height: auto; align-self: auto; }
+      #r-terminal { height: 50vh; font-size: 10px; }
+      .issues-section { padding: 24px; }
+      .tab-content { padding: 0 24px 40px; }
+      #s-input, #s-gate, #s-error, #s-loading { padding: 36px 24px; }
+    }
+    @media (max-width: 600px) {
+      .hero-title  { font-size: 24px; }
+      .gate-title  { font-size: 21px; }
+      .url-field, .f-ctrl { font-size: 16px; }
+      .btn         { min-height: 52px; }
+      #term-lines  { padding: 0 20px; }
+      .prog-track  { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .wcag-ref { display: none; }
+      .issues-section { padding: 16px; }
+      .tab-content { padding: 0 16px 32px; }
+      #s-input, #s-gate, #s-error, #s-loading { padding: 28px 16px; }
+    }
+  </style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T42T7FGV"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div id="layout">
+
+  <!-- LEFT COLUMN -->
+  <div id="col-left">
+
+    <!-- STATE 1: INPUT -->
+    <div id="s-input" class="lstate active">
+      <span class="eyebrow ew">FREE TOOL
+        <span class="info-wrap">
+          <button class="info-btn" aria-label="More information about the analysis">ⓘ</button>
+          <span class="info-tip" role="tooltip">Results are automatically generated by the Devies Digital Core ML Agent in accordance with WCAG&nbsp;2.2. A complete accessibility audit also requires manual testing by qualified specialists.</span>
+        </span>
+        &nbsp;·&nbsp; WCAG 2.2
+      </span>
+      <h1 class="hero-title">Does Your Webpage<br>Pass WCAG&nbsp;2.2?</h1>
+      <p class="hero-sub">Get an instant accessibility score and find out if your webpage exposes you to legal risk.</p>
+      <ul class="check-list">
+        <li>Free accessibility analysis — no hidden costs</li>
+        <li>See your critical WCAG issues instantly</li>
+        <li>32 automated WCAG 2.2 checks
+          <span class="info-wrap">
+            <button class="info-btn" aria-label="See what we check">ⓘ</button>
+            <span class="info-tip" role="tooltip" style="line-height:1.8;">
+              <strong style="display:block;font-size:10px;letter-spacing:0.08em;margin-bottom:6px;">WHAT WE CHECK</strong>
+              Image alt text &amp; SVG names (1.1.1)<br>
+              Color contrast — text &amp; UI (1.4.3)<br>
+              Skip navigation link (2.4.1)<br>
+              Heading hierarchy H1–H6 (1.3.1)<br>
+              Form labels &amp; input names (1.3.1)<br>
+              Keyboard &amp; focus indicator (2.4.7)<br>
+              Page language — HTML lang (3.1.1)<br>
+              ARIA roles &amp; semantics (4.1.2)<br>
+              Link text purpose (2.4.4)<br>
+              Duplicate IDs (4.1.1)<br>
+              Viewport zoom disabled (1.4.4)<br>
+              iframes without title (4.1.2)<br>
+              Tables without headers (1.3.1)<br>
+              Auto-play &amp; captions (1.2.2)<br>
+              + 18 more checks
+            </span>
+          </span>
+        </li>
+        <li>Covers Level A and Level AA (EU requirements)</li>
+        <li>Get a complete report via email</li>
+      </ul>
+      <div class="input-group">
+        <input type="url" id="url-input" class="url-field"
+          placeholder="https://yourwebsite.com" autocomplete="url" spellcheck="false">
+        <div class="url-err" id="url-err">Enter a webpage address</div>
+        <button class="btn" id="scan-btn" onclick="handleScan()" style="width:100%;margin-top:4px;">
+          Scan my webpage &rarr;
+        </button>
+        <p class="scan-note" style="font-size:10px;color:rgba(0,0,0,.32);text-align:left;margin-top:10px;line-height:1.6;letter-spacing:0;">Results are automatically generated by the Devies Digital Core ML Agent in accordance with WCAG 2.2. Note that a complete accessibility audit requires supplementary manual testing.</p>
+      </div>
+    </div>
+
+    <!-- STATE 2: LOADING -->
+    <div id="s-loading" class="lstate">
+      <div class="load-pct" id="load-pct">0%</div>
+      <div class="load-msg" id="load-msg">Connecting to your webpage...</div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    </div>
+
+    <!-- STATE 3: GATE + SUCCESS -->
+    <div id="s-gate" class="lstate">
+      <div class="gate-inner">
+        <span class="eyebrow eb">FREE FULL REPORT</span>
+        <h2 class="gate-title">Your Accessibility Report Is Ready</h2>
+        <p class="gate-sub">We'll send you a complete report with all WCAG violations, criteria references and step-by-step remediation guidance.</p>
+
+        <div id="gate-form">
+          <div class="form-rows">
+            <div class="f-group">
+              <label class="f-label" for="f-name">Full name *</label>
+              <input type="text" id="f-name" class="f-ctrl" placeholder="Anna Lindqvist" autocomplete="name">
+              <span class="f-err" id="err-name">Enter your name</span>
+            </div>
+            <div class="f-group">
+              <label class="f-label" for="f-email">Email address *</label>
+              <input type="email" id="f-email" class="f-ctrl" placeholder="anna@foretag.se" autocomplete="email">
+              <span class="f-err" id="err-email">Enter a valid email address</span>
+            </div>
+            <div class="f-group field-phone">
+              <label class="f-label" for="f-phone">Phone (optional)</label>
+              <input type="tel" id="f-phone" class="f-ctrl" placeholder="+46 70 000 00 00" autocomplete="tel">
+            </div>
+            <div class="f-group field-phone">
+              <label class="f-label">Report Language</label>
+              <div class="lang-toggle" role="group" aria-label="Report language">
+                <button type="button" class="lang-opt lang-active" id="lang-en" onclick="setReportLang('en')" aria-pressed="true">EN</button>
+                <button type="button" class="lang-opt" id="lang-sv" onclick="setReportLang('sv')" aria-pressed="false">SWE</button>
+              </div>
+            </div>
+          </div>
+          <div class="consent-wrap">
+            <div class="consent-row">
+              <input type="checkbox" id="consent-check" class="consent-check"
+                onchange="handleConsentChange()"
+                aria-required="true"
+                aria-describedby="consent-err consent-tooltip">
+              <label for="consent-check" class="consent-label">
+                I agree that my information is used to generate and send my accessibility report and offers related to UX and accessibility from Devies.
+              </label>
+            </div>
+            <span class="consent-err" id="consent-err" role="alert">Please confirm consent to continue.</span>
+            <div class="consent-disclaimer-row">
+              <p class="consent-disclaimer">
+                We respect your privacy. Your information is used only to deliver your report and relevant follow-up related to accessibility and UX services.
+              </p>
+              <span class="info-wrap" style="flex-shrink:0;margin-top:1px;">
+                <button class="info-btn" id="consent-info-btn"
+                  aria-label="Full privacy details"
+                  aria-expanded="false"
+                  aria-controls="consent-tooltip"
+                  onclick="toggleConsentTip(event)">ⓘ</button>
+                <span class="info-tip info-tip-up" role="tooltip" id="consent-tooltip" style="width:280px;">
+                  Devies processes your contact information to provide the requested report and, where relevant, to offer guidance related to accessibility and user experience improvements. We do not sell your data to third parties. Information is stored securely and retained only as long as necessary for communication and service purposes. You may request deletion of your data at any time by contacting&nbsp;us.
+                </span>
+              </span>
+            </div>
+          </div>
+
+          <button class="btn" id="gate-btn" onclick="handleGate()" style="width:100%;" disabled aria-disabled="true">
+            SEND ME THE FULL REPORT &rarr;
+          </button>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAACjeDLXlIdRgIhsC" style="margin-top:12px;"></div>
+        </div>
+
+        <div id="success-wrap" class="hidden">
+          <div class="success-row">
+            <div class="success-check">&#10003;</div>
+            <h2 class="success-title">Report sent!</h2>
+          </div>
+          <p class="success-body" id="success-msg">
+            Check your inbox. Your full WCAG report is on its way.
+          </p>
+          <hr class="divider">
+          <div style="background:#f8f8f8;border-left:3px solid #000;padding:18px 20px;">
+            <p style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#000;margin:0 0 10px;">Important: AI Findings Should Be Validated</p>
+            <p style="font-size:13px;color:#555;line-height:1.65;margin:0 0 8px;">Automated analysis is a powerful first step — but accessibility compliance ultimately requires human expertise.</p>
+            <p style="font-size:13px;color:#555;line-height:1.65;margin:0 0 8px;">Some issues require manual testing, user experience evaluation, and expert judgment to confirm severity and compliance level.</p>
+            <p style="font-size:13px;color:#555;line-height:1.65;margin:0;">Our accessibility specialists can review, validate, and help you implement the fixes so your product meets real-world accessibility standards.</p>
+          </div>
+
+          <!-- Dark CTA -->
+          <div style="margin-top:20px;background:#0d0c11;padding:24px 22px;">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+              <img src="/avatar.png" alt="Alexander Zakabluk, Accessibility Specialist at Devies" style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+              <div>
+                <p style="font-size:13px;font-weight:700;color:#fff;margin:0 0 2px;">Alexander Zakabluk</p>
+                <p style="font-size:11px;color:rgba(255,255,255,.45);margin:0;letter-spacing:0.04em;">Accessibility Specialist · Devies</p>
+              </div>
+            </div>
+            <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,.45);margin:0 0 6px;">FREE 30-MIN CALL</p>
+            <p style="font-size:16px;font-weight:700;color:#fff;margin:0 0 10px;line-height:1.3;">Book a WCAG Consultation</p>
+            <p style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;margin:0 0 18px;">Get expert validation of your results, a prioritised fix plan, and answers to your compliance questions.</p>
+            <a href="https://calendly.com/alexander-zakabluk-devies/30min" target="_blank" rel="noopener"
+               style="display:inline-block;background:#fff;color:#0d0c11;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:12px 22px;text-decoration:none;"
+               onclick="window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'cta_clicked',location:'success_cta'})">BOOK FREE CALL &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATE 4: ERROR -->
+    <div id="s-error" class="lstate">
+      <h2 class="err-title" id="err-title">Hmm, we couldn't reach that URL</h2>
+      <p class="err-body" id="err-body">Make sure the webpage is publicly accessible and try again.</p>
+      <button class="btn" onclick="resetToInput()" style="max-width:240px;">TRY AGAIN &rarr;</button>
+    </div>
+
+  </div><!-- /#col-left -->
+
+
+  <!-- RIGHT COLUMN -->
+  <div id="col-right">
+
+    <div id="r-terminal">
+      <div id="term-lines"></div>
+    </div>
+
+    <div id="r-results" class="hidden">
+
+      <div class="kpi-grid">
+        <!-- Card 1: Score -->
+        <div class="kpi-card">
+          <p class="kpi-lbl">ACCESSIBILITY SCORE</p>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+            <div class="kpi-donut-wrap">
+              <svg class="kpi-donut-svg" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#ececec" stroke-width="8"/>
+                <circle id="kpi-arc" cx="60" cy="60" r="50" fill="none" stroke="#d32f2f" stroke-width="8"
+                  stroke-dasharray="314.16" stroke-dashoffset="314.16" stroke-linecap="butt"
+                  style="transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1),stroke .3s ease"/>
+              </svg>
+              <div class="kpi-donut-inner" style="flex-direction:column;gap:2px">
+                <span id="kpi-score-num" class="kpi-score-num">0</span>
+                <span style="font-size:10px;color:rgba(0,0,0,.35);font-weight:700;letter-spacing:0.06em">/100</span>
+              </div>
+            </div>
+            <div class="kpi-score-meta">
+              <span class="conf-badge" id="conf-badge">FAILED</span>
+              <p id="kpi-helper" class="kpi-helper"></p>
+            </div>
+          </div>
+          <p style="font-size:10px;color:rgba(0,0,0,.38);line-height:1.6;margin:0;letter-spacing:0.01em">
+            Score based on 32 automated WCAG&nbsp;2.2 checks.
+            <strong style="color:rgba(0,0,0,.55)">0</strong> = fully non-conformant &middot;
+            <strong style="color:rgba(0,0,0,.55)">100</strong> = all criteria pass.
+          </p>
+        </div>
+
+        <!-- Card 2: Compliance Risk -->
+        <div class="kpi-card">
+          <p class="kpi-lbl">COMPLIANCE RISK</p>
+          <div class="kpi-risk-top">
+            <span class="kpi-risk-icon" id="kpi-risk-icon">⚠</span>
+            <span class="kpi-risk-text" id="kpi-risk-text">—</span>
+          </div>
+          <div class="kpi-risk-bar">
+            <div class="kpi-risk-seg" id="kpi-seg-0"></div>
+            <div class="kpi-risk-seg" id="kpi-seg-1"></div>
+            <div class="kpi-risk-seg" id="kpi-seg-2"></div>
+          </div>
+          <div class="kpi-risk-labels"><span>Low</span><span>Medium</span><span>High</span></div>
+          <p class="kpi-risk-desc" id="kpi-risk-desc"></p>
+        </div>
+
+        <!-- Card 3: WCAG Criteria -->
+        <div class="kpi-card">
+          <p class="kpi-lbl">WCAG 2.2 CRITERIA</p>
+          <div class="kpi-crit-row">
+            <span class="kpi-crit-dot" style="background:#c62828"></span>
+            <span class="kpi-crit-name">Critical issues</span>
+            <span class="kpi-crit-val" id="kpi-crit-critical">—</span>
+          </div>
+          <div class="kpi-crit-row">
+            <span class="kpi-crit-dot" style="background:#388e3c"></span>
+            <span class="kpi-crit-name">Passed checks</span>
+            <span class="kpi-crit-val" id="kpi-crit-passed">—</span>
+          </div>
+          <div class="kpi-crit-row">
+            <span class="kpi-crit-dot" style="background:#888"></span>
+            <span class="kpi-crit-name">Manual review needed</span>
+            <span class="kpi-crit-val">5</span>
+          </div>
+          <div class="kpi-crit-row">
+            <span class="kpi-crit-dot" style="background:#007396"></span>
+            <span class="kpi-crit-name">Automated checks run</span>
+            <span class="kpi-crit-val">32</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Scanned Pages -->
+        <div class="kpi-card">
+          <p class="kpi-lbl">SCANNED PAGES</p>
+          <p class="kpi-pages-num">1</p>
+          <p class="kpi-pages-sub">page scanned</p>
+          <p class="kpi-pages-domain" id="kpi-pages-domain"></p>
+          <p class="kpi-pages-note">out of entire domain</p>
+        </div>
+      </div><!-- /.kpi-grid -->
+
+      <!-- Pre-gate preview: 3 issues + locked -->
+      <div class="issues-section" id="issues-preview-section">
+        <p class="section-head">ISSUES FOUND</p>
+        <div id="visible-issues"></div>
+        <div class="locked-wrap">
+          <div class="locked-blur">
+            <div class="ghost-company">
+              <span class="ghost-score" style="color:#c62828">42</span>
+              <div class="ghost-info">
+                <div class="ghost-domain">wonka-industries.com</div>
+                <div class="ghost-bar-track"><div class="ghost-bar-fill" style="width:42%;background:#c62828"></div></div>
+              </div>
+              <span class="ghost-badge" style="background:#c62828">EJ GODKÄND</span>
+            </div>
+            <div class="ghost-company">
+              <span class="ghost-score" style="color:#c17f00">54</span>
+              <div class="ghost-info">
+                <div class="ghost-domain">hogwarts.academy</div>
+                <div class="ghost-bar-track"><div class="ghost-bar-fill" style="width:54%;background:#c17f00"></div></div>
+              </div>
+              <span class="ghost-badge" style="background:#c17f00">FÖRBÄTTRA</span>
+            </div>
+            <div class="ghost-company">
+              <span class="ghost-score" style="color:#388e3c">87</span>
+              <div class="ghost-info">
+                <div class="ghost-domain">wayneenterprises.com</div>
+                <div class="ghost-bar-track"><div class="ghost-bar-fill" style="width:87%;background:#388e3c"></div></div>
+              </div>
+              <span class="ghost-badge" style="background:#388e3c">GODKÄND</span>
+            </div>
+          </div>
+          <div class="locked-overlay">
+            <div class="locked-icon">🔒</div>
+            <p class="locked-count" id="locked-count">9 FLER PROBLEM HITTADE</p>
+            <p class="locked-hint">Fill in your details on the left to unlock</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post-gate full report with tabs -->
+      <div id="full-report" class="hidden">
+
+        <div class="tab-nav" role="tablist" aria-label="Report sections">
+          <button class="tab-btn active" id="tab-btn-critical" role="tab" aria-selected="true" aria-controls="tab-critical" onclick="switchTab('critical')">
+            CRITICAL <span class="tab-chip cc" id="tcc">0</span>
+          </button>
+          <button class="tab-btn" id="tab-btn-improve" role="tab" aria-selected="false" aria-controls="tab-improve" onclick="switchTab('improve')">
+            NEEDS IMPROVEMENT <span class="tab-chip ci" id="tci">0</span>
+          </button>
+          <button class="tab-btn" id="tab-btn-passed" role="tab" aria-selected="false" aria-controls="tab-passed" onclick="switchTab('passed')">
+            PASSED AUDITS <span class="tab-chip cp" id="tcp">0</span>
+          </button>
+          <button class="tab-btn" id="tab-btn-lighthouse" role="tab" aria-selected="false" aria-controls="tab-lighthouse" onclick="switchTab('lighthouse')">
+            LIGHTHOUSE <span class="tab-chip cl" id="tlh">LH</span>
+          </button>
+          <button class="tab-btn" id="tab-btn-manual" role="tab" aria-selected="false" aria-controls="tab-manual" onclick="switchTab('manual')">
+            MANUAL AUDITS <span class="tab-chip">22</span>
+          </button>
+        </div>
+
+        <!-- Tab: Critical -->
+        <div id="tab-critical" class="tab-panel active tab-content" role="tabpanel">
+          <p class="tab-sh">CRITICAL ISSUES — ACTION REQUIRED</p>
+          <div id="issues-critical"></div>
+        </div>
+
+        <!-- Tab: Needs Improvement -->
+        <div id="tab-improve" class="tab-panel tab-content" role="tabpanel">
+          <p class="tab-sh">NEEDS IMPROVEMENT</p>
+          <div id="issues-improve"></div>
+        </div>
+
+        <!-- Tab: Passed -->
+        <div id="tab-passed" class="tab-panel tab-content" role="tabpanel">
+          <p class="tab-sh">ACCESSIBILITY FOUNDATIONS VERIFIED</p>
+          <div class="passed-grid" id="passed-grid" style="margin-top:4px"></div>
+          <p style="font-size:11px;color:#aaa;margin-top:20px;font-family:monospace;line-height:1.7">
+            Total: 32 automated checks · Coverage: 20 WCAG 2.2 criteria
+          </p>
+        </div>
+
+        <!-- Tab: Lighthouse -->
+        <div id="tab-lighthouse" class="tab-panel tab-content" role="tabpanel">
+          <p class="tab-sh">GOOGLE LIGHTHOUSE — ACCESSIBILITY</p>
+          <div id="lh-content"></div>
+        </div>
+
+        <!-- Tab: Manual Audits -->
+        <div id="tab-manual" class="tab-panel tab-content" role="tabpanel">
+          <p class="tab-sh">MANUAL CHECKS THAT AUTOMATION MISSES</p>
+          <p style="font-size:13px;color:var(--mid);line-height:1.6;padding:14px 0 4px">These 22 checks require human evaluation — automated tools cannot fully assess them.</p>
+
+          <div class="man-row"><span class="man-n">01</span><div style="flex:1;min-width:0"><p class="man-t">Text Legibility</p><p class="man-d">Can all text be read comfortably at normal zoom levels? Check font size, line height, contrast and overall readability.</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">02</span><div style="flex:1;min-width:0"><p class="man-t">Interactive Target Size</p><p class="man-d">Are all interactive elements (buttons, links, form controls) large enough for users with motor impairments? WCAG 2.2 requires 24×24px minimum.</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">03</span><div style="flex:1;min-width:0"><p class="man-t">Keyboard Flow</p><p class="man-d">Can all interactive elements be reached and activated using only a keyboard? Check for logical tab order and no keyboard traps.</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">04</span><div style="flex:1;min-width:0"><p class="man-t">Visible Focus Indicator</p><p class="man-d">Is the keyboard focus indicator visible and clear on every interactive element? Verify with browser zoom at 200%.</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">05</span><div style="flex:1;min-width:0"><p class="man-t">Skip Navigation</p><p class="man-d">Does the skip-link actually work and move focus past repeated navigation? Test with screen readers (NVDA, VoiceOver).</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">06</span><div style="flex:1;min-width:0"><p class="man-t">Reflow at 320px</p><p class="man-d">Does all content reflow to a single column at 320px viewport width without horizontal scrolling or content loss?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">07</span><div style="flex:1;min-width:0"><p class="man-t">Text Resize to 200%</p><p class="man-d">Can text be resized to 200% via browser settings without loss of content or functionality?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">08</span><div style="flex:1;min-width:0"><p class="man-t">Zoom Support</p><p class="man-d">Does the page work at 400% browser zoom? Check for overlapping elements, hidden content, and broken layouts.</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">09</span><div style="flex:1;min-width:0"><p class="man-t">Error Identification</p><p class="man-d">Are form errors clearly identified in text, announced to screen readers, and linked to the specific field?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">10</span><div style="flex:1;min-width:0"><p class="man-t">Error Recovery</p><p class="man-d">Does the site provide helpful error suggestions and allow users to correct mistakes before submitting irreversible actions?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">11</span><div style="flex:1;min-width:0"><p class="man-t">Timeout Warnings</p><p class="man-d">Are users warned before sessions expire and given at least 20 seconds to extend? Relevant for forms and logged-in areas.</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">12</span><div style="flex:1;min-width:0"><p class="man-t">Moving / Blinking Content</p><p class="man-d">Can all moving or auto-updating content be paused, stopped, or hidden? Verify carousels, banners, and animations.</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">13</span><div style="flex:1;min-width:0"><p class="man-t">Audio / Video Controls</p><p class="man-d">Does all media have accessible controls (play, pause, volume)? Are controls keyboard-operable and labelled?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">14</span><div style="flex:1;min-width:0"><p class="man-t">Captions Quality</p><p class="man-d">Are captions accurate, synchronised, and include speaker identification and relevant sound descriptions?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">15</span><div style="flex:1;min-width:0"><p class="man-t">Reading Order</p><p class="man-d">Does the DOM reading order match the visual order? Test by linearising CSS and navigating with screen reader.</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">16</span><div style="flex:1;min-width:0"><p class="man-t">Consistent Navigation</p><p class="man-d">Are repeated navigation components (menus, breadcrumbs) presented in the same order and location across all pages?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">17</span><div style="flex:1;min-width:0"><p class="man-t">Consistent Labels</p><p class="man-d">Are components with the same function labelled consistently across the entire site?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">18</span><div style="flex:1;min-width:0"><p class="man-t">Plain Language</p><p class="man-d">Is content written at a reading level appropriate for the audience? Are technical terms explained?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">19</span><div style="flex:1;min-width:0"><p class="man-t">Complex Instructions</p><p class="man-d">Are instructions for forms and tasks clear and not reliant on sensory characteristics (colour, shape, position) alone?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">20</span><div style="flex:1;min-width:0"><p class="man-t">Cognitive Load</p><p class="man-d">Is the interface simple and consistent enough for users with cognitive disabilities? Avoid unexpected changes of context.</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row"><span class="man-n">21</span><div style="flex:1;min-width:0"><p class="man-t">Time-Based Interactions</p><p class="man-d">Can users complete all tasks without time pressure? Are timed responses adjustable or removable?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+          <div class="man-row" style="border-bottom:none"><span class="man-n">22</span><div style="flex:1;min-width:0"><p class="man-t">Assistive Technology Testing</p><p class="man-d">Has the site been tested with screen readers (NVDA, JAWS, VoiceOver) and other assistive technologies across key user journeys?</p></div><span class="man-lk" aria-label="Requires manual review">🔒</span></div>
+
+          <!-- CTA at bottom -->
+          <div class="man-cta-bottom">
+            <div style="font-size:28px;margin-bottom:12px;">🔒</div>
+            <p class="man-cta-t">Full Manual Audit Available</p>
+            <p class="man-cta-b">Our accessibility specialists verify each of these 22 checks in your specific context — with real screen readers and assistive technology.</p>
+            <a href="https://calendly.com/alexander-zakabluk-devies/30min" target="_blank" rel="noopener"
+               class="btn" style="max-width:240px;display:inline-block;"
+               onclick="window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'cta_clicked',location:'manual_tab'})">BOOK FREE CALL &rarr;</a>
+          </div>
+        </div><!-- /tab-manual -->
+
+      </div><!-- /#full-report -->
+
+    </div><!-- /#r-results -->
+
+  </div><!-- /#col-right -->
+
+</div><!-- /#layout -->
+
+
+<script>
+  const API_SCAN   = 'https://wcag-production.up.railway.app/api/scan';
+  const API_REPORT = 'https://wcag-production.up.railway.app/api/send-report';
+  const CIRC       = 314.16;
+
+  const LOAD_MSGS = [
+    'Connecting to your webpage...',
+    'Running WCAG 2.2 accessibility checks...',
+    'Checking colour contrast ratios...',
+    'Testing keyboard navigation...',
+    'Analysing ARIA labels and roles...',
+    'Calculating your score...'
+  ];
+
+  const V2_CHECKS = [
+    { id: 'lang',           name: 'Language of page (lang attribute)',  wcag: '3.1.1', level: 'A'   },
+    { id: 'title',          name: 'Page title present',                  wcag: '2.4.2', level: 'A'   },
+    { id: 'main-landmark',  name: '<main> landmark present',             wcag: '1.3.1', level: 'A'   },
+    { id: 'nav-landmark',   name: 'Navigation landmarks',                wcag: '1.3.1', level: 'A'   },
+    { id: 'skip-link',      name: 'Skip navigation link',                wcag: '2.4.1', level: 'A'   },
+    { id: 'heading-order',  name: 'Heading hierarchy (H1–H6)',           wcag: '1.3.1', level: 'A'   },
+    { id: 'img-alt',        name: 'Images have alt text',                wcag: '1.1.1', level: 'A'   },
+    { id: 'img-filename',   name: 'Alt text is not a filename',          wcag: '1.1.1', level: 'A'   },
+    { id: 'img-generic',    name: 'Alt text is descriptive',             wcag: '1.1.1', level: 'A'   },
+    { id: 'svg-name',       name: 'SVGs have accessible names',          wcag: '1.1.1', level: 'A'   },
+    { id: 'focus-indicator',name: 'Focus indicator visible',             wcag: '2.4.7', level: 'AA'  },
+    { id: 'tabindex',       name: 'No positive tabindex values',         wcag: '2.4.3', level: 'A'   },
+    { id: 'aria-hidden',    name: 'No focusable aria-hidden elements',   wcag: '4.1.2', level: 'A'   },
+    { id: 'custom-roles',   name: 'Custom elements have ARIA roles',     wcag: '2.1.1', level: 'A'   },
+    { id: 'input-labels',   name: 'Form inputs have labels',             wcag: '1.3.1', level: 'A'   },
+    { id: 'button-names',   name: 'Buttons have accessible names',       wcag: '4.1.2', level: 'A'   },
+    { id: 'required-fields',name: 'Required fields are marked',          wcag: '3.3.2', level: 'A'   },
+    { id: 'empty-links',    name: 'No empty or unlabelled links',        wcag: '2.4.4', level: 'A'   },
+    { id: 'link-text',      name: 'No generic link text',                wcag: '2.4.4', level: 'A'   },
+    { id: 'new-tab',        name: 'Links opening new tabs warn users',   wcag: '3.2.2', level: 'AA'  },
+    { id: 'dead-links',     name: 'No dead links (href="#")',            wcag: '2.4.4', level: 'A'   },
+    { id: 'captions',       name: 'Videos have captions',                wcag: '1.2.2', level: 'A'   },
+    { id: 'autoplay',       name: 'No autoplay media',                   wcag: '1.4.2', level: 'A'   },
+    { id: 'iframe-title',   name: 'iframes have title attributes',       wcag: '4.1.2', level: 'A'   },
+    { id: 'table-headers',  name: 'Tables have column headers',          wcag: '1.3.1', level: 'A'   },
+    { id: 'table-caption',  name: 'Tables have captions',                wcag: '1.3.1', level: 'A'   },
+    { id: 'contrast',       name: 'Text contrast meets 4.5:1 ratio',     wcag: '1.4.3', level: 'AA'  },
+    { id: 'duplicate-ids',  name: 'No duplicate ID attributes',          wcag: '4.1.1', level: 'A'   },
+    { id: 'viewport-zoom',  name: 'Viewport zoom is not disabled',       wcag: '1.4.4', level: 'AA'  },
+    { id: 'meta-refresh',   name: 'No auto-redirect (meta refresh)',     wcag: '2.2.1', level: 'A'   },
+    { id: 'reduced-motion', name: 'Respects prefers-reduced-motion',     wcag: '2.3.3', level: 'AAA' },
+    { id: 'lang-parts',     name: 'Language changes are marked',         wcag: '3.1.2', level: 'AA'  },
+  ];
+
+  const TERM_LINES = [
+    { t: '$ wcag-audit --url https://wonka-industries.com',   c: 'cmd'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '  → Connecting to wonka-industries.com...',    c: 'init' },
+    { t: '  → Fetching HTML (207 KB)...',                c: 'init' },
+    { t: '  → Parsing DOM — 1,847 nodes found',     c: 'init' },
+    { t: '  → Running WCAG 2.2 Level AA checks...',      c: 'init' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '  █████████████████████████████████████████ 100%', c: 'bar'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '  [1/8]  lang attribute          3.1.1   [FAIL]',   c: 'chkf' },
+    { t: '  [2/8]  alt text on images      1.1.1   [FAIL]',   c: 'chkf' },
+    { t: '  [3/8]  skip navigation         2.4.1   [FAIL]',   c: 'chkf' },
+    { t: '  [4/8]  heading hierarchy       1.3.1   [FAIL]',   c: 'chkf' },
+    { t: '  [5/8]  focus indicator         2.4.7   [FAIL]',   c: 'chkf' },
+    { t: '  [6/8]  color contrast          1.4.3   [FAIL]',   c: 'chkf' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '─'.repeat(58),                                  c: 'rule' },
+    { t: 'VIOLATIONS — LEVEL A  (4 issues)',              c: 'section' },
+    { t: '─'.repeat(58),                                  c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[A.01]  Empty lang attribute — 3.1.1',          c: 'viol' },
+    { t: '        Fix: <html lang="sv">',                      c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[A.02]  7 images with non-descriptive alt — 1.1.1', c: 'viol' },
+    { t: '        Fix: alt="Person sitter vid laptop i hemmet"', c: 'fix' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[AA.01] Focus indicator removed — 2.4.7',       c: 'viol' },
+    { t: '        Fix: :focus-visible { outline: 3px solid #005fcc }', c: 'fix' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '─'.repeat(58),                                  c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { c: 'score-card', score: 42, conf: 'fail', site: 'wonka-industries.com' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '$ wcag-audit --url https://hogwarts.academy',        c: 'cmd'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '  → Connecting to hogwarts.academy...',         c: 'init' },
+    { t: '  → Fetching HTML (134 KB)...',                 c: 'init' },
+    { t: '  → Parsing DOM — 1,102 nodes found',      c: 'init' },
+    { t: '  → Running WCAG 2.2 Level AA checks...',       c: 'init' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '  █████████████████████████████████████████ 100%', c: 'bar'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '  [1/8]  lang attribute          3.1.1   [ OK ]',   c: 'chko' },
+    { t: '  [2/8]  alt text on images      1.1.1   [FAIL]',   c: 'chkf' },
+    { t: '  [3/8]  skip navigation         2.4.1   [ OK ]',   c: 'chko' },
+    { t: '  [4/8]  heading hierarchy       1.3.1   [FAIL]',   c: 'chkf' },
+    { t: '  [5/8]  form labels             1.3.1   [FAIL]',   c: 'chkf' },
+    { t: '  [6/8]  color contrast          1.4.3   [WARN]',   c: 'chkw' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[A.01]  3 images missing alt text — 1.1.1',    c: 'viol' },
+    { t: '        Fix: Add meaningful alt attributes',         c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '[AA.01] Color contrast — 1.4.3',                c: 'viol' },
+    { t: '        Fix: #666 → #444 on white background',  c: 'fix'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '─'.repeat(58),                                  c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { c: 'score-card', score: 54, conf: 'mid', site: 'hogwarts.academy' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '$ wcag-audit --url https://wayneenterprises.com',   c: 'cmd'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '  → Connecting to wayneenterprises.com...',    c: 'init' },
+    { t: '  → Fetching HTML (89 KB)...',                 c: 'init' },
+    { t: '  → Parsing DOM — 743 nodes found',        c: 'init' },
+    { t: '  → Running WCAG 2.2 Level AA checks...',      c: 'init' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '  █████████████████████████████████████████ 100%', c: 'bar'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '  [1/8]  lang attribute          3.1.1   [ OK ]',   c: 'chko' },
+    { t: '  [2/8]  alt text on images      1.1.1   [ OK ]',   c: 'chko' },
+    { t: '  [3/8]  skip navigation         2.4.1   [ OK ]',   c: 'chko' },
+    { t: '  [4/8]  heading hierarchy       1.3.1   [ OK ]',   c: 'chko' },
+    { t: '  [5/8]  focus indicator         2.4.7   [WARN]',   c: 'chkw' },
+    { t: '  [6/8]  color contrast          1.4.3   [ OK ]',   c: 'chko' },
+    { t: '',                                                   c: 'gap'  },
+    { t: 'PASSING  (✓ 6 checks)',                         c: 'section' },
+    { t: '─'.repeat(58),                                  c: 'rule' },
+    { t: '✓  lang="en" · alt text · skip link · headings · contrast · forms', c: 'fix' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '─'.repeat(58),                                  c: 'rule' },
+    { t: '',                                                   c: 'gap'  },
+    { c: 'score-card', score: 87, conf: 'pass', site: 'wayneenterprises.com' },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'gap'  },
+    { t: '',                                                   c: 'gap'  },
+  ];
+
+  /* ── STATE ── */
+  const STATES = { INPUT: 'input', LOADING: 'loading', GATE: 'gate', ERROR: 'error' };
+  let currentState  = STATES.INPUT;
+  let enteredUrl    = '';
+  let enteredEmail  = '';
+  let loadTimers    = [];
+  let loadIntervals = [];
+  let loadRaf       = null;
+  let apiResult     = null;
+  let selectedLang  = 'en';
+
+  function setReportLang(l) {
+    selectedLang = l;
+    document.getElementById('lang-en').classList.toggle('lang-active', l === 'en');
+    document.getElementById('lang-sv').classList.toggle('lang-active', l === 'sv');
+    document.getElementById('lang-en').setAttribute('aria-pressed', l === 'en');
+    document.getElementById('lang-sv').setAttribute('aria-pressed', l === 'sv');
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'language_selected', language: l });
+  }
+
+  function showLeftState(s) {
+    ['s-input', 's-loading', 's-gate', 's-error'].forEach(id =>
+      document.getElementById(id).classList.remove('active'));
+    currentState = s;
+    document.getElementById('s-' + s).classList.add('active');
+  }
+
+  function showRightResults() {
+    stopTerminal();
+    document.getElementById('r-terminal').classList.add('hidden');
+    document.getElementById('r-results').classList.remove('hidden');
+  }
+
+  /* ── URL INPUT ── */
+  function isValidUrl(str) {
+    const w = /^https?:\/\//i.test(str) ? str : 'https://' + str;
+    let p;
+    try { p = new URL(w); } catch (_) { return false; }
+    if (!/^https?:$/.test(p.protocol)) return false;
+    const h = p.hostname;
+    if (!h.includes('.')) return false;
+    if (!/^[a-z]{2,}$/i.test(h.split('.').pop())) return false;
+    if (/^\d+$/.test(h.replace(/\./g, ''))) return false;
+    return true;
+  }
+
+  function showUrlError(msg) {
+    const inp = document.getElementById('url-input');
+    const err = document.getElementById('url-err');
+    inp.classList.add('err');
+    err.textContent = msg;
+    err.classList.add('show');
+    inp.focus();
+  }
+
+  function handleScan() {
+    const inp = document.getElementById('url-input');
+    const err = document.getElementById('url-err');
+    let url   = inp.value.trim();
+
+    inp.classList.remove('err');
+    err.classList.remove('show', 'info');
+
+    if (!url) { showUrlError('Enter a webpage address'); return; }
+    if (!isValidUrl(url)) { showUrlError('Enter a valid URL — e.g. https://example.com'); return; }
+    if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; inp.value = url; }
+    try {
+      const h = new URL(url).hostname.toLowerCase().replace(/^www\./, '');
+      if (h === 'devies.se' || h.endsWith('.devies.se')) {
+        err.textContent = 'Nice try 🙂 We\'re already on it. Try another website.';
+        err.classList.add('show', 'info');
+        return;
+      }
+    } catch (_) {}
+
+    enteredUrl = url;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'scan_started', page_url: url });
+    try {
+      document.getElementById('kpi-pages-domain').textContent = new URL(url).hostname;
+    } catch (_) {
+      document.getElementById('kpi-pages-domain').textContent = url;
+    }
+
+    showLeftState(STATES.LOADING);
+    startLoading();
+  }
+
+  document.getElementById('url-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleScan();
+  });
+
+  /* ── LOADING ── */
+  function startLoading() {
+    loadTimers.forEach(clearTimeout);
+    loadIntervals.forEach(clearInterval);
+    loadTimers = []; loadIntervals = [];
+
+    const fill = document.getElementById('prog-fill');
+    const pct  = document.getElementById('load-pct');
+    const msg  = document.getElementById('load-msg');
+
+    fill.style.transition = 'none';
+    fill.style.width      = '0%';
+    pct.textContent       = '0%';
+    msg.textContent       = LOAD_MSGS[0];
+    msg.classList.remove('fade');
+
+    const τ  = 24000;
+    const t0 = Date.now();
+    if (loadRaf) cancelAnimationFrame(loadRaf);
+    function tickProgress() {
+      if (currentState !== STATES.LOADING) return;
+      const fake = 99 * (1 - Math.exp(-(Date.now() - t0) / τ));
+      fill.style.width = fake + '%';
+      pct.textContent  = Math.floor(fake) + '%';
+      loadRaf = requestAnimationFrame(tickProgress);
+    }
+    loadRaf = requestAnimationFrame(tickProgress);
+
+    let mi = 0;
+    const cycleId = setInterval(() => {
+      if (currentState !== STATES.LOADING) { clearInterval(cycleId); return; }
+      msg.classList.add('fade');
+      setTimeout(() => {
+        if (currentState !== STATES.LOADING) return;
+        mi = (mi + 1) % LOAD_MSGS.length;
+        msg.textContent = LOAD_MSGS[mi];
+        msg.classList.remove('fade');
+      }, 520);
+    }, 5000);
+    loadIntervals.push(cycleId);
+
+    fetch(API_SCAN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: enteredUrl })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (currentState !== STATES.LOADING) return;
+      if (data.error) { showApiError(data.error); return; }
+      apiResult = data;
+      clearInterval(cycleId);
+      cancelAnimationFrame(loadRaf);
+      fill.style.transition = 'width 0.5s ease';
+      fill.style.width = '100%';
+      pct.textContent = '100%';
+      renderResults(data);
+      loadTimers.push(setTimeout(() => {
+        showRightResults();
+        setTimeout(animateScore, 100);
+        showLeftState(STATES.GATE);
+      }, 400));
+    })
+    .catch(() => {
+      if (currentState !== STATES.LOADING) return;
+      clearInterval(cycleId);
+      cancelAnimationFrame(loadRaf);
+      showApiError('Could not connect to the scanning service.');
+    });
+  }
+
+  function computeConformance(issues) {
+    if (!issues || issues.length === 0) return 'pass';
+    if (issues.some(i => i.severity === 'critical')) return 'fail';
+    if (issues.some(i => i.severity === 'serious'))  return 'mid';
+    return 'pass';
+  }
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  const WCAG_AFFECTS = {
+    '1.1.1': ['Blind', 'Low Vision', 'Screen Reader'],
+    '1.2.2': ['Deaf', 'Hard of Hearing'],
+    '1.3.1': ['Screen Reader', 'Blind', 'Cognitive'],
+    '1.4.2': ['Deaf', 'Hard of Hearing'],
+    '1.4.3': ['Low Vision', 'Colour Blind'],
+    '1.4.4': ['Low Vision', 'Elderly'],
+    '2.1.1': ['Keyboard', 'Motor Impaired'],
+    '2.2.1': ['Cognitive', 'Motor Impaired'],
+    '2.3.3': ['Vestibular', 'Photosensitive'],
+    '2.4.1': ['Keyboard', 'Screen Reader'],
+    '2.4.2': ['Screen Reader', 'All Users'],
+    '2.4.3': ['Keyboard'],
+    '2.4.4': ['Screen Reader', 'Blind'],
+    '2.4.7': ['Keyboard'],
+    '3.1.1': ['Screen Reader', 'All Users'],
+    '3.1.2': ['Screen Reader'],
+    '3.2.2': ['Cognitive', 'All Users'],
+    '3.3.2': ['Cognitive', 'Screen Reader'],
+    '4.1.1': ['Screen Reader', 'All Users'],
+    '4.1.2': ['Screen Reader', 'Blind', 'Keyboard'],
+  };
+
+  const AFFECTS_STYLE = {
+    'Blind':           { bg: '#ede7f6', color: '#4527a0' },
+    'Low Vision':      { bg: '#e3f2fd', color: '#0d47a1' },
+    'Screen Reader':   { bg: '#e8eaf6', color: '#283593' },
+    'Keyboard':        { bg: '#e1f5fe', color: '#01579b' },
+    'Motor Impaired':  { bg: '#fbe9e7', color: '#bf360c' },
+    'Deaf':            { bg: '#e0f2f1', color: '#004d40' },
+    'Hard of Hearing': { bg: '#e0f2f1', color: '#004d40' },
+    'Cognitive':       { bg: '#fff8e1', color: '#e65100' },
+    'Colour Blind':    { bg: '#f1f8e9', color: '#33691e' },
+    'Vestibular':      { bg: '#fce4ec', color: '#880e4f' },
+    'Photosensitive':  { bg: '#fce4ec', color: '#880e4f' },
+    'Elderly':         { bg: '#f3e5f5', color: '#6a1b9a' },
+    'All Users':       { bg: '#f5f5f5', color: '#37474f' },
+  };
+
+  const GROUPS = {
+    navigation: 'Navigation & Structure',
+    content:    'Content & Media',
+    forms:      'Forms & Interaction',
+    keyboard:   'Keyboard & Focus',
+    visual:     'Visual Accessibility',
+    technical:  'Technical Compliance',
+  };
+
+  const CHECK_GROUPS = {
+    'lang':'navigation','title':'navigation','main-landmark':'navigation',
+    'nav-landmark':'navigation','skip-link':'navigation','heading-order':'navigation',
+    'img-alt':'content','img-filename':'content','img-generic':'content',
+    'svg-name':'content','captions':'content','autoplay':'content',
+    'input-labels':'forms','button-names':'forms','required-fields':'forms',
+    'focus-indicator':'keyboard','tabindex':'keyboard','aria-hidden':'keyboard','custom-roles':'keyboard',
+    'contrast':'visual','viewport-zoom':'visual','reduced-motion':'visual',
+    'empty-links':'technical','link-text':'technical','new-tab':'technical',
+    'dead-links':'technical','iframe-title':'technical','table-headers':'technical',
+    'table-caption':'technical','duplicate-ids':'technical','meta-refresh':'technical','lang-parts':'technical',
+  };
+
+  function issueCardHTML(issue) {
+    const cls   = { critical: 'chip-c', serious: 'chip-s', moderate: 'chip-m' }[issue.severity] || 'chip-m';
+    const label = { critical: 'Critical', serious: 'Serious', moderate: 'Moderate' }[issue.severity] || 'Moderate';
+    const groups     = WCAG_AFFECTS[issue.wcag] || ['All Users'];
+    const affectsHtml = groups.map(g => {
+      const s = AFFECTS_STYLE[g] || { bg: '#f5f5f5', color: '#37474f' };
+      return `<span class="affects-tag" style="background:${s.bg};color:${s.color}">${escHtml(g)}</span>`;
+    }).join('');
+    return `<div class="issue-row">
+      <span class="chip ${cls}">${label}</span>
+      <div class="issue-body">
+        <p class="issue-title">${escHtml(issue.title)}</p>
+        <p class="issue-desc">${escHtml(issue.description)}</p>
+        <div class="affects-row">
+          <span class="affects-lbl">AFFECTS:</span>
+          ${affectsHtml}
+        </div>
+      </div>
+      <span class="wcag-ref">WCAG ${escHtml(issue.wcag)}<br>Level ${escHtml(issue.level)}</span>
+    </div>`;
+  }
+
+  function renderResults(data) {
+    const visEl  = document.getElementById('visible-issues');
+    const first3 = (data.issues || []).slice(0, 3);
+    visEl.innerHTML = first3.length
+      ? first3.map(issueCardHTML).join('')
+      : '<p style="color:#4d4d4d;padding:16px 0">No issues found — great job!</p>';
+
+    const rem = Math.max(0, (data.totalIssues || 0) - 3);
+    const lw  = document.querySelector('.locked-wrap');
+    if (rem > 0) {
+      document.getElementById('locked-count').textContent = rem + ' MORE ISSUES FOUND';
+      lw.style.display = '';
+    } else {
+      lw.style.display = 'none';
+    }
+
+    populateKpiCards(data);
+  }
+
+  function populateKpiCards(data) {
+    const score    = data.score || 0;
+    const issues   = data.issues || [];
+    const critical = issues.filter(i => i.severity === 'critical').length;
+    const passed   = data.passedChecks ?? Math.round(score * 32 / 100);
+    const total    = data.totalIssues || 0;
+
+    const he = document.getElementById('kpi-helper');
+    if (he) {
+      if (score <= 50) {
+        he.textContent = 'Score indicates high non-compliance risk under the EAA';
+        he.style.borderLeftColor = '#c62828'; he.style.background = '#fff5f5';
+      } else if (score <= 79) {
+        he.textContent = 'Improvements needed for full WCAG 2.2 AA compliance';
+        he.style.borderLeftColor = '#e65100'; he.style.background = '#fff8f0';
+      } else {
+        he.textContent = 'Good compliance level — minor improvements possible';
+        he.style.borderLeftColor = '#388e3c'; he.style.background = '#f0fdf4';
+      }
+    }
+
+    const hasCrit = issues.some(i => i.severity === 'critical');
+    const hasSer  = issues.some(i => i.severity === 'serious');
+    let riskLabel, riskColor, riskDesc, segColors;
+    if (score < 50 || hasCrit) {
+      riskLabel = 'HIGH COMPLIANCE RISK'; riskColor = '#c62828';
+      riskDesc  = `${total} issue${total !== 1 ? 's' : ''} may result in non-conformance with WCAG 2.2 Level AA requirements. Applies to public sector organisations and many private sector services under European accessibility legislation. European Accessibility Act (EAA) requirements apply from 28 June 2025.`;
+      segColors = ['#e8e8e8', '#e8e8e8', '#c62828'];
+    } else if (score < 80 || hasSer) {
+      riskLabel = 'MEDIUM COMPLIANCE RISK'; riskColor = '#c17f00';
+      riskDesc  = `${total} issue${total !== 1 ? 's' : ''} found. Address serious issues to meet WCAG 2.2 Level AA requirements under the EAA.`;
+      segColors = ['#e8e8e8', '#c17f00', '#e8e8e8'];
+    } else {
+      riskLabel = 'LOW COMPLIANCE RISK'; riskColor = '#388e3c';
+      riskDesc  = 'No critical issues detected. Continued monitoring is recommended for ongoing EAA compliance.';
+      segColors = ['#388e3c', '#e8e8e8', '#e8e8e8'];
+    }
+    const rt = document.getElementById('kpi-risk-text');
+    const ri = document.getElementById('kpi-risk-icon');
+    const rd = document.getElementById('kpi-risk-desc');
+    if (rt) { rt.textContent = riskLabel; rt.style.color = riskColor; }
+    if (ri) ri.style.color = riskColor;
+    if (rd) rd.textContent = riskDesc;
+    [0, 1, 2].forEach(i => {
+      const s = document.getElementById('kpi-seg-' + i);
+      if (s) s.style.background = segColors[i];
+    });
+
+    const ce = document.getElementById('kpi-crit-critical');
+    const pe = document.getElementById('kpi-crit-passed');
+    if (ce) ce.textContent = critical;
+    if (pe) pe.textContent = passed;
+  }
+
+  function showApiError(msg) {
+    const m = msg || 'Something went wrong. Please try again in a moment.';
+    let title = "Hmm, we couldn't reach that URL";
+    if (/too many/i.test(m))                            title = 'Slow down a moment';
+    else if (/connect|service/i.test(m))                title = 'Service unavailable';
+    else if (/invalid|unsupported/i.test(m))            title = 'Invalid URL';
+    else if (/try again/i.test(m) && !/reach/i.test(m)) title = 'Something went wrong';
+    document.getElementById('err-title').textContent = title;
+    document.getElementById('err-body').textContent  = m;
+    loadTimers.forEach(clearTimeout);
+    loadIntervals.forEach(clearInterval);
+    loadTimers = []; loadIntervals = [];
+    showLeftState(STATES.ERROR);
+  }
+
+  /* ── SCORE ANIMATION ── */
+  function animateScore() {
+    const data  = apiResult || { score: 0, issues: [] };
+    const score = data.score || 0;
+    const conf  = computeConformance(data.issues || []);
+    const arc   = document.getElementById('kpi-arc');
+    const num   = document.getElementById('kpi-score-num');
+    const badge = document.getElementById('conf-badge');
+    let colour, label;
+    if      (conf === 'pass') { colour = '#388e3c'; label = 'PASSED';  }
+    else if (conf === 'mid')  { colour = '#c17f00'; label = 'IMPROVE'; }
+    else                      { colour = '#c62828'; label = 'FAILED';  }
+    if (arc)   { arc.style.stroke = colour; arc.style.strokeDashoffset = CIRC * (1 - score / 100); }
+    if (badge) { badge.textContent = label; badge.style.background = colour; badge.style.color = '#fff'; }
+    const dur = 1600, t0 = Date.now();
+    function tick() {
+      const p = Math.min((Date.now() - t0) / dur, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      if (num) num.textContent = Math.floor(e * score);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ── GATE FORM ── */
+  function handleGate() {
+    const nameEl  = document.getElementById('f-name');
+    const emailEl = document.getElementById('f-email');
+    const errN    = document.getElementById('err-name');
+    const errE    = document.getElementById('err-email');
+    const btn     = document.getElementById('gate-btn');
+
+    [nameEl, emailEl].forEach(el => el.classList.remove('err'));
+    [errN, errE].forEach(el => el.classList.remove('show'));
+
+    let ok = true;
+    if (!nameEl.value.trim()) { nameEl.classList.add('err'); errN.classList.add('show'); ok = false; }
+    const ev = emailEl.value.trim();
+    if (!ev || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) { emailEl.classList.add('err'); errE.classList.add('show'); ok = false; }
+    if (!document.getElementById('consent-check').checked) {
+      document.getElementById('consent-err').classList.add('show');
+      ok = false;
+    }
+    if (!ok) return;
+
+    const cfToken = document.querySelector('[name="cf-turnstile-response"]')?.value || '';
+    if (!cfToken) {
+      errE.textContent = 'Please complete the security check.';
+      errE.classList.add('show');
+      return;
+    }
+
+    enteredEmail = ev;
+    btn.innerHTML = '<span class="spinner"></span>SENDING...';
+    btn.disabled  = true;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'report_requested', language: selectedLang, page_url: enteredUrl });
+
+    fetch(API_REPORT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name:    nameEl.value.trim(),
+        email:   ev,
+        phone:   (document.getElementById('f-phone') || {}).value || '',
+        url:     enteredUrl,
+        report:  apiResult,
+        cfToken,
+        lang:    selectedLang,
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        btn.innerHTML = 'SEND ME THE FULL REPORT &rarr;';
+        btn.disabled  = false;
+        errE.textContent = data.error;
+        errE.classList.add('show');
+        if (window.turnstile) turnstile.reset();
+      } else {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'report_sent', score: apiResult?.score, language: selectedLang, page_url: enteredUrl });
+        document.getElementById('gate-form').classList.add('hidden');
+        document.getElementById('success-wrap').classList.remove('hidden');
+        document.getElementById('success-msg').textContent =
+          'Check your inbox at ' + enteredEmail + '. Your full WCAG report is on its way.';
+        // v2: show full report in tabs
+        renderFullReport(apiResult);
+      }
+    })
+    .catch(() => {
+      btn.innerHTML = 'SEND ME THE FULL REPORT &rarr;';
+      btn.disabled  = false;
+      errE.textContent = 'Could not send. Please try again.';
+      errE.classList.add('show');
+      if (window.turnstile) turnstile.reset();
+    });
+  }
+
+  /* ── v2: FULL REPORT TABS ── */
+  function derivePassedChecks(issues) {
+    const failed = new Set((issues || []).map(i => i.wcag));
+    return V2_CHECKS.filter(c => !failed.has(c.wcag));
+  }
+
+  function switchTab(name) {
+    ['critical', 'improve', 'passed', 'lighthouse', 'manual'].forEach(t => {
+      const panel = document.getElementById('tab-' + t);
+      const btn   = document.getElementById('tab-btn-' + t);
+      if (panel) panel.classList.toggle('active', t === name);
+      if (btn) {
+        btn.classList.toggle('active', t === name);
+        btn.setAttribute('aria-selected', t === name ? 'true' : 'false');
+      }
+    });
+  }
+
+  function populateCriticalTab(data) {
+    const issues = (data.issues || []).filter(i => i.severity === 'critical');
+    const el = document.getElementById('issues-critical');
+    el.innerHTML = issues.length
+      ? '<div style="padding:8px 0">' + issues.map(issueCardHTML).join('') + '</div>'
+      : '<p style="color:#388e3c;padding:24px 0;font-size:14px">✓ No critical issues found. Great work!</p>';
+  }
+
+  function populateImproveTab(data) {
+    const issues = (data.issues || []).filter(i => i.severity === 'serious' || i.severity === 'moderate');
+    const el = document.getElementById('issues-improve');
+    el.innerHTML = issues.length
+      ? '<div style="padding:8px 0">' + issues.map(issueCardHTML).join('') + '</div>'
+      : '<p style="color:#388e3c;padding:24px 0;font-size:14px">✓ No improvement issues found.</p>';
+  }
+
+  function populatePassedTab(data) {
+    const passed = derivePassedChecks(data.issues || []);
+    const el = document.getElementById('passed-grid');
+
+    if (!passed.length) {
+      el.innerHTML = '<p style="color:var(--mid);padding:16px 0;font-size:14px">No passed checks — all criteria had issues.</p>';
+      document.getElementById('tcp').textContent = '0';
+      return;
+    }
+
+    // Group checks by category
+    const grouped = {};
+    passed.forEach(c => {
+      const gk = CHECK_GROUPS[c.id] || 'technical';
+      if (!grouped[gk]) grouped[gk] = [];
+      grouped[gk].push(c);
+    });
+
+    const ORDER = ['navigation', 'content', 'forms', 'keyboard', 'visual', 'technical'];
+    let html = '';
+    ORDER.forEach(gk => {
+      const checks = grouped[gk];
+      if (!checks || !checks.length) return;
+      html += `<div class="passed-group">
+        <div class="passed-group-hdr">
+          <span class="passed-group-lbl">${escHtml(GROUPS[gk])}</span>
+          <span class="passed-group-count">${checks.length} passed</span>
+        </div>
+        ${checks.map(c => `<div class="passed-item">
+          <span class="passed-ok" aria-hidden="true">&#10003;</span>
+          <div style="flex:1;min-width:0">
+            <p class="passed-name">${escHtml(c.name)}</p>
+            <p class="passed-wcag">WCAG ${escHtml(c.wcag)} · Level ${escHtml(c.level)}</p>
+          </div>
+        </div>`).join('')}
+      </div>`;
+    });
+
+    el.innerHTML = html;
+    document.getElementById('tcp').textContent = passed.length;
+  }
+
+  function populateLighthouseTab(data) {
+    const lh  = data.lighthouse;
+    const el  = document.getElementById('lh-content');
+    const sh  = document.querySelector('#tab-lighthouse .tab-sh');
+
+    if (!lh) {
+      if (sh) sh.textContent = '◇  GOOGLE LIGHTHOUSE — ACCESSIBILITY';
+      el.innerHTML = `
+        <div style="background:#f8f8f8;border:1px solid #e8e8e8;padding:24px 20px;margin-top:16px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#000;margin:0 0 10px;">Lighthouse Audit Unavailable</p>
+          <p style="font-size:13px;color:#555;line-height:1.65;margin:0 0 8px;">Google Lighthouse could not run for this scan. This typically happens when the Chrome audit service is temporarily unavailable on the server.</p>
+          <p style="font-size:13px;color:#555;line-height:1.65;margin:0;">Your emailed report includes Lighthouse results when the service is operational. Try scanning again, or check your inbox for the full report.</p>
+        </div>`;
+      document.getElementById('tlh').textContent = '—';
+      return;
+    }
+
+    const lhColor = lh.lhScore >= 90 ? '#388e3c' : lh.lhScore >= 50 ? '#c17f00' : '#c62828';
+    if (sh) {
+      sh.textContent = '\u25c7  GOOGLE LIGHTHOUSE \u2014 ACCESSIBILITY';
+      sh.insertAdjacentHTML('beforeend',
+        `&nbsp;<span style="color:${lhColor};font-weight:900">${lh.lhScore}/100</span>`);
+    }
+    document.getElementById('tlh').textContent = lh.lhScore;
+
+    const failing = lh.failing || [];
+    const rows = failing.map(f => {
+      const cls = f.impact === 'serious' ? 'lh-cs' : f.impact === 'moderate' ? 'lh-cm' : 'lh-cn';
+      const lbl = f.impact ? (f.impact[0].toUpperCase() + f.impact.slice(1)) : 'Minor';
+      return `<div class="lh-row">
+        <span class="lh-chip ${cls}">${lbl}</span>
+        <div>
+          <p class="lh-t">${escHtml(f.title)}</p>
+          <p class="lh-d">${escHtml(f.description)}</p>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Format timestamp as "YYYY-MM-DD HH:MM UTC"
+    let ts = 'Unknown';
+    if (lh.runAt) {
+      const d = new Date(lh.runAt);
+      ts = d.getUTCFullYear() + '-' +
+           String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
+           String(d.getUTCDate()).padStart(2, '0') + ' ' +
+           String(d.getUTCHours()).padStart(2, '0') + ':' +
+           String(d.getUTCMinutes()).padStart(2, '0') + ' UTC';
+    }
+
+    el.innerHTML =
+      (rows || '<p style="color:#388e3c;padding:20px 0;font-size:14px">&#10003; No Lighthouse violations detected.</p>') +
+      `<p class="lh-ft">Google Lighthouse \u00b7 ${escHtml(ts)}</p>`;
+  }
+
+  function renderFullReport(data) {
+    // Make right column scrollable
+    document.getElementById('col-right').classList.add('report-expanded');
+
+    // Swap preview → full report
+    document.getElementById('issues-preview-section').style.display = 'none';
+    document.getElementById('full-report').classList.remove('hidden');
+
+    // Update badge counts
+    const crit = (data.issues || []).filter(i => i.severity === 'critical').length;
+    const impr = (data.issues || []).filter(i => i.severity === 'serious' || i.severity === 'moderate').length;
+    document.getElementById('tcc').textContent = crit;
+    document.getElementById('tci').textContent = impr;
+
+    // Populate all tabs
+    populateCriticalTab(data);
+    populateImproveTab(data);
+    populatePassedTab(data);
+    populateLighthouseTab(data);
+
+    // Open first tab with content
+    if (crit > 0)     switchTab('critical');
+    else if (impr > 0) switchTab('improve');
+    else               switchTab('passed');
+
+    // Scroll to full report
+    setTimeout(() => {
+      document.getElementById('full-report').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  }
+
+  /* ── CONSENT ── */
+  function handleConsentChange() {
+    const checked = document.getElementById('consent-check').checked;
+    const btn = document.getElementById('gate-btn');
+    btn.disabled = !checked;
+    btn.setAttribute('aria-disabled', !checked);
+    if (checked) document.getElementById('consent-err').classList.remove('show');
+  }
+
+  let consentTipOpen = false;
+  function toggleConsentTip(e) {
+    e.stopPropagation();
+    const tip = document.getElementById('consent-tooltip');
+    const btn = document.getElementById('consent-info-btn');
+    consentTipOpen = !consentTipOpen;
+    tip.style.display = consentTipOpen ? 'block' : '';
+    btn.setAttribute('aria-expanded', consentTipOpen);
+  }
+  document.addEventListener('click', () => {
+    if (!consentTipOpen) return;
+    document.getElementById('consent-tooltip').style.display = '';
+    document.getElementById('consent-info-btn').setAttribute('aria-expanded', 'false');
+    consentTipOpen = false;
+  });
+
+  /* ── RESET ── */
+  function resetToInput() {
+    document.getElementById('url-input').value = '';
+    document.getElementById('url-err').classList.remove('show', 'info');
+    document.getElementById('url-input').classList.remove('err');
+    const cc = document.getElementById('consent-check');
+    if (cc) cc.checked = false;
+    const gb = document.getElementById('gate-btn');
+    if (gb) { gb.disabled = true; gb.setAttribute('aria-disabled', 'true'); }
+    document.getElementById('consent-err').classList.remove('show');
+    apiResult = null;
+
+    // v2: reset expanded state
+    document.getElementById('col-right').classList.remove('report-expanded');
+    document.getElementById('full-report').classList.add('hidden');
+    document.getElementById('issues-preview-section').style.display = '';
+
+    document.getElementById('gate-form').classList.remove('hidden');
+    document.getElementById('success-wrap').classList.add('hidden');
+    showLeftState(STATES.INPUT);
+  }
+
+  /* ── TERMINAL ── */
+  let termActive  = true;
+  let termTimeout = null;
+  let termFlicker = null;
+
+  function createMiniCard({ score, conf, site }) {
+    const r = 18, circ = 2 * Math.PI * r;
+    let colour, label;
+    if      (conf === 'pass') { colour = '#388e3c'; label = 'PASSED';  }
+    else if (conf === 'mid')  { colour = '#c17f00'; label = 'IMPROVE'; }
+    else                      { colour = '#c62828'; label = 'FAILED';  }
+    const offset = circ * (1 - score / 100);
+    const wrap = document.createElement('div');
+    wrap.className = 'mini-hub';
+    wrap.innerHTML =
+      '<svg width="44" height="44" viewBox="0 0 44 44">' +
+        '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="3"/>' +
+        '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="' + colour + '" stroke-width="3"' +
+          ' stroke-dasharray="' + circ.toFixed(2) + '" stroke-dashoffset="' + offset.toFixed(2) + '"' +
+          ' stroke-linecap="round" transform="rotate(-90 22 22)"/>' +
+        '<text x="22" y="26" text-anchor="middle" font-family="\'Courier New\',monospace"' +
+          ' font-size="10" font-weight="700" fill="rgba(0,0,0,.52)">' + score + '</text>' +
+      '</svg>' +
+      '<div class="mini-meta">' +
+        '<span class="mini-site">' + site + '</span>' +
+        '<span class="mini-badge" style="background:' + colour + '">' + label + '</span>' +
+      '</div>';
+    return wrap;
+  }
+
+  const TYPE_SPEED = {
+    head: 16, meta: 5, fail: 11, done: 11, rule: 2, section: 11,
+    viol: 9, body: 5, fix: 7, mod: 9, cmd: 14, init: 5, bar: 2,
+    chkf: 7, chko: 7, chkw: 7
+  };
+
+  function runTerminal() {
+    const out = document.getElementById('term-lines');
+    let li = 0;
+
+    function typeIn(el, text, c) {
+      let ci = 0;
+      const spd = TYPE_SPEED[c] || 7;
+      function tick() {
+        if (!termActive) return;
+        el.textContent = text.slice(0, ++ci);
+        if (ci < text.length) {
+          termTimeout = setTimeout(tick, spd + (Math.random() * spd * 0.5 | 0));
+        } else {
+          termTimeout = setTimeout(next, 18 + (Math.random() * 18 | 0));
+        }
+      }
+      tick();
+    }
+
+    function next() {
+      if (!termActive) return;
+      if (li >= TERM_LINES.length) li = 0;
+      const entry = TERM_LINES[li++];
+      if (entry.c === 'score-card') {
+        const el = createMiniCard(entry);
+        out.appendChild(el);
+        if (out.children.length > 56) out.removeChild(out.firstChild);
+        requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+        termTimeout = setTimeout(next, 320);
+        return;
+      }
+      const { t, c } = entry;
+      const el = document.createElement('div');
+      el.className = 'tl tl-' + c;
+      out.appendChild(el);
+      if (out.children.length > 56) out.removeChild(out.firstChild);
+      if (c === 'gap') {
+        el.textContent = '\u00a0';
+        termTimeout = setTimeout(next, 28);
+        return;
+      }
+      typeIn(el, t || '\u00a0', c);
+    }
+
+    next();
+  }
+
+  function stopTerminal() {
+    termActive = false;
+    clearTimeout(termTimeout);
+    clearInterval(termFlicker);
+  }
+
+  /* ── INIT ── */
+  showLeftState(STATES.INPUT);
+  runTerminal();
+</script>
+</body>
+</html>

@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-T42T7FGV');</script>
+  <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Free WCAG 2.2 Accessibility Score — Devies</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -110,6 +118,7 @@
     .url-field.err { border-color: #e53935; }
     .url-err { font-size: 12px; color: #e53935; display: none; padding: 5px 0 10px; }
     .url-err.show { display: block; }
+    .url-err.info { color: #007396; }
     .scan-note {
       font-size: 11px; color: rgba(0,0,0,.35);
       text-align: center; margin-top: 12px; letter-spacing: 0.05em;
@@ -207,6 +216,43 @@
     .f-err.show { display: block; }
     .gate-note { font-size: 12px; color: #999; text-align: center; margin-top: 12px; }
 
+    /* ── CONSENT ── */
+    .consent-wrap {
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px solid rgba(0,0,0,.08);
+    }
+    .consent-row {
+      display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
+    }
+    .consent-check {
+      width: 15px; height: 15px; flex-shrink: 0; margin-top: 2px;
+      accent-color: var(--black); cursor: pointer;
+    }
+    .consent-label {
+      font-size: 12px; color: var(--mid); line-height: 1.55; cursor: pointer;
+    }
+    .consent-disclaimer-row {
+      display: flex; align-items: flex-start; gap: 6px;
+    }
+    .consent-disclaimer {
+      font-size: 11px; color: rgba(0,0,0,.38); line-height: 1.6; flex: 1;
+    }
+    .consent-err {
+      font-size: 12px; color: var(--red); margin-top: 5px; display: none;
+    }
+    .consent-err.show { display: block; }
+
+    /* Upward tooltip variant for bottom-of-form placements */
+    .info-tip-up {
+      top: auto !important; bottom: calc(100% + 8px); left: auto !important; right: 0;
+    }
+
+    /* Disabled button */
+    .btn:disabled {
+      background: #c8c8c8; border-color: #c8c8c8; color: #fff;
+      cursor: not-allowed; opacity: 1;
+    }
+
     /* ── SUCCESS ── */
     .success-check {
       width: 56px; height: 56px; background: var(--black); color: var(--white);
@@ -216,10 +262,67 @@
     .success-title { font-size: 28px; font-weight: 700; }
     .success-body { font-size: 15px; color: var(--mid); line-height: 1.65; margin-bottom: 24px; }
     .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    .collapse-toggle {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: none; border: none; cursor: pointer;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #888; padding: 6px 0 2px; font-family: inherit;
+      transition: color .15s;
+    }
+    .collapse-toggle:hover { color: #333; }
+    .collapse-toggle svg { transition: transform .25s ease; flex-shrink: 0; }
+    .collapse-toggle.open svg { transform: rotate(180deg); }
+    .collapse-body {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .3s ease, opacity .3s ease;
+      opacity: 0;
+    }
+    .collapse-body.open { max-height: 200px; opacity: 1; }
+    /* ── RESULTS CTA OVERLAY ── */
+    #results-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+      background: rgba(255,255,255,0.18);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .4s ease;
+    }
+    #results-overlay.visible { opacity: 1; pointer-events: all; }
+
+    /* ── MOBILE CTA — shown below success message on small screens ── */
+    #mobile-cta { display: none; margin-top: 24px; }
+    @media (max-width: 768px) {
+      #results-overlay { display: none !important; }
+      #mobile-cta { display: block; }
+    }
+    .overlay-card {
+      background: #0d0c11;
+      padding: 32px 36px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 28px 72px rgba(0,0,0,.42);
+    }
+
     .cta-dark { background: var(--black); padding: 28px; }
     .cta-dark .eyebrow { color: rgba(255,255,255,.38); margin-bottom: 10px; }
     .cta-title { font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 10px; line-height: 1.25; }
     .cta-body { font-size: 14px; color: rgba(255,255,255,.62); line-height: 1.65; margin-bottom: 20px; }
+    .cta-avatar-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .cta-avatar {
+      width: 52px; height: 52px; border-radius: 50%; object-fit: cover; object-position: top center;
+      flex-shrink: 0; border: 2px solid rgba(255,255,255,.18);
+    }
+    .cta-avatar-name { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+    .cta-avatar-role { font-size: 11px; color: rgba(255,255,255,.45); letter-spacing: 0.02em; }
 
     /* ── STATE 4 · ERROR ── */
     #s-error {
@@ -337,11 +440,69 @@
       text-transform: uppercase; color: var(--black);
     }
     .conf-badge {
-      display: inline-block; background: var(--black); color: var(--white);
-      font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
-      text-transform: uppercase; padding: 7px 16px; border-radius: 2px;
+      display: inline-block; align-self: flex-start; background: var(--black); color: var(--white);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 5px 12px;
     }
     .scanned-lbl { font-size: 18px; font-weight: 700; color: var(--black); }
+
+    /* ── KPI CARDS ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 20px 24px 12px;
+    }
+    .kpi-card {
+      border: 1px solid var(--border);
+      padding: 16px 16px 14px;
+      transition: box-shadow .2s ease, transform .18s ease;
+      cursor: default;
+    }
+    .kpi-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,.08);
+      transform: translateY(-2px);
+    }
+    .kpi-lbl {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: rgba(0,0,0,.35);
+      margin: 0 0 12px; line-height: 1;
+    }
+    /* Card 1 — Score donut */
+    .kpi-donut-wrap  { position: relative; display: inline-block; flex-shrink: 0; }
+    .kpi-donut-svg   { transform: rotate(-90deg); display: block; }
+    .kpi-donut-inner {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .kpi-score-num  { font-size: 32px; font-weight: 700; color: var(--black); line-height: 1; }
+    .kpi-score-meta { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .kpi-helper {
+      font-size: 12px; color: var(--mid); line-height: 1.55; margin: 0;
+      padding: 8px 10px; background: #f8f8f8; border-left: 3px solid #d0d0d0;
+    }
+    /* Card 2 — Risk */
+    .kpi-risk-top    { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+    .kpi-risk-icon   { font-size: 14px; line-height: 1; }
+    .kpi-risk-text   { font-size: 11px; font-weight: 700; letter-spacing: 0.02em; }
+    .kpi-risk-bar    { display: flex; gap: 3px; height: 6px; margin-bottom: 4px; }
+    .kpi-risk-seg    { flex: 1; background: #e8e8e8; border-radius: 1px; }
+    .kpi-risk-labels { display: flex; justify-content: space-between; font-size: 9px; color: rgba(0,0,0,.32); margin-bottom: 8px; }
+    .kpi-risk-desc   { font-size: 11px; color: var(--mid); line-height: 1.55; margin: 0; }
+    /* Card 3 — Criteria */
+    .kpi-crit-row  { display: flex; align-items: center; gap: 7px; padding: 6px 0; border-bottom: 1px solid #f5f5f5; }
+    .kpi-crit-row:last-child { border-bottom: none; }
+    .kpi-crit-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .kpi-crit-name { font-size: 12px; color: var(--black); flex: 1; }
+    .kpi-crit-val  { font-size: 10px; font-weight: 700; color: #fff; background: var(--black); padding: 2px 7px; min-width: 24px; text-align: center; }
+    /* Card 4 — Pages */
+    .kpi-pages-num    { font-size: 40px; font-weight: 700; line-height: 1; color: var(--black); margin: 6px 0 2px; }
+    .kpi-pages-sub    { font-size: 12px; font-weight: 600; color: var(--black); margin: 0; }
+    .kpi-pages-domain { font-size: 15px; color: var(--mid); margin: 4px 0 0; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .kpi-pages-note   { font-size: 12px; color: var(--mid); margin: 2px 0 0; }
+    @media (max-width: 840px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
 
     /* Issues section */
     .issues-section { padding: 40px 56px; flex: 1; }
@@ -371,9 +532,9 @@
     }
 
     .locked-wrap { position: relative; margin-top: 8px; }
-    .locked-blur { filter: blur(5px); pointer-events: none; user-select: none; }
+    .locked-blur { filter: blur(2px); pointer-events: none; user-select: none; }
     .locked-overlay {
-      position: absolute; inset: 0; background: rgba(255,255,255,.82);
+      position: absolute; inset: 0; background: rgba(255,255,255,.20);
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; text-align: center; gap: 8px;
     }
@@ -421,6 +582,15 @@
     @media (min-width: 1200px) {
       .hero-title { font-size: 42px; }
     }
+    .lang-toggle { display:flex; gap:0; margin-top:2px; }
+    .lang-opt {
+      flex:1; padding:9px 0; border:1px solid #d0d0d0; background:#fff;
+      font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+      color:#666; cursor:pointer; transition:background .15s,color .15s,border-color .15s;
+    }
+    .lang-opt:first-child { border-right:none; }
+    .lang-opt.lang-active { background:#0d0c11; color:#fff; border-color:#0d0c11; }
+    .lang-opt:hover:not(.lang-active) { background:#f4f4f4; }
     @media (min-width: 901px) {
       .form-rows   { grid-template-columns: 1fr 1fr; }
       .field-phone { grid-column: 1 / -1; }
@@ -451,6 +621,10 @@
   </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T42T7FGV"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <div id="layout">
 
@@ -466,8 +640,8 @@
         </span>
         &nbsp;·&nbsp; WCAG 2.2
       </span>
-      <h1 class="hero-title">Does Your Website<br>Pass WCAG&nbsp;2.2?</h1>
-      <p class="hero-sub">Get an instant accessibility score and find out if your website exposes you to legal risk.</p>
+      <h1 class="hero-title">Does Your Webpage<br>Pass WCAG&nbsp;2.2?</h1>
+      <p class="hero-sub">Get an instant accessibility score and find out if your webpage exposes you to legal risk.</p>
       <ul class="check-list">
         <li>Free accessibility analysis — no hidden costs</li>
         <li>See your critical WCAG issues instantly</li>
@@ -500,9 +674,9 @@
       <div class="input-group">
         <input type="url" id="url-input" class="url-field"
           placeholder="https://yourwebsite.com" autocomplete="url" spellcheck="false">
-        <div class="url-err" id="url-err">Enter your website address</div>
+        <div class="url-err" id="url-err">Enter a webpage address</div>
         <button class="btn" id="scan-btn" onclick="handleScan()" style="width:100%;margin-top:4px;">
-          Scan my website &rarr;
+          Scan my webpage &rarr;
         </button>
         <p class="scan-note" style="font-size:10px;color:rgba(0,0,0,.32);text-align:left;margin-top:10px;line-height:1.6;letter-spacing:0;">Results are automatically generated by the Devies Digital Core ML Agent in accordance with WCAG 2.2. Note that a complete accessibility audit requires supplementary manual testing.</p>
       </div>
@@ -511,7 +685,7 @@
     <!-- STATE 2 · LOADING -->
     <div id="s-loading" class="lstate">
       <div class="load-pct" id="load-pct">0%</div>
-      <div class="load-msg" id="load-msg">Connecting to your website...</div>
+      <div class="load-msg" id="load-msg">Connecting to your webpage...</div>
       <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
     </div>
 
@@ -526,24 +700,59 @@
           <div class="form-rows">
             <div class="f-group">
               <label class="f-label" for="f-name">Full name *</label>
-              <input type="text" id="f-name" class="f-ctrl" placeholder="Jane Smith" autocomplete="name">
+              <input type="text" id="f-name" class="f-ctrl" placeholder="Anna Lindqvist" autocomplete="name">
               <span class="f-err" id="err-name">Enter your name</span>
             </div>
             <div class="f-group">
               <label class="f-label" for="f-email">Email address *</label>
-              <input type="email" id="f-email" class="f-ctrl" placeholder="jane@company.com" autocomplete="email">
+              <input type="email" id="f-email" class="f-ctrl" placeholder="anna@foretag.se" autocomplete="email">
               <span class="f-err" id="err-email">Enter a valid email address</span>
             </div>
             <div class="f-group field-phone">
               <label class="f-label" for="f-phone">Phone (optional)</label>
-              <input type="tel" id="f-phone" class="f-ctrl" placeholder="+1 555 000 0000" autocomplete="tel">
+              <input type="tel" id="f-phone" class="f-ctrl" placeholder="+46 70 000 00 00" autocomplete="tel">
+            </div>
+            <div class="f-group field-phone">
+              <label class="f-label">Report Language</label>
+              <div class="lang-toggle" role="group" aria-label="Report language">
+                <button type="button" class="lang-opt lang-active" id="lang-en" onclick="setReportLang('en')" aria-pressed="true">EN</button>
+                <button type="button" class="lang-opt" id="lang-sv" onclick="setReportLang('sv')" aria-pressed="false">SWE</button>
+              </div>
             </div>
           </div>
-          <div class="cf-turnstile" data-sitekey="0x4AAAAAACjeDLXlIdRgIhsC" style="margin-bottom:12px;"></div>
-          <button class="btn" id="gate-btn" onclick="handleGate()" style="width:100%;">
+          <div class="consent-wrap">
+            <div class="consent-row">
+              <input type="checkbox" id="consent-check" class="consent-check"
+                onchange="handleConsentChange()"
+                aria-required="true"
+                aria-describedby="consent-err consent-tooltip">
+              <label for="consent-check" class="consent-label">
+                I agree that my information is used to generate and send my accessibility report and offers related to UX and accessibility from Devies.
+              </label>
+            </div>
+            <span class="consent-err" id="consent-err" role="alert">Please confirm consent to continue.</span>
+            <div class="consent-disclaimer-row">
+              <p class="consent-disclaimer">
+                We respect your privacy. Your information is used only to deliver your report and relevant follow-up related to accessibility and UX services.
+              </p>
+              <span class="info-wrap" style="flex-shrink:0;margin-top:1px;">
+                <button class="info-btn" id="consent-info-btn"
+                  aria-label="Full privacy details"
+                  aria-expanded="false"
+                  aria-controls="consent-tooltip"
+                  onclick="toggleConsentTip(event)">ⓘ</button>
+                <span class="info-tip info-tip-up" role="tooltip" id="consent-tooltip" style="width:280px;">
+                  Devies processes your contact information to provide the requested report and, where relevant, to offer guidance related to accessibility and user experience improvements. We do not sell your data to third parties. Information is stored securely and retained only as long as necessary for communication and service purposes. You may request deletion of your data at any time by contacting&nbsp;us.
+                </span>
+              </span>
+            </div>
+          </div>
+
+          <button class="btn" id="gate-btn" onclick="handleGate()" style="width:100%;" disabled aria-disabled="true">
             SEND ME THE FULL REPORT &rarr;
           </button>
-          <p class="gate-note">Sent within seconds. Never spam.</p>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAACjeDLXlIdRgIhsC" style="margin-top:12px;"></div>
+
         </div>
 
         <div id="success-wrap" class="hidden">
@@ -555,26 +764,36 @@
             Check your inbox. Your full WCAG report is on its way.
           </p>
           <hr class="divider">
-          <div style="background:#f8f8f8;border-left:3px solid #000;padding:18px 20px;margin-bottom:24px;">
-            <p style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#000;margin:0 0 8px;">Important: AI Findings Should Be Validated</p>
+          <div style="background:#f8f8f8;border-left:3px solid #000;padding:18px 20px;">
+            <p style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#000;margin:0 0 10px;">Important: AI Findings Should Be Validated</p>
             <p style="font-size:13px;color:#555;line-height:1.65;margin:0 0 8px;">Automated analysis is a powerful first step — but accessibility compliance ultimately requires human expertise.</p>
             <p style="font-size:13px;color:#555;line-height:1.65;margin:0 0 8px;">Some issues require manual testing, user experience evaluation, and expert judgment to confirm severity and compliance level.</p>
             <p style="font-size:13px;color:#555;line-height:1.65;margin:0;">Our accessibility specialists can review, validate, and help you implement the fixes so your product meets real-world accessibility standards.</p>
           </div>
-          <div class="cta-dark">
+
+          <!-- MOBILE CTA: shown below success message on small screens only -->
+          <div id="mobile-cta" class="cta-dark">
             <span class="eyebrow">WANT EXPERT HELP?</span>
+            <div class="cta-avatar-row">
+              <img src="avatar.png" class="cta-avatar" alt="Alexander Zakabluk">
+              <div>
+                <p class="cta-avatar-name">Alexander Zakabluk</p>
+                <p class="cta-avatar-role">UX/UI &amp; Accessibility Specialist | Devies</p>
+              </div>
+            </div>
             <h3 class="cta-title">Book a Free 30-Min WCAG Consultation</h3>
-            <p class="cta-body">Our team has helped 50+ companies fix accessibility issues and pass WCAG audits.</p>
-            <a href="mailto:hello@devies.se" class="btn btn-inv">BOOK FREE CALL &rarr;</a>
+            <p class="cta-body">Our team has helped 50+ companies fix accessibility issues and pass WCAG audits. Let's build on your report together.</p>
+            <a href="https://calendly.com/alexander-zakabluk-devies/30min" target="_blank" rel="noopener" class="btn btn-inv" onclick="window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'cta_clicked',location:'mobile_cta'})">BOOK FREE CALL &rarr;</a>
           </div>
+
         </div>
       </div>
     </div>
 
     <!-- STATE 4 · ERROR -->
     <div id="s-error" class="lstate">
-      <h2 class="err-title">Hmm, we couldn't reach that URL</h2>
-      <p class="err-body" id="err-body">Make sure the website is publicly accessible and try again.</p>
+      <h2 class="err-title" id="err-title">Hmm, we couldn't reach that URL</h2>
+      <p class="err-body" id="err-body">Make sure the webpage is publicly accessible and try again.</p>
       <button class="btn" onclick="resetToInput()" style="max-width:240px;">TRY AGAIN &rarr;</button>
     </div>
 
@@ -592,28 +811,87 @@
     <!-- RESULTS: Shown after scan completes -->
     <div id="r-results" class="hidden">
 
-      <div class="score-hub">
-        <div class="circ-wrap">
-          <svg class="circ-svg" width="160" height="160" viewBox="0 0 160 160" aria-hidden="true">
-            <circle cx="80" cy="80" r="68" fill="none" stroke="#ececec" stroke-width="8"/>
-            <circle id="score-arc"
-              cx="80" cy="80" r="68"
-              fill="none" stroke="#d32f2f" stroke-width="8"
-              stroke-dasharray="427.26" stroke-dashoffset="427.26"
-              stroke-linecap="butt"
-              style="transition: stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1), stroke .3s ease;"/>
-          </svg>
-          <div class="circ-text">
-            <span class="circ-num" id="score-num">0</span>
-            <span class="circ-denom">/100</span>
+      <div class="kpi-grid">
+
+        <!-- Card 1: Accessibility Score -->
+        <div class="kpi-card">
+          <p class="kpi-lbl">ACCESSIBILITY SCORE</p>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+            <div class="kpi-donut-wrap">
+              <svg class="kpi-donut-svg" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#ececec" stroke-width="8"/>
+                <circle id="kpi-arc" cx="60" cy="60" r="50" fill="none" stroke="#d32f2f" stroke-width="8"
+                  stroke-dasharray="314.16" stroke-dashoffset="314.16" stroke-linecap="butt"
+                  style="transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1),stroke .3s ease"/>
+              </svg>
+              <div class="kpi-donut-inner" style="flex-direction:column;gap:2px">
+                <span id="kpi-score-num" class="kpi-score-num">0</span>
+                <span style="font-size:10px;color:rgba(0,0,0,.35);font-weight:700;letter-spacing:0.06em">/100</span>
+              </div>
+            </div>
+            <div class="kpi-score-meta">
+              <span class="conf-badge" id="conf-badge">FAILED</span>
+              <p id="kpi-helper" class="kpi-helper"></p>
+            </div>
+          </div>
+          <p style="font-size:10px;color:rgba(0,0,0,.38);line-height:1.6;margin:0;letter-spacing:0.01em">
+            Score based on 32 automated WCAG&nbsp;2.2 checks.
+            <strong style="color:rgba(0,0,0,.55)">0</strong> = fully non-conformant &middot;
+            <strong style="color:rgba(0,0,0,.55)">100</strong> = all criteria pass.
+          </p>
+        </div>
+
+        <!-- Card 2: Lawsuit Risk -->
+        <div class="kpi-card">
+          <p class="kpi-lbl">COMPLIANCE RISK</p>
+          <div class="kpi-risk-top">
+            <span class="kpi-risk-icon" id="kpi-risk-icon">⚠</span>
+            <span class="kpi-risk-text" id="kpi-risk-text">—</span>
+          </div>
+          <div class="kpi-risk-bar">
+            <div class="kpi-risk-seg" id="kpi-seg-0"></div>
+            <div class="kpi-risk-seg" id="kpi-seg-1"></div>
+            <div class="kpi-risk-seg" id="kpi-seg-2"></div>
+          </div>
+          <div class="kpi-risk-labels"><span>Low</span><span>Medium</span><span>High</span></div>
+          <p class="kpi-risk-desc" id="kpi-risk-desc"></p>
+        </div>
+
+        <!-- Card 3: WCAG 2.2 Criteria -->
+        <div class="kpi-card">
+          <p class="kpi-lbl">WCAG 2.2 CRITERIA</p>
+          <div class="kpi-crit-row">
+            <span class="kpi-crit-dot" style="background:#c62828"></span>
+            <span class="kpi-crit-name">Critical issues</span>
+            <span class="kpi-crit-val" id="kpi-crit-critical">—</span>
+          </div>
+          <div class="kpi-crit-row">
+            <span class="kpi-crit-dot" style="background:#388e3c"></span>
+            <span class="kpi-crit-name">Passed checks</span>
+            <span class="kpi-crit-val" id="kpi-crit-passed">—</span>
+          </div>
+          <div class="kpi-crit-row">
+            <span class="kpi-crit-dot" style="background:#888"></span>
+            <span class="kpi-crit-name">Manual review needed</span>
+            <span class="kpi-crit-val">5</span>
+          </div>
+          <div class="kpi-crit-row">
+            <span class="kpi-crit-dot" style="background:#007396"></span>
+            <span class="kpi-crit-name">Automated checks run</span>
+            <span class="kpi-crit-val">32</span>
           </div>
         </div>
-        <div class="score-meta">
-          <p class="score-eyebrow">YOUR WCAG 2.2 SCORE</p>
-          <div><span class="conf-badge" id="conf-badge">FAILED</span></div>
-          <p class="scanned-lbl" id="scanned-lbl">Scanned: —</p>
+
+        <!-- Card 4: Scanned Pages -->
+        <div class="kpi-card">
+          <p class="kpi-lbl">SCANNED PAGES</p>
+          <p class="kpi-pages-num">1</p>
+          <p class="kpi-pages-sub">page scanned</p>
+          <p class="kpi-pages-domain" id="kpi-pages-domain"></p>
+          <p class="kpi-pages-note">out of entire domain</p>
         </div>
-      </div>
+
+      </div><!-- /.kpi-grid -->
 
       <div class="issues-section">
         <p class="section-head">ISSUES FOUND</p>
@@ -656,6 +934,23 @@
 
     </div><!-- /#r-results -->
 
+    <!-- CTA overlay — fades in with blur after report is sent -->
+    <div id="results-overlay">
+      <div class="overlay-card">
+        <span class="eyebrow" style="color:rgba(255,255,255,.38);display:block;margin-bottom:12px">WANT EXPERT HELP?</span>
+        <div class="cta-avatar-row">
+          <img src="avatar.png" class="cta-avatar" alt="Alexander Zakabluk">
+          <div>
+            <p class="cta-avatar-name">Alexander Zakabluk</p>
+            <p class="cta-avatar-role">UX/UI &amp; Accessibility Specialist | Devies</p>
+          </div>
+        </div>
+        <h3 class="cta-title">Book a Free 30-Min WCAG Consultation</h3>
+        <p class="cta-body">Our team has helped 50+ companies fix accessibility issues and pass WCAG audits. Let's build on your report together.</p>
+        <a href="https://calendly.com/alexander-zakabluk-devies/30min" target="_blank" rel="noopener" class="btn btn-inv" onclick="window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'cta_clicked',location:'overlay'})">BOOK FREE CALL &rarr;</a>
+      </div>
+    </div>
+
   </div><!-- /#col-right -->
 
 </div><!-- /#layout -->
@@ -667,10 +962,10 @@
   ═══════════════════════════════════════════════════════ */
   const API_SCAN   = 'https://wcag-production.up.railway.app/api/scan';
   const API_REPORT = 'https://wcag-production.up.railway.app/api/send-report';
-  const CIRC       = 427.26;
+  const CIRC       = 314.16; // 2π × 50 — matches kpi-arc SVG
 
   const LOAD_MSGS = [
-    'Connecting to your website...',
+    'Connecting to your webpage...',
     'Running WCAG 2.2 accessibility checks...',
     'Checking colour contrast ratios...',
     'Testing keyboard navigation...',
@@ -886,7 +1181,19 @@
   let enteredEmail  = '';
   let loadTimers    = [];
   let loadIntervals = [];
+  let loadRaf       = null;
   let apiResult     = null;
+  let selectedLang  = 'en';
+
+  function setReportLang(l) {
+    selectedLang = l;
+    document.getElementById('lang-en').classList.toggle('lang-active', l === 'en');
+    document.getElementById('lang-sv').classList.toggle('lang-active', l === 'sv');
+    document.getElementById('lang-en').setAttribute('aria-pressed', l === 'en');
+    document.getElementById('lang-sv').setAttribute('aria-pressed', l === 'sv');
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'language_selected', language: l });
+  }
 
   /* ═══════════════════════════════════════════════════════
      LEFT COLUMN STATE MACHINE
@@ -938,17 +1245,28 @@
     let url   = inp.value.trim();
 
     inp.classList.remove('err');
-    err.classList.remove('show');
+    err.classList.remove('show', 'info');
 
-    if (!url) { showUrlError('Enter your website address'); return; }
+    if (!url) { showUrlError('Enter a webpage address'); return; }
     if (!isValidUrl(url)) { showUrlError('Enter a valid URL — e.g. https://example.com'); return; }
     if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; inp.value = url; }
+    try {
+      const h = new URL(url).hostname.toLowerCase().replace(/^www\./, '');
+      if (h === 'devies.se' || h.endsWith('.devies.se')) {
+        const err = document.getElementById('url-err');
+        err.textContent = 'Nice try 🙂 We\'re already on it. Try another website.';
+        err.classList.add('show', 'info');
+        return;
+      }
+    } catch (_) {}
 
     enteredUrl = url;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'scan_started', page_url: url });
     try {
-      document.getElementById('scanned-lbl').textContent = 'Scanned: ' + new URL(url).hostname;
+      document.getElementById('kpi-pages-domain').textContent = new URL(url).hostname;
     } catch (_) {
-      document.getElementById('scanned-lbl').textContent = 'Scanned: ' + url;
+      document.getElementById('kpi-pages-domain').textContent = url;
     }
 
     showLeftState(STATES.LOADING);
@@ -977,19 +1295,20 @@
     msg.textContent       = LOAD_MSGS[0];
     msg.classList.remove('fade');
 
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      fill.style.transition = 'width 30s linear';
-      fill.style.width      = '95%';
-    }));
-
+    // Asymptotic progress: approaches 99% smoothly, never freezes.
+    // Formula: 99 * (1 - e^(-t / τ)) where τ = 24 000 ms
+    //   5 s → ~19%   15 s → ~46%   30 s → ~71%   45 s → ~84%   60 s → ~92%
+    const τ  = 24000;
     const t0 = Date.now();
-    function tickPct() {
+    if (loadRaf) cancelAnimationFrame(loadRaf);
+    function tickProgress() {
       if (currentState !== STATES.LOADING) return;
-      const p = Math.min((Date.now() - t0) / 30000, 1);
-      pct.textContent = Math.floor(p * 95) + '%';
-      if (p < 1) requestAnimationFrame(tickPct);
+      const fake = 99 * (1 - Math.exp(-(Date.now() - t0) / τ));
+      fill.style.width  = fake + '%';
+      pct.textContent   = Math.floor(fake) + '%';
+      loadRaf = requestAnimationFrame(tickProgress);
     }
-    requestAnimationFrame(tickPct);
+    loadRaf = requestAnimationFrame(tickProgress);
 
     let mi = 0;
     const cycleId = setInterval(() => {
@@ -1015,7 +1334,8 @@
       if (data.error) { showApiError(data.error); return; }
       apiResult = data;
       clearInterval(cycleId);
-      fill.style.transition = 'width 0.3s ease';
+      cancelAnimationFrame(loadRaf);
+      fill.style.transition = 'width 0.5s ease';
       fill.style.width = '100%';
       pct.textContent = '100%';
       renderResults(data);
@@ -1028,6 +1348,7 @@
     .catch(() => {
       if (currentState !== STATES.LOADING) return;
       clearInterval(cycleId);
+      cancelAnimationFrame(loadRaf);
       showApiError('Could not connect to the scanning service.');
     });
   }
@@ -1078,10 +1399,76 @@
     } else {
       lockedWrap.style.display = 'none';
     }
+
+    populateKpiCards(data);
+  }
+
+  function populateKpiCards(data) {
+    const score    = data.score || 0;
+    const issues   = data.issues || [];
+    const critical = issues.filter(i => i.severity === 'critical').length;
+    const passed   = data.passedChecks ?? Math.round(score * 32 / 100);
+    const total    = data.totalIssues || 0;
+
+    // Card 1 — helper text
+    const helperEl = document.getElementById('kpi-helper');
+    if (helperEl) {
+      if (score <= 50) {
+        helperEl.textContent = 'Score indicates high non-compliance risk under the EAA';
+        helperEl.style.borderLeftColor = '#c62828'; helperEl.style.background = '#fff5f5';
+      } else if (score <= 79) {
+        helperEl.textContent = 'Improvements needed for full WCAG 2.2 AA compliance';
+        helperEl.style.borderLeftColor = '#e65100'; helperEl.style.background = '#fff8f0';
+      } else {
+        helperEl.textContent = 'Good compliance level — minor improvements possible';
+        helperEl.style.borderLeftColor = '#388e3c'; helperEl.style.background = '#f0fdf4';
+      }
+    }
+
+    // Card 2 — compliance risk
+    const hasCrit = issues.some(i => i.severity === 'critical');
+    const hasSer  = issues.some(i => i.severity === 'serious');
+    let riskLabel, riskColor, riskDesc, segColors;
+    if (score < 50 || hasCrit) {
+      riskLabel = 'HIGH COMPLIANCE RISK'; riskColor = '#c62828';
+      riskDesc  = `${total} issue${total !== 1 ? 's' : ''} may result in non-conformance with WCAG 2.2 Level AA requirements. Applies to public sector organisations and many private sector services under European accessibility legislation. European Accessibility Act (EAA) requirements apply from 28 June 2025.`;
+      segColors = ['#e8e8e8', '#e8e8e8', '#c62828'];
+    } else if (score < 80 || hasSer) {
+      riskLabel = 'MEDIUM COMPLIANCE RISK'; riskColor = '#c17f00';
+      riskDesc  = `${total} issue${total !== 1 ? 's' : ''} found. Address serious issues to meet WCAG 2.2 Level AA requirements under the EAA.`;
+      segColors = ['#e8e8e8', '#c17f00', '#e8e8e8'];
+    } else {
+      riskLabel = 'LOW COMPLIANCE RISK'; riskColor = '#388e3c';
+      riskDesc  = 'No critical issues detected. Continued monitoring is recommended for ongoing EAA compliance.';
+      segColors = ['#388e3c', '#e8e8e8', '#e8e8e8'];
+    }
+    const riskTextEl = document.getElementById('kpi-risk-text');
+    const riskIconEl = document.getElementById('kpi-risk-icon');
+    const riskDescEl = document.getElementById('kpi-risk-desc');
+    if (riskTextEl) { riskTextEl.textContent = riskLabel; riskTextEl.style.color = riskColor; }
+    if (riskIconEl) riskIconEl.style.color = riskColor;
+    if (riskDescEl) riskDescEl.textContent = riskDesc;
+    [0, 1, 2].forEach(i => {
+      const seg = document.getElementById('kpi-seg-' + i);
+      if (seg) seg.style.background = segColors[i];
+    });
+
+    // Card 3 — criteria counts
+    const critEl = document.getElementById('kpi-crit-critical');
+    const passEl = document.getElementById('kpi-crit-passed');
+    if (critEl) critEl.textContent = critical;
+    if (passEl) passEl.textContent = passed;
   }
 
   function showApiError(msg) {
-    document.getElementById('err-body').textContent = msg || 'Something went wrong. Please try again in a moment.';
+    const m = msg || 'Something went wrong. Please try again in a moment.';
+    let title = "Hmm, we couldn't reach that URL";
+    if (/too many/i.test(m))           title = 'Slow down a moment';
+    else if (/connect|service/i.test(m)) title = 'Service unavailable';
+    else if (/invalid|unsupported/i.test(m)) title = 'Invalid URL';
+    else if (/try again/i.test(m) && !/reach/i.test(m)) title = 'Something went wrong';
+    document.getElementById('err-title').textContent = title;
+    document.getElementById('err-body').textContent = m;
     loadTimers.forEach(clearTimeout);
     loadIntervals.forEach(clearInterval);
     loadTimers = []; loadIntervals = [];
@@ -1092,30 +1479,28 @@
      SCORE ANIMATION
   ═══════════════════════════════════════════════════════ */
   function animateScore() {
-    const data   = apiResult || { score: 0, issues: [] };
-    const score  = data.score || 0;
-    const conf   = computeConformance(data.issues || []);
+    const data  = apiResult || { score: 0, issues: [] };
+    const score = data.score || 0;
+    const conf  = computeConformance(data.issues || []);
 
-    const arc   = document.getElementById('score-arc');
-    const num   = document.getElementById('score-num');
+    const arc   = document.getElementById('kpi-arc');
+    const num   = document.getElementById('kpi-score-num');
     const badge = document.getElementById('conf-badge');
 
     let colour, label;
     if      (conf === 'pass') { colour = '#388e3c'; label = 'PASSED';  }
-    else if (conf === 'mid')  { colour = '#c17f00'; label = 'IMPROVE';  }
-    else                      { colour = '#c62828'; label = 'FAILED'; }
+    else if (conf === 'mid')  { colour = '#c17f00'; label = 'IMPROVE'; }
+    else                      { colour = '#c62828'; label = 'FAILED';  }
 
-    arc.style.stroke       = colour;
-    badge.textContent      = label;
-    badge.style.background = colour;
-    arc.style.strokeDashoffset = CIRC * (1 - score / 100);
+    if (arc)   { arc.style.stroke = colour; arc.style.strokeDashoffset = CIRC * (1 - score / 100); }
+    if (badge) { badge.textContent = label; badge.style.background = colour; badge.style.color = '#fff'; }
 
     const dur = 1600;
     const t0  = Date.now();
     function tickNum() {
       const p    = Math.min((Date.now() - t0) / dur, 1);
       const ease = 1 - Math.pow(1 - p, 3);
-      num.textContent = Math.floor(ease * score);
+      if (num) num.textContent = Math.floor(ease * score);
       if (p < 1) requestAnimationFrame(tickNum);
     }
     requestAnimationFrame(tickNum);
@@ -1138,6 +1523,10 @@
     if (!nameEl.value.trim()) { nameEl.classList.add('err'); errN.classList.add('show'); ok = false; }
     const ev = emailEl.value.trim();
     if (!ev || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) { emailEl.classList.add('err'); errE.classList.add('show'); ok = false; }
+    if (!document.getElementById('consent-check').checked) {
+      document.getElementById('consent-err').classList.add('show');
+      ok = false;
+    }
 
     if (!ok) return;
 
@@ -1151,6 +1540,8 @@
     enteredEmail = ev;
     btn.innerHTML = '<span class="spinner"></span>SENDING...';
     btn.disabled  = true;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'report_requested', language: selectedLang, page_url: enteredUrl });
 
     fetch(API_REPORT, {
       method:  'POST',
@@ -1162,6 +1553,7 @@
         url:     enteredUrl,
         report:  apiResult,
         cfToken,
+        lang:    selectedLang,
       })
     })
     .then(r => r.json())
@@ -1171,11 +1563,15 @@
         btn.disabled  = false;
         errE.textContent = data.error;
         errE.classList.add('show');
+        if (window.turnstile) turnstile.reset();
       } else {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'report_sent', score: apiResult?.score, language: selectedLang, page_url: enteredUrl });
         document.getElementById('gate-form').classList.add('hidden');
         document.getElementById('success-wrap').classList.remove('hidden');
         document.getElementById('success-msg').textContent =
           'Check your inbox at ' + enteredEmail + '. Your full WCAG report is on its way.';
+        document.getElementById('results-overlay').classList.add('visible');
       }
     })
     .catch(() => {
@@ -1183,7 +1579,47 @@
       btn.disabled  = false;
       errE.textContent = 'Could not send. Please try again.';
       errE.classList.add('show');
+      if (window.turnstile) turnstile.reset();
     });
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     CONSENT
+  ═══════════════════════════════════════════════════════ */
+  function handleConsentChange() {
+    const checked = document.getElementById('consent-check').checked;
+    const btn = document.getElementById('gate-btn');
+    btn.disabled = !checked;
+    btn.setAttribute('aria-disabled', !checked);
+    if (checked) document.getElementById('consent-err').classList.remove('show');
+  }
+
+  let consentTipOpen = false;
+  function toggleConsentTip(e) {
+    e.stopPropagation();
+    const tip = document.getElementById('consent-tooltip');
+    const btn = document.getElementById('consent-info-btn');
+    consentTipOpen = !consentTipOpen;
+    tip.style.display = consentTipOpen ? 'block' : '';
+    btn.setAttribute('aria-expanded', consentTipOpen);
+  }
+  document.addEventListener('click', () => {
+    if (!consentTipOpen) return;
+    document.getElementById('consent-tooltip').style.display = '';
+    document.getElementById('consent-info-btn').setAttribute('aria-expanded', 'false');
+    consentTipOpen = false;
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     COLLAPSE
+  ═══════════════════════════════════════════════════════ */
+  function toggleCollapse() {
+    const btn  = document.getElementById('collapse-btn');
+    const body = document.getElementById('collapse-body');
+    const open = body.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open);
+    btn.childNodes[0].textContent = open ? 'SHOW LESS ' : 'READ MORE ';
   }
 
   /* ═══════════════════════════════════════════════════════
@@ -1191,9 +1627,17 @@
   ═══════════════════════════════════════════════════════ */
   function resetToInput() {
     document.getElementById('url-input').value = '';
-    document.getElementById('url-err').classList.remove('show');
+    document.getElementById('url-err').classList.remove('show', 'info');
     document.getElementById('url-input').classList.remove('err');
+    const consentCheck = document.getElementById('consent-check');
+    if (consentCheck) { consentCheck.checked = false; }
+    const gateBtn = document.getElementById('gate-btn');
+    if (gateBtn) { gateBtn.disabled = true; gateBtn.setAttribute('aria-disabled', 'true'); }
+    document.getElementById('consent-err').classList.remove('show');
     apiResult = null;
+    document.getElementById('results-overlay').classList.remove('visible');
+    document.getElementById('gate-form').classList.remove('hidden');
+    document.getElementById('success-wrap').classList.add('hidden');
     showLeftState(STATES.INPUT);
   }
 
